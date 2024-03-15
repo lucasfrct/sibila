@@ -7,7 +7,7 @@ from document import Doc
 def run():
 
     print("\n", "########## Iniciando registro de documentos ##########", "\n")
-    path = 'docs/'
+    path = 'train/'
 
     documents_names = os.listdir(path)
     documents_names_size = len(documents_names)
@@ -21,6 +21,7 @@ def run():
         
         embedding = Embedding()
         embedding.document(doc)
+        embedding.metadata_generation()
         embedding.generate()
         embedding.save()
     

@@ -4,6 +4,7 @@ import time
 import threading
 
 from embedding import Embedding
+from agent import Agent
 
 def escrever_letra_por_letra(texto, delay=0.01):
     
@@ -47,10 +48,11 @@ class bcolors:
 def run():
     
     print("\n",f"{bcolors.WARNING}Como posso ajudar hoje?{bcolors.ENDC}", "\n")
+
+    agent = Agent()
     
     for line in sys.stdin:
-        question = line
-        answer = query(question)
+        answer = agent.question(line)
         escrever_letra_por_letra(answer)
 
 if __name__ == "__main__":
