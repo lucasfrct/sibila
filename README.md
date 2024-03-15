@@ -7,3 +7,5 @@ A pasta './data' é a persistência do banco de dados
 
 ## como rodar
 ``` docker-compse up -d```
+
+<!-- https://github.com/free-educa/books/blob/main/books/Design_Patterns.pdf -->

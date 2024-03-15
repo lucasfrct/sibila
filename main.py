@@ -1,70 +1,58 @@
 import os
-from dotenv import load_dotenv
-from openai import OpenAI
-import chromadb
+import sys
+import time
+import threading
 
-load_dotenv()
+from embedding import Embedding
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-chromadb_path = "./data"
-
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
-chroma_client = chromadb.PersistentClient(path=chromadb_path)
-collection = chroma_client.get_or_create_collection(name="my_collection")
-
-prompt_template = """Você é um assistente de IA que responde as dúvidas dos usuários com bases nos documentos a baixo.
-Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
-Cite a fonte quando fornecer a informação. 
-Documentos:
-{documents}
-"""
-
-# transforma texto em vetor
-def get_embedding(text):
-    embedding = openai_client.embeddings.create(input=text, model="text-embedding-ada-002")
-    return embedding.data[0].embedding
-
-# busca um conteúdo com base na questão
-def search_document(question):
-    query_embedding = get_embedding(question)
-    results = collection.query(query_embeddings=[query_embedding], n_results=3)
-    return results
-
-# formata lista de documentos
-def format_search_result(relevant_documents):
-    formatted_list = []
+def escrever_letra_por_letra(texto, delay=0.01):
     
-    for i, doc in enumerate(relevant_documents["documents"][0]):
-        formatted_list.append("[{}]: {}".format(relevant_documents["metadatas"][0][i]["source"], doc))
+    print(f"{bcolors.OKCYAN}------------------------------------------------------------------------------------------------------------------------------------------", "\n", end='', flush=True)
+    print(f"{bcolors.BOLD}R: {bcolors.ENDC}{bcolors.OKCYAN}", end='', flush=True)
     
-    documents_str = "\n".join(formatted_list)
-    return documents_str
+    for letra in texto:
+        print(letra, end='', flush=True)
+        time.sleep(delay)
+    
+    print() 
+    print(f"{bcolors.OKCYAN}------------------------------------------------------------------------------------------------------------------------------------------{bcolors.ENDC}")
+    print("\n") 
+    
+def spinner():
+    spinner = ['|', '/', '-', '\\']
+    while True:
+        for symbol in spinner:
+            sys.stdout.write('\r' + symbol)
+            sys.stdout.flush()
+            time.sleep(0.1)
 
-# executa a IA
-def execute_llm(prompt, question):
-    """Execute a call to LLM using prompt for system and question for user message"""
-    chat_completion = openai_client.chat.completions.create(
-        messages=[
-            {"role": "system","content": f"{prompt}"},
-            {"role": "user","content": f"{question}"}
-        ],
-        model="gpt-3.5-turbo",
-        max_tokens=500,
-        temperature=0
-    )
 
-    return chat_completion.choices[0].message.content
+def query(question):
+    embedding = Embedding()
+    answer = embedding.run(question)
+    return answer
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+    
 def run():
-    question = "defina uma busca ideal?"
-
-    relevant_documents = search_document(question)
-    documents_str = format_search_result(relevant_documents)
-
-    prompt = prompt_template.format(documents=documents_str)
-
-    answer = execute_llm(prompt, question)
-    print(answer)
+    
+    print("\n",f"{bcolors.WARNING}Como posso ajudar hoje?{bcolors.ENDC}", "\n")
+    
+    for line in sys.stdin:
+        question = line
+        answer = query(question)
+        escrever_letra_por_letra(answer)
+        
 
 if __name__ == "__main__":
     run()
