@@ -52,7 +52,6 @@ def run():
         question = line
         answer = query(question)
         escrever_letra_por_letra(answer)
-        
 
 if __name__ == "__main__":
     run()
