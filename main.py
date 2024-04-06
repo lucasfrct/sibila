@@ -1,13 +1,9 @@
-import os
 import sys
-import time
-import threading
 
 from src import process
 from src.database import chromadb
 from src.display import chart
 from src.entities.agent import Agent
-
 
 sys.dont_write_bytecode = True
 
