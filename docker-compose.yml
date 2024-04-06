@@ -10,6 +10,8 @@ services:
       context: ./
       dockerfile: Dockerfile
     working_dir: /app
+    command: /bin/bash -c "python main.py;"
+    stdin_open: true
     env_file:
       - ./.env
     volumes:
@@ -25,6 +27,7 @@ services:
     image: ollama/ollama:latest
     hostname: ollama
     container_name: ollama
+    command: /bin/bash -c "ollama run llama2"
     volumes:
       - .:/code
       - ./ollama:/root/.ollama
