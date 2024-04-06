@@ -24,7 +24,7 @@ def run():
         chart(f"{model.doc.name}", model)
         print(f"    {i+1}: {model.doc.info}")
 
-    print()
+
     agent = Agent()
     
     for line in sys.stdin:

@@ -162,3 +162,7 @@ cython_debug/
 ./data
 ./docs
 ./ollama
+
+data
+docs
+ollama

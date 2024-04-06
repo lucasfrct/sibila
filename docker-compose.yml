@@ -27,7 +27,7 @@ services:
     image: ollama/ollama:latest
     hostname: ollama
     container_name: ollama
-    command: /bin/bash -c "ollama run llama2"
+    # command: ollama run llama2
     volumes:
       - .:/code
       - ./ollama:/root/.ollama
