@@ -8,6 +8,8 @@ A pasta './data' é a persistência do banco de dados vetorial
 ## como rodar
 ``` docker-compse up -d```
 
+Ao entrar no terminal, vc deve fazer perguntas sobre o livro na pasta docs.
+
 LM Studio = interface web para conversar com  o LLM
 
 huging face - Tom jobbins 
