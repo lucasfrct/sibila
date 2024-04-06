@@ -3,27 +3,28 @@ import os
 
 class Paragraph:
 
-	def __init__(self, name, page, number, content, offset_line = 0):
+	def __init__(self, doc, page, number, content):
 
+		self.page = page.number
+		self.name = doc.name
 		self.number = number
-		self.page = page
-		self.name = name
 		self.chunk = []
 		self.line = {}
 
-		self.line_start = offset_line
-		self.line_end = offset_line
+		self.line_start = doc.offset_line
+		self.line_end = doc.offset_line
 		self.size = len(content)
 		self.chunks = 0
 		self.lines = 0
 
-		ln = content.split("\n")
+		lines_raw = content.split("\n")
 
-		self.lines = len(ln)
+		self.lines = len(lines_raw)
 		self.line_end = self.line_start + self.lines
 
 		for i  in range(self.lines):
-			self.line[i] = ln[i]
+			line_number = (i + 1)
+			self.line[line_number] = lines_raw[i]
 
 		self.chunks_size = 1000
 		self.offset = 200
@@ -65,27 +66,32 @@ class Paragraph:
 		return chunks_data
 
 class Page: 
-	def __init__(self, name, number, content, offset_line = 0):
+	def __init__(self, doc, number, content):
 
 		self.number = number
+		self.name = doc.name
 		self.paragraph = {}
-		self.name = name
 
-		self.line_start = offset_line
-		self.line_end = offset_line
+		self.line_start = doc.offset_line
+		self.line_end = doc.offset_line
 		self.paragraphs = 0
 		self.chunks = 0
 		self.lines = 0
 		self.size = 0
 
-		pr = content.split("\n\n")
-		self.paragraphs = len(pr)
+		paragraph_raw = content.split("\n\n")
+		self.paragraphs = len(paragraph_raw)
 
 		for i in range(self.paragraphs):
-			self.paragraph[i] = Paragraph(self.name, self.number, i, pr[i], offset_line)
-			self.chunks += self.paragraph[i].chunks
-			self.lines += self.paragraph[i].lines
-			self.size += self.paragraph[i].size
+
+			paragraph_number = (i + 1)
+			content = paragraph_raw[i]
+
+			paragraph = Paragraph(doc, self, paragraph_number, content)
+			self.chunks += paragraph.chunks
+			self.lines += paragraph.lines
+			self.size += paragraph.size
+			self.paragraph[paragraph_number] = paragraph
 
 		self.line_end = self.line_start + self.lines - 1
 
@@ -93,14 +99,14 @@ class Page:
 	def content(self): 
 		content = ""
 		for i in range(self.paragraphs):
-			content += self.paragraph[i].content
+			content += self.paragraph[i+1].content
 		return content
 
 	@property
 	def chunk(self):
 		ck = []
 		for i in range(self.paragraphs):
-			ck.extend(self.paragraph[i].chunk)
+			ck.extend(self.paragraph[i+1].chunk)
 		return ck
 
 	@property
@@ -108,7 +114,7 @@ class Page:
 		metadatas = []
 		chunks = []
 		for i in range(self.paragraphs):
-			ck, mt = self.paragraph[i].chunks_and_metadatas
+			ck, mt = self.paragraph[i+1].chunks_and_metadatas
 			metadatas.extend(mt)
 			chunks.extend(ck)
 
@@ -135,16 +141,19 @@ class Doc:
 		self.pages = len(reader.pages)
 
 		for i in range(self.pages):
-			page = reader.pages[i]
+			
+			page_raw = reader.pages[i]
 			page_number = (i + 1)
-			content = page.extract_text()
-			self.page[i] = Page(self.name, page_number, content, self.offset_line)
-			self.paragraphs += self.page[i].paragraphs
-			self.chunks += self.page[i].chunks
-			self.lines += self.page[i].lines
-			self.size += self.page[i].size
+			content = page_raw.extract_text()
 
-			self.offset_line += self.page[i].lines
+			page = Page(self, page_number, content)
+			self.paragraphs += page.paragraphs
+			self.offset_line += page.lines
+			self.chunks += page.chunks
+			self.lines += page.lines
+			self.size += page.size
+
+			self.page[page_number] = page
 
 		self.line_end = self.line_start + self.lines - 1
 
@@ -152,14 +161,14 @@ class Doc:
 	def content(self):
 		content = ""
 		for i in range(self.pages):
-			content += self.page[i].content
+			content += self.page[i+1].content
 		return content
 
 	@property
 	def chunk(self):
 		ck = []
 		for i in range(self.pages):
-			ck.extend(self.page[i].chunk)
+			ck.extend(self.page[i+1].chunk)
 		return ck
 
 	@property
@@ -167,7 +176,7 @@ class Doc:
 		metadatas = []
 		chunks = []
 		for i in range(self.pages):
-			ck, mt = self.page[i].chunks_and_metadatas
+			ck, mt = self.page[i+1].chunks_and_metadatas
 			metadatas.extend(mt)
 			chunks.extend(ck)
 
