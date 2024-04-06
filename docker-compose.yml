@@ -2,10 +2,10 @@ version: "3"
 
 services:
 
-  rag:
-    image: rag
-    hostname: rag
-    container_name: rag
+  librarian:
+    image: librarian
+    hostname: librarian
+    container_name: librarian
     build:
       context: ./
       dockerfile: Dockerfile

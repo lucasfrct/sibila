@@ -10,6 +10,7 @@ from src.entities.agent import Agent
 
 
 sys.dont_write_bytecode = True
+
 def run():
 
     # PATH_DOCS = "./docs"
