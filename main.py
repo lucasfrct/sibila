@@ -7,8 +7,7 @@ from src.entities.agent import Agent
 
 sys.dont_write_bytecode = True
 
-def run():
-
+def loadDocuments(): 
     PATH_DOCS = "./docs"
     
     print("\n", "########## Iniciando registro de documentos ##########", "\n")
@@ -25,6 +24,9 @@ def run():
         print(f"    {i+1}: {model.doc.info}")
 
 
+def run():
+
+    # loadDocuments()
     agent = Agent()
     
     for line in sys.stdin:

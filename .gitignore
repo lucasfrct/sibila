@@ -163,6 +163,5 @@ cython_debug/
 ./docs
 ./ollama
 
-data
 docs
 ollama

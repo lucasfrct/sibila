@@ -36,3 +36,16 @@ services:
     restart: always
     ports:
       - 11434:11434
+  
+  chatbot:
+    image: lobehub/lobe-chat
+    hostname: chatbot
+    container_name: chatbot
+    volumes:
+      - .:/code
+      - ./ollama:/root/.ollama
+    environment:
+      - OLLAMA_PROXY_URL=http://host.docker.internal:11434/v1
+    restart: always
+    ports:
+      - 3210:3210
