@@ -2,7 +2,7 @@ import os
 from typing import List
 
 from src.entities.model_llama import ModelLlama
-from src.entities.document import Doc
+from src.document.doc import Doc
 from src.display import display
 
 def get_documents(path: str) -> List[Doc]:

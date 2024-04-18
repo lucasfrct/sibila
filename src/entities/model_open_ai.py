@@ -5,10 +5,10 @@ import ollama
 import uuid
 import os
 
-from src.entities.document import Doc
+from src.document.doc import Doc
 from src.config.openai import OPENAI_API_KEY
 from src.prompts import prompts
-from src.database import chromadb
+from src.database import chromadbvector as chromadb
 
 class ModelOpenAI:
     def __init__(self):

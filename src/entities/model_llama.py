@@ -4,9 +4,8 @@ import ollama
 import uuid
 import os
 
-from src.entities.document import Doc
+from src.document.doc import Doc
 from src.prompts import prompts
-from src.database import chromadb
 
 class ModelLlama:
     def __init__(self):
