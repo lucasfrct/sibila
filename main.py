@@ -25,14 +25,14 @@ def loadDocuments():
         if(len(doc_data) > 0):
             continue
 
-        model = process.embed_document(document)
-        doc = (document.name.lower(), document.name, "pdf")
+        # model = process.embed_document(document)
+        # doc = (document.name.lower(), document.name, "pdf")
 
-        sqlite.add_document(doc)
-        chromadb.save_model(model)
+        # sqlite.add_document(doc)
+        # chromadb.save_model(model)
 
-        chart(f"{model.doc.name}", model)
-        print(f"    {i+1}: {model.doc.info}")
+        # chart(f"{model.doc.name}", model)
+        print(f"    {i+1}: {document.info}")
 
 
 def run():
