@@ -8,7 +8,7 @@ from src.database import sqlite
 
 sys.dont_write_bytecode = True
 
-def loadDocuments(): 
+def load_documents(): 
     
     PATH_DOCS = "./docs"
     
@@ -23,25 +23,26 @@ def loadDocuments():
         
         doc_data = sqlite.get_documents_by_path(document.name)
         if(len(doc_data) > 0):
+            print(f"    {i+1}: {document.info} ****EMBEDED****\n")
             continue
 
-        # model = process.embed_document(document)
-        # doc = (document.name.lower(), document.name, "pdf")
+        model = process.embed_document(document)
+        doc = (document.name.lower(), document.name, "pdf")
 
-        # sqlite.add_document(doc)
-        # chromadb.save_model(model)
+        sqlite.add_document(doc)
+        chromadb.save_model(model)
 
-        # chart(f"{model.doc.name}", model)
+        chart(f"{document.name}", model)
         print(f"    {i+1}: {document.info}")
 
 
 def run():
 
-    loadDocuments()
-    # agent = Agent()
+    load_documents()
+    agent = Agent()
     
-    # for line in sys.stdin:
-    #     agent.question(line)
+    for line in sys.stdin:
+        agent.question(line)
 
 
 

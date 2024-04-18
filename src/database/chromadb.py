@@ -1,3 +1,4 @@
+import os
 import uuid
 import chromadb
 
@@ -18,11 +19,11 @@ def save(collection: chromadb.Collection, embeddings, chunks, metadatas):
 	return "Dados gravados com suceeso!"
 
 def save_model(model):
-	client = client_vector('./data')
+	client = client_vector()
 	db = collection(client, 'train')
 	return save(db, model.embeddings, model.chunks, model.metadatas)
 
 def query(embedding, results: int = 3):
-	client = client_vector('./data')
+	client = client_vector()
 	db = collection(client, 'train')
 	return db.query(query_embeddings=[embedding], n_results=results)
