@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from src.entities.model import Model
+from src.entities.model_llama import ModelLlama
 from src.entities.document import Doc
 from src.display import display
 
@@ -20,7 +20,7 @@ def get_documents(path: str) -> List[Doc]:
 def embed_documents(docs: List[Doc]):
     models = []
     for doc in docs: 
-        model = Model()
+        model = ModelLlama()
         model.document(doc)
         # embedding.metadata_generation()
         model.generate()

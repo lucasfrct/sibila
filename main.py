@@ -1,9 +1,10 @@
 import sys
 
 from src import process
-from src.database import chromadb
 from src.display import chart
+from src.database import chromadb
 from src.entities.agent import Agent
+from src.database import sqlite
 
 sys.dont_write_bytecode = True
 
@@ -27,11 +28,19 @@ def loadDocuments():
 def run():
 
     # loadDocuments()
-    agent = Agent()
+    # agent = Agent()
     
-    for line in sys.stdin:
-        agent.question(line)
+    # for line in sys.stdin:
+    #     agent.question(line)
+
+    doc = ("doc_name", "doc/doc.pdf", "pdf")
+    sqlite.add_document(doc)
+    docs = sqlite.get_documents()
+    for task in docs:
+        print(task)
+
 
 
 if __name__ == "__main__":
+    sqlite.table_documents()
     run()

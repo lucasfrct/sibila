@@ -1,9 +1,10 @@
 import uuid
 import chromadb
 
-# path = "./data"
-def client_vector(path: str) -> chromadb.ClientAPI:
-	path = "./data"
+# path = "./data/chromadb"
+def client_vector(path: str = "./data/chromadb") -> chromadb.ClientAPI:
+	if not os.path.exists(path):
+		os.makedirs(path)
 	return chromadb.PersistentClient(path=path)
 	
 

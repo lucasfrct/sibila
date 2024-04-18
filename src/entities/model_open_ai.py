@@ -10,7 +10,7 @@ from src.config.openai import OPENAI_API_KEY
 from src.prompts import prompts
 from src.database import chromadb
 
-class Model:
+class ModelOpenAI:
     def __init__(self):
 
         self.llm_ollama = ollama

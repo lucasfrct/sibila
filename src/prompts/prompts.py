@@ -1,3 +1,4 @@
+# TODO: Adicionar os pronpts no banco de dados
 from typing import List
 
 def keywords(documents: str) -> str:
@@ -7,7 +8,6 @@ def keywords(documents: str) -> str:
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
 		Suas repostas são apenas baseadas no documento e não deve inventar, adicionar ou alucinar com qualquer dado extra ao documento.
 		Quando o dado não está no documento, você deve responder com não sei, e se estiver no documeto, deve manter o dado com precisão.
-		Cite a fonte  quando fornecer a informação. 
 		Gere uma lista de 10 palavras chaves separadas por virgula que representem o assunto abordado nos documentos abaixo sem que se perca o sentido ou o conceito apresentado.
 		Documentos:
 		{documents}
