@@ -17,13 +17,11 @@ def get_documents(path: str) -> List[Doc]:
     return documents
 
 
-def embed_documents(docs: List[Doc]):
-    models = []
-    for doc in docs: 
-        model = ModelLlama()
-        model.document(doc)
-        # embedding.metadata_generation()
-        model.generate()
-        models.append(model)
+def embed_document(doc: Doc):
+    model = ModelLlama()
+    model.chunks, model.metadatas = doc.chunks_and_metadatas
+    # embedding.metadata_generation()
+    model.generate()
+    return model
+
     
-    return models
