@@ -6,45 +6,36 @@ from src.routines import migrate
 from src.document import service as DocService
 from src.document import repository as DocRepository
 from src.document import retrieval as DocRetrieval
-from src.process import embed_document
+from src.entities.ollama_model import OllamaModel 
 
 sys.dont_write_bytecode = True
 
 
 def run():
 
+    model = OllamaModel()
+
     for doc in DocService.read():
         if not DocRepository.has_path(doc.path):
-            # model = embed_document(doc)
-            # doc.set_embeddings(model.embeddings)
+            doc.set_embeddings(model.make(doc.get_chunks))
             DocRetrieval.save(doc)
             DocRepository.save(doc)
 
         print(doc.info)
 
     
-    result = DocRetrieval.consult("dados")
-
-    print(result)
-    print()
+    result = DocRetrieval.query(model.embed("como ter acesso rápido a informação"))
     
-    # ids = result['ids'][0]
-    # distances = result['distances'][0]
-    # metadatas = result['metadatas'][0]
-    # documents = result['documents'][0]
-    # uris = result['uris']
-    # data = result['data']
-    # embeddings = result['embeddings']
+    print()
 
-    # for id, dis, mt, do in zip(ids, distances, metadatas, documents):
+    for doc in result:
 
-    #     print("id: ", id, " - distance: ", dis)
-    #     print(do)
-    #     print("meta: ", mt)
-    #     print("uris: ", uris)
-    #     print("data: ", data)
-    #     print("embeddings: ", embeddings)
-    #     print()
+        print("id: ", doc['id'], " - distance: ", doc['distance'])
+        # print("meta: ", mt)
+        # print("uris: ", uris)
+        # print("data: ", data)
+        print("document: ", doc['document'])
+        print()
 
 
 

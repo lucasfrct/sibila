@@ -177,8 +177,14 @@ class Doc:
 		self.data_embeddinds = embedings
 		self.embeddings = len(embedings)
 
-	def get_embedings(self):
+	@property
+	def get_embedings(self)-> []:
 		return self.data_embeddinds
+
+	@property
+	def get_chunks(self)-> []:
+		chunks, _ = self.chunks_and_metadatas
+		return chunks
 
 	@property
 	def content(self):

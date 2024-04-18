@@ -16,22 +16,21 @@ def save(document: Doc):
 		ids = [str(uuid.uuid4()) for _ in chunks]
 		collection = chromadbvector.collection(COLLECTION)
 		collection.add(embeddings=embeddings, documents=chunks, metadatas=metadatas, ids=ids)
-		# collection.add(documents=chunks, metadatas=metadatas, ids=ids)
 		return True
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def query(embedding, results: int = 3):
+def query(embeddings, results: int = 3):
 	try: 
 		collection = chromadbvector.collection(COLLECTION)
-		result = collection.query(query_embeddings=[embedding], n_results=results)
+		result = collection.query(query_embeddings=[embeddings], n_results=results)
 		return extract_result(result)
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return {}
 
-def consult(consult: str = "", results: int = 3):
+def consult(consult: str = "", results: int = 5):
 	try: 
 		collection = chromadbvector.collection(COLLECTION)
 		result = collection.query(query_texts=[consult], n_results=results)
