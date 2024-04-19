@@ -9,37 +9,50 @@ from src.database import chromadbvector
 from src.document.doc import Doc
 
 COLLECTION = "documents"
+COLLECTIONRESUME = "resume"
 
 def save(document: Doc):
 	try: 
 		chunks, embeddings, metadatas = document.chunks_embedings_and_metadatas
+
 		ids = [str(uuid.uuid4()) for _ in chunks]
 		collection = chromadbvector.collection(COLLECTION)
 		collection.add(embeddings=embeddings, documents=chunks, metadatas=metadatas, ids=ids)
+
+		ids = [str(uuid.uuid4()) for _ in chunks]
+		collection = chromadbvector.collection(COLLECTIONRESUME)
+		collection.add(documents=chunks, metadatas=metadatas, ids=ids)
+
 		return True
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def query(embeddings, results: int = 3):
+def query(embeddings: [] = [], results: int = 3)-> []:
 	try: 
 		collection = chromadbvector.collection(COLLECTION)
 		result = collection.query(query_embeddings=[embeddings], n_results=results)
 		return extract_result(result)
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
-		return {}
+		return []
 
-def consult(consult: str = "", results: int = 5):
+def consult(consult: str = "", results: int = 5)-> []:
 	try: 
-		collection = chromadbvector.collection(COLLECTION)
+		collection = chromadbvector.collection(COLLECTIONRESUME)
 		result = collection.query(query_texts=[consult], n_results=results)
 		return extract_result(result)
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
+
+def search(consultant: str = "",  embeddings = [], results: int = 3):
+	searchs = []
+	searchs.extend(consult(consultant, results))
+	searchs.extend(query(embeddings, results))
+	return list_unique(searchs)
 	
-def extract_result(result):
+def extract_result(result)-> []:
 	
 	ids = result['ids']
 	uris = result['uris']
@@ -98,3 +111,24 @@ def extract_result(result):
 
 	return result_data
 	
+def list_unique(list_items: [])-> []:
+
+	keys = set()
+	unique = []
+
+	for _, item in enumerate(list_items):
+		value = item['document']
+
+		if value not in keys:
+			keys.add(value)
+			unique.append(item)
+	
+	return unique
+
+def docs_format(result = []) -> str:
+
+	formatted_list = []
+	for doc in result:
+		formatted_list.append("\n{}\n[{}]: {}".format(doc['id'], doc["source"], doc['document']))
+
+	return "\n".join(formatted_list)

@@ -50,23 +50,6 @@ class OllamaModel:
 
         return self.data
 
-    def query_to_docs(self, result) -> str:
-
-        # uris = result['uris']
-        # data = result['data']
-        # distances = result['distances']
-
-        ids_container = result['ids']
-        documents_container = result['documents']
-        metadatas_container = result['metadatas']
-
-        formatted_list = []
-        for ids, doc, metas in zip(ids_container, documents_container, metadatas_container):
-            for id, chunk, meta in zip(ids, doc, metas):
-                formatted_list.append("\n{}\n[{}]: {}".format(id, meta["source"], chunk))
-
-        return "\n".join(formatted_list)
-
     def question(self, question: str, documents: str) -> str:
         chat_completion = self.completion(prompts.generic(documents), question)
         return chat_completion["message"]["content"]

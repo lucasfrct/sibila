@@ -210,12 +210,7 @@ class ModelOpenAI:
             text_metadata += f"{k}: {v}\n"
         return text_metadata
 
-    def question_gpt(self, question: str, documents: str) -> str:
-
-        print("-------")
-        print(documents)
-        print("-------")
-
+    def question(self, question: str, documents: str) -> str:
         chat_completion = self.completions(prompts.generic(documents), question)
         return chat_completion.choices[0].message.content
 

@@ -4,26 +4,32 @@ import sys
 import time
 import threading
 
+from src.document import retrieval as DocRetrieval
 from src.entities.model_open_ai import ModelOpenAI
-from src.entities.model_llama import ModelLlama
+from src.entities.ollama_model import OllamaModel
 from src.utils.colors import colors
-from src.database import chromadb
+
 
 
 class Agent:
 	def __init__(self):
-		self.model = ModelLlama()
-		self.model_open_ai = ModelOpenAI()
-		self.db = chromadb
 
+		self.model_ollama = OllamaModel()
+		self.model_open_ai = ModelOpenAI()
+		self.doc_db = DocRetrieval
+
+	def welcome(self):
 		print("\n",f"{colors.WARNING} Como posso ajudar hoje? {colors.ENDC}", "\n")
 
+	def available(self):
+		print("\n",f"{colors.WARNING} Quer perguntar mais alguma coisa? {colors.ENDC}", "\n")
+
 	def question(self, question):
-		question_embedings = self.model.embed(question)
-		result = self.db.query(question_embedings)
-		documents = self.model.query_to_docs(result)
-		answer = self.model_open_ai.question_gpt(question, documents)
+		result = self.doc_db.search(question, self.model_ollama.embed(question), 10)
+		documents = self.doc_db.docs_format(result)
+		answer = self.model_open_ai.question(question, documents)
 		self.delay_write(answer)
+		self.available()
 		return answer
 
 	def delay_write(self, content, delay=0.01):
