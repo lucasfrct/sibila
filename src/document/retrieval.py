@@ -1,9 +1,6 @@
-import os
 import uuid
 import logging
 import traceback
-from array import array
-from typing import List, Tuple
 
 from src.database import chromadbvector
 from src.document.doc import Doc
@@ -11,24 +8,62 @@ from src.document.doc import Doc
 COLLECTION = "documents"
 COLLECTIONRESUME = "resume"
 
+
 def save(document: Doc):
+    """salva em duas collections, uma para texto puro e outra para embeddings"""
+    try: 
+        if not save_embedings(document):
+            return False
+        
+        return save_text(document)
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return False
+
+# salva na collection com embeddings
+def save_embedings(document: Doc):
 	try: 
 		chunks, embeddings, metadatas = document.chunks_embedings_and_metadatas
+		info = document.info
 
 		ids = [str(uuid.uuid4()) for _ in chunks]
 		collection = chromadbvector.collection(COLLECTION)
 		collection.add(embeddings=embeddings, documents=chunks, metadatas=metadatas, ids=ids)
 
-		ids = [str(uuid.uuid4()) for _ in chunks]
-		collection = chromadbvector.collection(COLLECTIONRESUME)
-		collection.add(documents=chunks, metadatas=metadatas, ids=ids)
-
-		return True
+		return register(info)
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def query(embeddings: [] = [], results: int = 3)-> []:
+# sava na collection somente os textos
+def save_text(document: Doc):
+	try: 
+		chunks, metadatas = document.chunks_and_metadatas
+		info = document.info
+
+		ids = [str(uuid.uuid4()) for _ in chunks]
+		collection = chromadbvector.collection(COLLECTIONRESUME)
+		collection.add(documents=chunks, metadatas=metadatas, ids=ids)
+  
+		return register(info)
+	except Exception as e:
+		logging.error(f"{e}\n%s", traceback.format_exc())
+		return False
+
+def register(text: str):
+	try: 
+
+		_id = str(uuid.uuid4())
+		collection = chromadbvector.collection(COLLECTIONRESUME)
+		collection.add(documents=[text], metadatas=metadatas, ids=[id])
+  
+		return True
+	except Exception as e:
+		logging.error(f"{e}\n%s", traceback.format_exc())
+		return False
+ 
+# consulta com embeddings
+def query_embeddings(embeddings: [] = [], results: int = 10)-> []:
 	try: 
 		collection = chromadbvector.collection(COLLECTION)
 		result = collection.query(query_embeddings=[embeddings], n_results=results)
@@ -37,7 +72,8 @@ def query(embeddings: [] = [], results: int = 3)-> []:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
-def consult(consult: str = "", results: int = 5)-> []:
+# consulta com somente texto
+def query_text(consult: str = "", results: int = 10)-> []:
 	try: 
 		collection = chromadbvector.collection(COLLECTIONRESUME)
 		result = collection.query(query_texts=[consult], n_results=results)
@@ -46,14 +82,16 @@ def consult(consult: str = "", results: int = 5)-> []:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
-def search(consultant: str = "",  embeddings = [], results: int = 3):
+# busca com texto e embeddings combinado
+def query(consultant: str = "",  embeddings = [], results: int = 10)-> []:
 	searchs = []
-	searchs.extend(consult(consultant, results))
-	searchs.extend(query(embeddings, results))
+	searchs.extend(query_text(consultant, results))
+	searchs.extend(query_embeddings(embeddings, results))
 	return list_unique(searchs)
 	
+# forma o objeto de result padronizado
 def extract_result(result)-> []:
-	
+ 
 	ids = result['ids']
 	uris = result['uris']
 	data = result['data']
@@ -88,7 +126,7 @@ def extract_result(result)-> []:
 	result_data = []
 
 	for _id, _uri, _data, _distance, _metadata, _document, _embedding in zip(
-		ids[0], 
+		ids, 
 		uris[0], 
 		data[0], 
 		distances[0], 
@@ -111,6 +149,7 @@ def extract_result(result)-> []:
 
 	return result_data
 	
+# remove documentos repetidos na lista
 def list_unique(list_items: [])-> []:
 
 	keys = set()
@@ -125,7 +164,8 @@ def list_unique(list_items: [])-> []:
 	
 	return unique
 
-def docs_format(result = []) -> str:
+# formata a lista de documentos para um texto
+def docs_to_text(result = []) -> str:
 
 	formatted_list = []
 	for doc in result:

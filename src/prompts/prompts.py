@@ -183,8 +183,8 @@ def generic(documents: str) -> str:
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
 		Quando o dado não está no documento, não deve responder, e se estiver no documeto, deve manter o texto com precisão.
 		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
-		Você deve citar a fonte de cada trecho ao fim de cada resposta com o m´ximo de precisão no documento. 
-		Quando encontrar o autor, deve citá-lo com o maximo de informçao disponível ao fim do documento.
+		Você deve citar a fonte de cada trecho ao fim de cada resposta com o máximo de precisão no documento. 
+		Quando encontrar o autor, deve citá-lo com o maximo de informação disponível ao fim do documento.
 		Documentos:
 		{documents}
 	"""

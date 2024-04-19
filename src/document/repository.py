@@ -72,7 +72,7 @@ def show_list()-> List[Doc] :
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
-def list_only_path(path: str = ""):
+def list_only_path(path: str = "")-> List[Tuple(int, str, str, str)]:
 	try:
 		conn = sqlitedb.client()
 		cursor = conn.execute("select * from documents where path=?", (path,))
@@ -85,7 +85,7 @@ def list_only_path(path: str = ""):
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
-def has_path(path: str = ""):
+def has_path(path: str = "")-> bool:
 	try:
 		if len(list_only_path(path)) == 0:
 			return False
