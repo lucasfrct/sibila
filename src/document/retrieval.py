@@ -24,13 +24,11 @@ def save(document: Doc):
 def save_embedings(document: Doc):
 	try: 
 		chunks, embeddings, metadatas = document.chunks_embedings_and_metadatas
-		info = document.info
 
 		ids = [str(uuid.uuid4()) for _ in chunks]
 		collection = chromadbvector.collection(COLLECTION)
 		collection.add(embeddings=embeddings, documents=chunks, metadatas=metadatas, ids=ids)
-
-		return register(info)
+		return True
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
@@ -39,13 +37,11 @@ def save_embedings(document: Doc):
 def save_text(document: Doc):
 	try: 
 		chunks, metadatas = document.chunks_and_metadatas
-		info = document.info
-
 		ids = [str(uuid.uuid4()) for _ in chunks]
 		collection = chromadbvector.collection(COLLECTIONRESUME)
 		collection.add(documents=chunks, metadatas=metadatas, ids=ids)
+		return True
   
-		return register(info)
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False

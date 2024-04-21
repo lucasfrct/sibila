@@ -45,7 +45,8 @@ def save(document: Doc)-> bool :
 	try: 
 		path = document.path
 		doc_data = show_by_path(path)
-		if doc_data.name and doc_data.path:
+
+		if doc_data != None:
 			return False
 
 		doc_body = (document.name, path, document.mimetype) 
@@ -60,7 +61,7 @@ def save(document: Doc)-> bool :
 
 def show_by_path(path: str = "") -> Optional[Doc]:
 	try:
-		_list = list_only_path(path)
+		_list = list_raw(path)
 		docs = []
 		for doc in _list:
 			_id, name, path, mimetype = doc

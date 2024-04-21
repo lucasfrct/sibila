@@ -67,15 +67,18 @@ def process_bath(path: str = ""):
                     continue
                 DocRetrival.register(meta['content'], meta)
         
-        question = "amor"
-        res_sql = DocRepository.query_metadata_include(question, 5)
-        res_vec = DocRetrival.query_text(question, 5)
-        
-        print()
-        print(len(res_sql), res_sql) 
-        print()
-        print(len(res_vec), res_vec) 
+        query_generic("amor")
+      
         
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return  None
+    
+def query_generic(question: str = ""):
+    res_sql = DocRepository.query_metadata_include(question, 5)
+    res_vec = DocRetrival.query_text(question, 5)
+    
+    print()
+    print(len(res_sql), res_sql) 
+    print()
+    print(len(res_vec), res_vec) 
