@@ -55,12 +55,16 @@ def process_bath(path: str = ""):
         for path_name in read(path):
             path_full = os.path.normpath(os.path.join(path, path_name))
             
-            if not DocRepository.has_document(path_full):
+            if DocRepository.has_document(path_full):
+                continue
+            
+            if not DocRepository.save(Doc(path_name, path_full)):
                 continue
             
             all_meta = PDFDoc.paragraphs_with_details(path_full)
             for meta in all_meta:
-                DocRepository.save_metadata(meta)
+                if not DocRepository.save_metadata(meta):
+                    continue
                 DocRetrival.register(meta['content'], meta)
         
         question = "amor"
