@@ -58,7 +58,7 @@ def process_bath(path: str = ""):
             if not DocRepository.has_document(path_full):
                 continue
             
-            all_meta = PDFDoc.lines_with_details(path_full, 1, 2)
+            all_meta = PDFDoc.paragraphs_with_details(path_full)
             for meta in all_meta:
                 DocRepository.save_metadata(meta)
                 DocRetrival.register(meta['content'], meta)
