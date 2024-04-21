@@ -11,6 +11,15 @@ sys.dont_write_bytecode = True
 def run():
 
   DocService.process_bath("./docs")
+  
+  question = "operacional"
+  res_sql = DocRepository.query_metadata_include(question, 5)
+  res_vec = DocRetrival.query_text(question, 5)
+    
+  print()
+  print(len(res_sql), res_sql) 
+  print()
+  print(len(res_vec), res_vec) 
 
 
 if __name__ == "__main__":
