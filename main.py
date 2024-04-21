@@ -13,8 +13,8 @@ def run():
   DocService.process_bath("./docs")
   
   question = "operacional"
-  res_sql = DocRepository.query_metadata_include(question, 5)
-  res_vec = DocRetrival.query_text(question, 5)
+  res_sql = DocRepository.query_metadata_include(question, 1)
+  res_vec = DocRetrieval.query_text(question, 1)
     
   print()
   print(len(res_sql), res_sql) 

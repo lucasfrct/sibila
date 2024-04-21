@@ -7,7 +7,7 @@ from typing import List, Optional
 from src.document import pdfdoc as PDFDoc
 from src.document.doc import Doc
 from src.document import repository as DocRepository 
-from src.document import retrieval as DocRetrival 
+from src.document import retrieval as DocRetrieval 
 
 def read(path: str = "") -> List[str]:
     try:
@@ -65,7 +65,7 @@ def process_bath(path: str = ""):
             for meta in all_meta:
                 if not DocRepository.save_metadata(meta):
                     continue
-                DocRetrival.register(meta['content'], meta)
+                DocRetrieval.register(meta['content'], meta)
         
         query_generic("amor")
       
@@ -76,7 +76,7 @@ def process_bath(path: str = ""):
     
 def query_generic(question: str = ""):
     res_sql = DocRepository.query_metadata_include(question, 5)
-    res_vec = DocRetrival.query_text(question, 5)
+    res_vec = DocRetrieval.query_text(question, 5)
     
     print()
     print(len(res_sql), res_sql) 
