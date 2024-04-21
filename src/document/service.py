@@ -55,18 +55,20 @@ def process_bath(path: str = ""):
         for path_name in read(path):
             path_full = os.path.normpath(os.path.join(path, path_name))
             
+            if not DocRepository.has_document(path_full):
+                continue
+            
             all_meta = PDFDoc.lines_with_details(path_full, 1, 2)
             for meta in all_meta:
-                # DocRepository.save_metadata(meta)
+                DocRepository.save_metadata(meta)
                 DocRetrival.register(meta['content'], meta)
-                # print(meta['source'], " - ", meta['content'][:50])
         
         question = "amor"
-        # res_sql = DocRepository.query_metadata_include(question, 10)
-        res_vec = DocRetrival.query_text(question, 1)
+        res_sql = DocRepository.query_metadata_include(question, 5)
+        res_vec = DocRetrival.query_text(question, 5)
         
         print()
-        # print(len(res_sql), res_sql) 
+        print(len(res_sql), res_sql) 
         print()
         print(len(res_vec), res_vec) 
         

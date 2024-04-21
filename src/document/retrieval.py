@@ -148,14 +148,13 @@ def extract_result(result)-> []:
 	):
 
 		doc = {}
-		doc['id'] = _id
+		doc['uuid'] = _id
 		doc['uri'] = _uri
 		doc['data'] = _data
 		doc['distance'] = _distance
 		doc['document'] = _document
 		doc['embedding'] = _embedding
 
-		print(_metadata)
 		if _metadata:
 			doc.update(_metadata)
 		
