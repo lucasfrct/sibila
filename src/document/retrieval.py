@@ -50,13 +50,25 @@ def save_text(document: Doc):
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def register(text: str):
+def register(text: str, metadatas = None):
 	try: 
 
 		_id = str(uuid.uuid4())
 		collection = chromadbvector.collection(COLLECTIONRESUME)
-		collection.add(documents=[text], metadatas=metadatas, ids=[id])
   
+		if metadatas:
+			meta = {
+				'letters': str(metadatas['letters']),
+				'pages': str(metadatas['pages']),
+				'page': str(metadatas['page']),
+				'source': metadatas['source'],
+				'path': metadatas['path'],
+				'name': metadatas['name'],
+			}
+			collection.add(documents=[text], metadatas=meta, ids=[_id])
+			return True
+		
+		collection.add(documents=[text], ids=[_id])
 		return True
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
@@ -143,7 +155,9 @@ def extract_result(result)-> []:
 		doc['document'] = _document
 		doc['embedding'] = _embedding
 
-		doc.update(_metadata)
+		print(_metadata)
+		if _metadata:
+			doc.update(_metadata)
 		
 		result_data.append(doc)
 

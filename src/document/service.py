@@ -1,29 +1,22 @@
-import sys
 import os
+import sys
 import logging
 import traceback
-from typing import List,  Optional
+from typing import List, Optional
 
+from src.document import pdfdoc as PDFDoc
 from src.document.doc import Doc
+from src.document import repository as DocRepository 
+from src.document import retrieval as DocRetrival 
 
-def read(path: str = "./docs") -> List[Doc]:
+def read(path: str = "") -> List[str]:
     try:
         if not os.path.exists(path):
             raise ValueError("O path está inválido.")
         
-        names = os.listdir(path)
-        documents = []
-
-        for _, name in enumerate(names): 
-            if not name:
-                continue
-
-            doc_path = os.path.normpath(os.path.join(path, name))
-            documents.append(Doc(name, doc_path))
-
-        return documents
+        return os.listdir(path)
     except Exception as e:
-        logging.error(e)
+        logging.error(f"{e}\n%s", traceback.format_exc())
         return []
 
 def build(paths: [] = []) -> List[Doc]:
@@ -57,3 +50,26 @@ def builder(path: str = "") -> Optional[Doc]:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
     
+def process_bath(path: str = ""):
+    try:
+        for path_name in read(path):
+            path_full = os.path.normpath(os.path.join(path, path_name))
+            
+            all_meta = PDFDoc.lines_with_details(path_full, 1, 2)
+            for meta in all_meta:
+                # DocRepository.save_metadata(meta)
+                DocRetrival.register(meta['content'], meta)
+                # print(meta['source'], " - ", meta['content'][:50])
+        
+        question = "amor"
+        # res_sql = DocRepository.query_metadata_include(question, 10)
+        res_vec = DocRetrival.query_text(question, 1)
+        
+        print()
+        # print(len(res_sql), res_sql) 
+        print()
+        print(len(res_vec), res_vec) 
+        
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return  None
