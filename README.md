@@ -28,10 +28,10 @@ Por exempo: para arquivos .txt, um diretótio `./docs/txt` deve ser usado, para 
 Tudo está sendo construido em docker, e `docker-compose` é o gerenciador para rodar tudo em desenvolvimento
 ```docker-compse up -d```
 
-Consulta sobre os documentos via terminal: `docker compose exec librarian`
-Consulta sobre os documentos via api: <http://localhost:2000>
-Consulta sobre os documentos via chat: <http://localhost:3210>
-Consulta ao modelo ollama via chat: <http://localhost:3210>
+- Consulta sobre os documentos via terminal: `docker compose exec librarian`
+- Consulta sobre os documentos via api: <http://localhost:2000>
+- Consulta sobre os documentos via chat: <http://localhost:3210>
+- Consulta ao modelo ollama via chat: <http://localhost:3210>
 
 ## Anotações
 
