@@ -29,7 +29,7 @@ A pasta `./data` é a persistência dos bancos de dados usados no projeto
 
 ## Estrutura de containers
 
-## librarian
+### librarian
 
 Container para responder perguntas relacionados com os documentos informados
 
@@ -48,16 +48,21 @@ Acessso em <http://localhost:3210>
 Tudo está sendo construido em docker, e `docker-compose` é o gerenciador para rodar tudo em desenvolvimento
 ```docker-compse up -d```
 
-## Consulta somente para documentos
+### Consulta sobre os documentos via terminal
+
+- `docker compose exec librarian`
+
+## Consulta sobre os documentos via api
 
 Acessso em <http://localhost:2000>
 
-### Consulta via terminal
+### Consulta sobre os documentos via chat
 
-- docker compose exec librarian
+Acessso em <http://localhost:3210>
 
-### Consulta via chat ao modelo
+### Consulta ao modelo ollama via chat
 
+Essa consulta é direta no modelo não contendo o contexto dos documentos
 Acessso em <http://localhost:3210>
 
 ## Anotaçoões
