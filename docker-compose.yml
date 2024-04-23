@@ -15,13 +15,28 @@ services:
     env_file:
       - ./.env
     volumes:
-      - ./data:/app/data
+      - ./viz:/app/viz
       - ./docs:/app/docs
+      - ./data:/app/data
+      - ./.config:/app/.config
+      - ./lexicon:/app/lexicon
+      - ./library:/app/library
+      - ./bookcase:/app/bookcase
     environment:
       - ENVIRONMENT=development
     restart: always # Reinica sempre que houver algum erro
     ports:
       - 2000:2000 # server http
+
+  chromadb:
+    image: chromadb/chroma
+    hostname: chromadb
+    container_name: chromadb
+    volumes:
+      - ./data/chromadb:/chroma/chroma
+    restart: always
+    ports:
+      - 8000:8000
 
   ollama:
     image: ollama/ollama:latest

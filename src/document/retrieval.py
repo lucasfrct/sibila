@@ -181,3 +181,11 @@ def docs_to_text(result = []) -> str:
 		formatted_list.append("\n{}\n[{}]: {}".format(doc['id'], doc["source"], doc['document']))
 
 	return "\n".join(formatted_list)
+
+def lines_to_text(lines = []) -> str:
+
+	formatted_list = []
+	for line in lines:
+		formatted_list.append("\n{}\n[{}]: {}".format(line['uuid'], line["source"], line['content']))
+
+	return "\n".join(formatted_list)

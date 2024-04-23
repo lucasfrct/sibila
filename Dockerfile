@@ -6,14 +6,18 @@ FROM python:3 AS environment-python-tools
 WORKDIR /app
 
 # ## install tools
-RUN pip install chromadb
-RUN pip install openai
+RUN python -m venv .
 RUN pip install numpy
-RUN pip install fastapi
-RUN pip install PyPDF2
-RUN pip install ollama
-RUN pip install unicorn
 RUN pip install pyvis
+RUN pip install PyPDF2
+RUN pip install openai
+RUN pip install ollama
+RUN pip install fastapi
+RUN pip install unicorn
+RUN pip install chromadb
+RUN pip install pysqlite3
+RUN pip install tokenizers
+RUN pip install onnxruntime
 RUN pip install scikit-learn
 
 # ! ## STAGE 1 - Maquina para armazenar as dependencias
@@ -29,6 +33,6 @@ FROM environment-python-dependences AS environment-python-dev
 
 WORKDIR /app
 
-COPY . .
+COPY . ./
 
-CMD [ "python", "./main.py" ]
+CMD [ "python", "./agent.py" ]
