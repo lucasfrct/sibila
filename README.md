@@ -29,37 +29,41 @@ A pasta `./data` é a persistência dos bancos de dados usados no projeto
 
 ## Estrutura de containers
 
+## librarian
+
+Container para responder perguntas relacionados com os documentos informados
+
 ### ollama
 
-A aplicação usa ollma para fazer o embedding do texto.
+LLM usada para fazer o embedding do texto.
+Acesso em <http://localhost:11434>
 
-### Lobe-chat
+### chatbot
 
-Um container Lobe-chat foi usado apra poder conversar com ollama model
+Um container da Lobe-chat foi usado apra poder conversar com ollama model.
+Acessso em <http://localhost:3210>
 
 ## Para Executar a aplicação
 
 Tudo está sendo construido em docker, e `docker-compose` é o gerenciador para rodar tudo em desenvolvimento
-``` docker-compse up -d```
+```docker-compse up -d```
 
-## Consulta na aplicação
+## Consulta somente para documentos
 
--
+Acessso em <http://localhost:2000>
 
 ### Consulta via terminal
 
--
+- docker compose exec librarian
 
-### Consulta via chat
+### Consulta via chat ao modelo
 
--
+Acessso em <http://localhost:3210>
 
 ## Anotaçoões
 
-LM Studio = interface web para conversar com  o LLM
-
+- LM Studio = interface web para conversar com  o LLM
 - huging face: Tom jobbins
 - wizard: vicuna 7B
 - visualizer: <https://playground.tensorflow.org/#activation=tanh&batchSize=10&dataset=circle&regDataset=reg-plane&learningRate=0.03&regularizationRate=0&noise=0&networkShape=4,2&seed=0.19714&showTestData=false&discretize=false&percTrainData=50&x=true&y=true&xTimesY=false&xSquared=false&ySquared=false&cosX=false&sinX=false&cosY=false&sinY=false&collectStats=false&problem=classification&initZero=false&hideText=false>
-
-<!-- https://github.com/free-educa/books/blob/main/books/Design_Patterns.pdf -->
+- repositório de livros de tecnologia: <https://github.com/free-educa/books/blob/main/books/Design_Patterns.pdf>
