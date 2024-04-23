@@ -6,26 +6,16 @@ Esse repositório é uma exemplo de aplicaçaão capaz de responder perguntas ba
 
 ## Estrutura de diretórios
 
-- ./lexicon
+- ./lexicon: Possui um compilado dos verbetes da lingua portugesa
 
-Possui um compilado dos verbetes da lingua portugesa
+- ./bookcase: Diretório usado para armazenar arquivos ou documentos de teste
 
-- ./bookcase
+- ./library: Diretório usado para armazenar os livros no formato pdf. Somente conteúdo em pdf deve estar nesse diretório.
 
-Diretório usado para armazenar arquivos ou documentos de teste
-
-- ./library
-
-Diretório usado para armazenar os livros no formato pdf. Somente conteúdo em pdf deve estar nesse diretório.
-
-- ./docs
-
-Diretório usado para armazenar documentos gerais tendo como subdiretórios os formatos dos documentos.
+- ./docs: Diretório usado para armazenar documentos gerais tendo como subdiretórios os formatos dos documentos.
 Por exempo: para arquivos .txt, um diretótio `./docs/txt` deve ser usado, para arquivos .csv um diretório `./docs/csv` deve ser usado.
 
-- ./data
-
-A pasta `./data` é a persistência dos bancos de dados usados no projeto
+- ./data: A pasta `./data` é a persistência dos bancos de dados usados no projeto
 
 ## Estrutura de containers
 
