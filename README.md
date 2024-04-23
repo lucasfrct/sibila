@@ -22,18 +22,27 @@ Por exempo: para arquivos .txt, um diretótio ./docs/txt deve ser usado, para ar
 
 A pasta './data' é a persistência dos bancos de dados usados no projeto
 
-## Para Executar
+
+## Containers auxiliares
+
+### ollama
+
+a aplicaçao usa ollma para fazer o embedding do texto.
+
+### Lobe-chat
+
+Um container lobu-chat foi usado apra poder conversar com ollama model
+
+## Para Executar a aplicação
 
 tudo está sendo construido em docker, e docker-compose é o gerenciador para rodar tudo em desenvolvimento
 ``` docker-compse up -d```
-
 
 ## Consulta
 
 ### Consulta via terminal
 
 -
-
 
 ### Consulta via chat
 
