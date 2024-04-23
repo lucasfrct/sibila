@@ -19,19 +19,9 @@ Por exempo: para arquivos .txt, um diretótio `./docs/txt` deve ser usado, para 
 
 ## Estrutura de containers
 
-### librarian
-
-Container para responder perguntas relacionados com os documentos informados
-
-### ollama
-
-LLM usada para fazer o embedding do texto.
-Acesso em <http://localhost:11434>
-
-### chatbot
-
-Um container da Lobe-chat foi usado apra poder conversar com ollama model.
-Acessso em <http://localhost:3210>
+- `librarian`: Container para responder perguntas relacionados com os documentos informados
+- `ollama`: LLM usada para fazer o embedding do texto. Acesso em <http://localhost:11434>
+- `chatbot`: Um container da Lobe-chat foi usado apra poder conversar com ollama model. Acessso em <http://localhost:3210>
 
 ## Para Executar a aplicação
 
