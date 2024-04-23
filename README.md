@@ -9,6 +9,10 @@ Esse repositório é uma exemplo de uma aplicaçaão capaz de responder pergunta
 
 Possui uma compilado dos verbetes da lingua portugesa
 
+### Diretório ./bookcase
+
+Diretório usado para armazenar arquivos ou documentos de teste
+
 ### Diretório ./library
 
 Diretório usado para armazenar os livros no formato pdf
