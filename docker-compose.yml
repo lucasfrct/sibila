@@ -28,6 +28,16 @@ services:
     ports:
       - 2000:2000 # server http
 
+  chromadb:
+    image: chromadb/chroma
+    hostname: chromadb
+    container_name: chromadb
+    volumes:
+      - ./data/chromadb:/chroma/chroma
+    restart: always
+    ports:
+      - 8000:8000
+
   ollama:
     image: ollama/ollama:latest
     hostname: ollama

@@ -35,6 +35,7 @@ Tudo está sendo construido em docker, e `docker-compose` é o gerenciador para 
 
 ## Anotações
 
+- calssificador: <https://medium.com/@andsouit/classificador-de-inten%C3%A7%C3%A3o-com-o-tensorflow-f7fbc854f643>
 - LM Studio = interface web para conversar com  o LLM
 - huging face: Tom jobbins
 - wizard: vicuna 7B

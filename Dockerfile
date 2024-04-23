@@ -6,6 +6,7 @@ FROM python:3 AS environment-python-tools
 WORKDIR /app
 
 # ## install tools
+RUN python -m venv .
 RUN pip install numpy
 RUN pip install pyvis
 RUN pip install PyPDF2
