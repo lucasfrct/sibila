@@ -17,10 +17,9 @@ def run():
   res_vec = DocRetrieval.query_text(question, 1)
     
   print()
-  print(len(res_sql), res_sql) 
+  print(len(res_sql), res_sql)
   print()
-  print(len(res_vec), res_vec) 
-
+  print(len(res_vec), res_vec)
 
 if __name__ == "__main__":
     migrate.tables()
