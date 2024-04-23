@@ -6,24 +6,24 @@ Esse repositório é uma exemplo de aplicaçaão capaz de responder perguntas ba
 
 ## Estrutura de diretórios
 
-### ./lexicon
+- ./lexicon
 
 Possui um compilado dos verbetes da lingua portugesa
 
-### ./bookcase
+- ./bookcase
 
 Diretório usado para armazenar arquivos ou documentos de teste
 
-### ./library
+- ./library
 
 Diretório usado para armazenar os livros no formato pdf. Somente conteúdo em pdf deve estar nesse diretório.
 
-### ./docs
+- ./docs
 
 Diretório usado para armazenar documentos gerais tendo como subdiretórios os formatos dos documentos.
 Por exempo: para arquivos .txt, um diretótio `./docs/txt` deve ser usado, para arquivos .csv um diretório `./docs/csv` deve ser usado.
 
-### ./data
+- ./data
 
 A pasta `./data` é a persistência dos bancos de dados usados no projeto
 
@@ -65,7 +65,7 @@ Acessso em <http://localhost:3210>
 Essa consulta é direta no modelo não contendo o contexto dos documentos
 Acessso em <http://localhost:3210>
 
-## Anotaçoões
+## Anotações
 
 - LM Studio = interface web para conversar com  o LLM
 - huging face: Tom jobbins
