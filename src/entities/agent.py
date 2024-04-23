@@ -4,10 +4,12 @@ import sys
 import time
 import threading
 
+from src.utils.colors import colors
+from src.document import service as DocService
+from src.entities.ollama_model import OllamaModel
 from src.document import retrieval as DocRetrieval
 from src.entities.model_open_ai import ModelOpenAI
-from src.entities.ollama_model import OllamaModel
-from src.utils.colors import colors
+from src.document import repository as DocRepository
 
 class Agent:
     
@@ -25,6 +27,15 @@ class Agent:
     def question(self, question):
         result = self.doc_db.query(question, self.model_ollama.embed(question), 10)
         documents = self.doc_db.docs_to_text(result)
+        answer = self.model_open_ai.question(question, documents)
+        self.delay_write(answer)
+        self.available()
+        return answer
+    
+    def consult(self, question):
+        doc1 = DocRetrieval.lines_to_text(DocRepository.query_metadata_include(question, 5))
+        doc2 = DocRetrieval.lines_to_text(DocRetrieval.query_text(question, 5))
+        documents = f"{doc1} \n {doc2}"
         answer = self.model_open_ai.question(question, documents)
         self.delay_write(answer)
         self.available()

@@ -15,6 +15,8 @@ RUN pip install fastapi
 RUN pip install unicorn
 RUN pip install chromadb
 RUN pip install pysqlite3
+RUN pip install tokenizers
+RUN pip install onnxruntime
 RUN pip install scikit-learn
 
 # ! ## STAGE 1 - Maquina para armazenar as dependencias
@@ -32,4 +34,4 @@ WORKDIR /app
 
 COPY . ./
 
-CMD [ "python", "./main.py" ]
+CMD [ "python", "./agent.py" ]
