@@ -1,40 +1,27 @@
-import os
 import sys
-import time
-import threading
+import textwrap
 
-from src import process
-from src.database import chromadb
-from src.display import chart
-from src.entities.agent import Agent
-
+from src.routines import migrate
+from src.document import service as DocService
+from src.document import retrieval as DocRetrieval
+from src.document import repository as DocRepository
 
 sys.dont_write_bytecode = True
 
 def run():
 
-    # PATH_DOCS = "./docs"
+  DocService.process_bath("./docs")
+  
+  question = "operacional"
+  res_sql = DocRepository.query_metadata_include(question, 1)
+  res_vec = DocRetrieval.query_text(question, 1)
     
-    # print("\n", "########## Iniciando registro de documentos ##########", "\n")
-    # documents = process.get_documents(PATH_DOCS)
-    # documents_size = len(documents)
-    # for i, document in enumerate(documents): 
-    #     print(f"    {i+1}/{documents_size}: {document.info}")
-
-    # print("\n", "########## Iniciando embedings de documentos ##########", "\n")
-    # models = process.embed_documents(documents)
-    # for i, model in enumerate(models): 
-    #     # chromadb.save_model(model)
-    #     chart(f"{model.doc.name}", model)
-    #     print(f"    {i+1}: {model.doc.info}")
-
-
-    ####################################################################
-    agent = Agent()
-    
-    for line in sys.stdin:
-        agent.question(line)
+  print()
+  print(len(res_sql), res_sql) 
+  print()
+  print(len(res_vec), res_vec) 
 
 
 if __name__ == "__main__":
+    migrate.tables()
     run()

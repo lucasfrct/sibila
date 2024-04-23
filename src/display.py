@@ -5,7 +5,7 @@ from collections import Counter
 
 from pyvis.network import Network
 from sklearn.manifold import TSNE
-from src.entities.model import Model
+from src.entities.model_llama import ModelLlama
 
 def matrix_tsne(embeddings):
 
@@ -77,6 +77,6 @@ def display(embeddings, chunks):
 
 	return g
 
-def chart(name, model: Model):
+def chart(name, model: ModelLlama):
 	graph = display(model.embeddings, model.chunks)
 	graph.show(f"{name}.html")

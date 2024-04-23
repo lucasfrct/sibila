@@ -1,8 +1,8 @@
 import os
 from typing import List
 
-from src.entities.model import Model
-from src.entities.document import Doc
+from src.entities.model_llama import ModelLlama
+from src.document.doc import Doc
 from src.display import display
 
 def get_documents(path: str) -> List[Doc]:
@@ -17,13 +17,11 @@ def get_documents(path: str) -> List[Doc]:
     return documents
 
 
-def embed_documents(docs: List[Doc]):
-    models = []
-    for doc in docs: 
-        model = Model()
-        model.document(doc)
-        # embedding.metadata_generation()
-        model.generate()
-        models.append(model)
+def embed_document(doc: Doc):
+    model = ModelLlama()
+    model.chunks, model.metadatas = doc.chunks_and_metadatas
+    # embedding.metadata_generation()
+    model.generate()
+    return model
+
     
-    return models

@@ -1,3 +1,4 @@
+# TODO: Adicionar os pronpts no banco de dados
 from typing import List
 
 def keywords(documents: str) -> str:
@@ -7,7 +8,6 @@ def keywords(documents: str) -> str:
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
 		Suas repostas são apenas baseadas no documento e não deve inventar, adicionar ou alucinar com qualquer dado extra ao documento.
 		Quando o dado não está no documento, você deve responder com não sei, e se estiver no documeto, deve manter o dado com precisão.
-		Cite a fonte  quando fornecer a informação. 
 		Gere uma lista de 10 palavras chaves separadas por virgula que representem o assunto abordado nos documentos abaixo sem que se perca o sentido ou o conceito apresentado.
 		Documentos:
 		{documents}
@@ -179,13 +179,12 @@ def registration(documents: str) -> str:
 	return prompt_template.format(documents=documents)
 
 def generic(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário com um orátória sofisticada e organizada. 
-		Você tem uma alta capacidade de organizar idéias, documentos, assuntos e sessões onde discorre coerentemente sobre os assuntos lhe passados. 
-		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
+	prompt_template = """Você é um assistente bibliotecário organizado com mais 10 anos de experiência. 
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
-		Suas repostas são apenas baseadas no documento e não deve inventar, adicionar ou alucinar com qualquer dado extra ao documento.
-		Quando o dado não está no documento, você deve responder com não sei, e se estiver no documeto, deve manter o dado com precisão.
-		Cite a fonte  quando fornecer a informação. 
+		Quando o dado não está no documento, não deve responder, e se estiver no documeto, deve manter o texto com precisão.
+		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
+		Você deve citar a fonte de cada trecho ao fim de cada resposta com o máximo de precisão no documento. 
+		Quando encontrar o autor, deve citá-lo com o maximo de informação disponível ao fim do documento.
 		Documentos:
 		{documents}
 	"""
