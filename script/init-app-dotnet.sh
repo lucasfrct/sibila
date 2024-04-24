@@ -4,8 +4,15 @@ dotnet --info
 ## Para craira  aplicaço
 dotnet new webapi --use-controllers -o SibilaApi
 
+# pacotes
+dotnet add package Microsoft.EntityFrameworkCore.InMemory
+dotnet dev-certs https --trus
+
 ## Executando a aplicação
-dotnet run
+dotnet run --launch-profile https
+
+## swagger
+/swagger/index.html
 
 ## Publicando a apalicação
 dotnet publish -c Release
