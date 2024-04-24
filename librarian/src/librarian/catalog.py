@@ -10,8 +10,8 @@ from src.document.doc import Doc
 
 def register_by_path(path: str = "") -> bool:
     try:
-    	if DocRepository.has_document(path) == True:
-            return True 
+    	# if DocRepository.has_document(path) == True:
+        #     return True
         return DocRepository.save(Doc(os.path.basename(path), path))
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
