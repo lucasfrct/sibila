@@ -1,0 +1,27 @@
+# ## Dotnet para desenvolvimento
+
+# ! ## Maquina para armazenar as dependencias
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS environment-c-sharp-dependences
+WORKDIR /app
+
+# Copy everything
+COPY ./src ./
+
+# RUN dotnet clean --configuration Release
+RUN dotnet restore
+
+# ! ## Maquina para excutar o build
+FROM environment-c-sharp-dependences AS environment-c-sharp-build
+
+ENV ASPNETCORE_URLS=http://*:5000
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV DOTNET_EnableDiagnostics=0
+
+EXPOSE 5000
+
+# ## cria volume para diretorio padrao
+VOLUME /app
+
+# CMD ["dotnet", "watch", "run", -v]
+CMD ["dotnet", "watch",  "run", "--no-launch-profile"]
+

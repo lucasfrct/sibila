@@ -9,7 +9,8 @@ dotnet add package Microsoft.EntityFrameworkCore.InMemory
 dotnet dev-certs https --trus
 
 ## Executando a aplicação
-dotnet run --launch-profile https
+# dotnet run --launch-profile https
+dotnet watch run -v
 
 ## swagger
 /swagger/index.html

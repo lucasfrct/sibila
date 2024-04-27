@@ -6,27 +6,25 @@ services:
     image: sibila
     hostname: sibila
     container_name: sibila
+    working_dir: /app
     build:
       context: ./
-      dockerfile: Dockerfile
-    working_dir: /app
+      dockerfile: Dockerfile.dev
+    develop:
+      watch:
+        - action: rebuild
+          path: .
     env_file:
       - ./.env
     environment:
       - ENVIRONMENT=development
+    volumes:
+      - ./src:/app
+      - exclude:/app/bin
+      - exclude:/app/obj
     restart: always # Reinica sempre que houver algum erro
     ports:
-      - 8080:8080 # server http
-
-  chromadb:
-    image: chromadb/chroma
-    hostname: chromadb
-    container_name: chromadb
-    volumes:
-      - ./data/chromadb:/chroma/chroma
-    restart: always
-    ports:
-      - 8000:8000
+      - 5000:5000
 
   ollama:
     image: ollama/ollama:latest
@@ -34,7 +32,6 @@ services:
     container_name: ollama
     # command: ollama run llama2
     volumes:
-      - .:/code
       - ./ollama:/root/.ollama
     pull_policy: always
     tty: true
@@ -47,10 +44,46 @@ services:
     hostname: chatbot
     container_name: chatbot
     volumes:
-      - .:/code
       - ./ollama:/root/.ollama
     environment:
       - OLLAMA_PROXY_URL=http://host.docker.internal:11434/v1
     restart: always
     ports:
       - 3210:3210
+
+  # #################################################################################################################
+  # POSTGRES
+  # #################################################################################################################
+  postgres:
+    image: bitnami/postgresql:latest
+    hostname: postgres
+    container_name: postgres
+    volumes:
+      - ./data/postgres:/bitnami/postgresql
+    environment:
+      POSTGRESQL_USERNAME: postgres
+      POSTGRESQL_PASSWORD: Alterar@123
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    ports:
+      - 5432:5432
+
+  # #################################################################################################################
+  # CHROMA DB
+  # #################################################################################################################
+  chromadb:
+    image: chromadb/chroma
+    hostname: chromadb
+    container_name: chromadb
+    volumes:
+      - ./data/chromadb:/chroma/chroma
+    restart: always
+    ports:
+      - 8000:8000
+
+volumes:
+    exclude:
