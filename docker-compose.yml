@@ -61,14 +61,16 @@ services:
     ports:
       - 5433:5432
     healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "vdbms", "-U", "vectoradminuser"]
+      test: ["CMD", "pg_isready", "-q", "-d", "vdbms", "-U", "vectoradmin"]
       timeout: 45s
-      interval: 10s
+      interval: 5s
       retries: 10
     environment:
       POSTGRES_USER: vectoradmin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: vdbms
+    depends_on:
+      - chromadb
 
 
   # #################################################################################################################
@@ -84,6 +86,11 @@ services:
       - IS_PERSISTENT=TRUE
       - PERSIST_DIRECTORY=/chroma/chroma
       - ANONYMIZED_TELEMETRY=TRUE
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: always
     ports:
       - 8000:8000
@@ -100,7 +107,7 @@ services:
       JWT_SECRET: secret
       SYS_PASSWORD: password
       TZ: America/Los_Angeles
-      DISABLE_TELEMETRY: true
+      DISABLE_TELEMETRY: false
       INNGEST_LANDING_PAGE: true
       INNGEST_SIGNING_KEY: secret
       SYS_EMAIL: root@vectoradmin.com
@@ -114,8 +121,7 @@ services:
       - 3355:3355
       - 8288:8288
     depends_on:
-      - postgres
-      - chromadb
-
+      postgres:
+        condition: service_healthy
 volumes:
     exclude:
