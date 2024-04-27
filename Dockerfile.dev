@@ -22,6 +22,5 @@ EXPOSE 5000
 # ## cria volume para diretorio padrao
 VOLUME /app
 
-# CMD ["dotnet", "watch", "run", -v]
 CMD ["dotnet", "watch",  "run", "--no-launch-profile"]
 
