@@ -14,6 +14,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    string ? port = Environment.GetEnvironmentVariable("SERVER_PORT");
+    builder.WebHost.UseUrls($"http://*:{port}");
 }
 
 app.UseHttpsRedirection();
