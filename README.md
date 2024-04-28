@@ -20,7 +20,7 @@ Por exempo: para arquivos .txt, um diretótio `./docs/txt` deve ser usado, para 
 ## Estrutura de containers
 
 - `librarian`: Container para responder perguntas relacionados com os documentos informados
-- `ollama`: LLM usada para fazer o embedding do texto. Acesso em <http://localhost:11434>
+- `ollama`: A LLM usada é a Bode (<https://ollama.com/splitpierre/bode-alpaca-pt-br>), uma versão do llam2 em potuguês. Acesso em <http://localhost:11434>
 - `chatbot`: Um container da Lobe-chat foi usado apra poder conversar com ollama model. Acessso em <http://localhost:3210>
 
 ## Para Executar a aplicação
@@ -35,6 +35,7 @@ Tudo está sendo construido em docker, e `docker-compose` é o gerenciador para 
 
 ## Anotações
 
+- C# Ollama <https://github.com/awaescher/OllamaSharp>
 - calssificador: <https://medium.com/@andsouit/classificador-de-inten%C3%A7%C3%A3o-com-o-tensorflow-f7fbc854f643>
 - chromadb Admin: <https://github.com/flanker/chromadb-admin>
 - LM Studio = interface web para conversar com  o LLM

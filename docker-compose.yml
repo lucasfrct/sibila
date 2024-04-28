@@ -30,9 +30,15 @@ services:
     image: ollama/ollama:latest
     hostname: ollama
     container_name: ollama
-    # command: ollama run llama2
+    # command: ollama run splitpierre/bode-alpaca-pt-br
+    environment:
+      - ENVIRONMENT=development
+      - LANGUAGE=pt-BR
+      - SYSTEM = "Como posso te ajudar?"
     volumes:
       - ./ollama:/root/.ollama
+    env_file:
+      - ./.env
     pull_policy: always
     tty: true
     restart: always
