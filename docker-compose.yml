@@ -19,9 +19,12 @@ services:
     environment:
       - ENVIRONMENT=development
     volumes:
-      - ./src:/app
-      - exclude:/app/bin
-      - exclude:/app/obj
+      - ./:/app
+      - ./viz:/app/viz
+      - ./data:/app/data
+      - ./library:/app/library
+      - ./lexicon:/app/lexicon
+      - ./bookcase:/app/bookcase
     restart: always # Reinica sempre que houver algum erro
     ports:
       - 5000:5000

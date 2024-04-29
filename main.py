@@ -22,7 +22,8 @@ def run():
   # print()
   # print(len(res_vec), res_vec)
   
-  print("main", Librarian.register('./bookcase'))
+  # print("main", Librarian.register('./bookcase'))
+  print("Main init")
 
 if __name__ == "__main__":
     migrate.tables()

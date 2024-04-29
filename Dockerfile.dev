@@ -1,26 +1,54 @@
-# ## Dotnet para desenvolvimento
+# ## python para desenvolvimento
 
-# ! ## Maquina para armazenar as dependencias
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS environment-c-sharp-dependences
+# ! ## STAGE 1 - Maquina para armazenar as ferramentas
+FROM python:3 AS environment-python-tools
+
 WORKDIR /app
 
-# Copy everything
-COPY ./src ./
+# ## install tools
+RUN python -m venv .
 
-# RUN dotnet clean --configuration Release
-RUN dotnet restore
+RUN pip install onnxruntime
+RUN pip install pyvis
+RUN pip install PyPDF2
+RUN pip install fastapi
+RUN pip install unicorn
 
-# ! ## Maquina para excutar o build
-FROM environment-c-sharp-dependences AS environment-c-sharp-build
+## data base
+RUN pip install chromadb
+RUN pip install pysqlite3
 
-ENV ASPNETCORE_URLS=http://*:5000
-ENV ASPNETCORE_ENVIRONMENT=Development
-ENV DOTNET_EnableDiagnostics=0
+## ML
+RUN pip install numpy
+RUN pip install scikit-learn
+## pandas
+## NLTK
+## PyTorch
 
-EXPOSE 5000
+## PLOT
+## ploty
+## matplot
 
-# ## cria volume para diretorio padrao
-VOLUME /app
+## LLM
+RUN pip install tokenizers
+RUN pip install ollama
+RUN pip install openai
 
-CMD ["dotnet", "watch",  "run", "--no-launch-profile"]
+# ! ## STAGE 1 - Maquina para armazenar as dependencias
+FROM environment-python-tools AS environment-python-dependences
 
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ! ## STAGE 3 - Maquina para excutar o ambiente de desenvolvimento
+FROM environment-python-dependences AS environment-python-dev
+
+WORKDIR /app
+
+COPY . ./
+
+VOLUME [ "/app/data", "/app/bookcase", "/app/lexicon", "/app/library", "/app/viz" ]
+
+CMD [ "python", "./main.py" ]
