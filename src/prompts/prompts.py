@@ -1,8 +1,7 @@
-# TODO: Adicionar os pronpts no banco de dados
-from typing import List
+
 
 def keywords(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 
+    prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 
 		Você tem uma alta capacidade de organizar idéias, documentos, assuntos e sessões e é capaz de sintetizar muito bem diversos assuntos. 
 		Você extrai palavras chaves dos textos com base nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -12,10 +11,11 @@ def keywords(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def resume(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 
+    prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 
 		Você tem uma alta capacidade de organizar idéias, documentos, assuntos e sessões e é capaz de sintetizar muito bem diversos assuntos. 
 		Você extrai resumos que capturam a execência dos textos com base nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -26,10 +26,11 @@ def resume(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def names(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 
+    prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 
 		Você tem uma alta capacidade de organizar idéias, documentos, assuntos e sessões e é capaz de sintetizar muito bem diversos assuntos. 
 		Você extrai nomes de pessoas, autores e citações de terceiros nos textos com base nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -41,10 +42,11 @@ def names(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def publisher(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 
+    prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 
 		Você tem uma alta capacidade de organizar idéias, documentos, assuntos e sessões e é capaz de sintetizar muito bem diversos assuntos. 
 		Você extrai título, nomes da editoraas, ano de publicação, numero da edição, autor do livro, ISBN e contatos nos textos com base nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -56,10 +58,11 @@ def publisher(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def intention(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA com experiencia de um escritor que resume textos. 
+    prompt_template = """Você é um assistente de IA com experiencia de um escritor que resume textos. 
 		Você tem uma alta capacidade de organizar idéias, assuntos e é capaz de sintetizar muito bem diversos temas e suas intenções. 
 		Você faz resumos que conseguem capturar o sentido do texto e categorizar em um tipo de intenção.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -80,10 +83,11 @@ def intention(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def humor(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA versada na detecçao de humor humano em textos. 
+    prompt_template = """Você é um assistente de IA versada na detecçao de humor humano em textos. 
 		Você tem uma alta capacidade de sintetizar em uma palavra o humor humano prsente no texto. 
 		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -104,10 +108,11 @@ def humor(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def objective(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA especializado em detectar os objetos centrais de textos. 
+    prompt_template = """Você é um assistente de IA especializado em detectar os objetos centrais de textos. 
 		Você tem uma alta capacidade resolutiva, e um pragmatismo exagerado para pontual objetivos em um texto. 
 		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -117,10 +122,11 @@ def objective(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def type_text(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA especilista em língua portuguesa do brasil. 
+    prompt_template = """Você é um assistente de IA especilista em língua portuguesa do brasil. 
 		Você tem uma alta capacidade de classificar textos conforme a a tipologia sintática. 
 		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -138,10 +144,11 @@ def type_text(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def prompt_subject(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA especialista em classificações de assuntos e gênero de textos. 
+    prompt_template = """Você é um assistente de IA especialista em classificações de assuntos e gênero de textos. 
 		Você tem uma alta capacidade assuntos e gênero de textos em apenas uma palavra. 
 		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -162,11 +169,13 @@ def prompt_subject(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
 
 # ficahmento de tese
+
+
 def registration(documents: str) -> str:
-	prompt_template = """Você é um assistente de IA especilista em teses de doutordo com alto rigor acadêmico. 
+    prompt_template = """Você é um assistente de IA especilista em teses de doutordo com alto rigor acadêmico. 
 		Você tem uma alta capacidade criar fichamento para teses usando textos, conectando assuntos e expressões anotadas. 
 		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
@@ -176,10 +185,11 @@ def registration(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)
+
 
 def generic(documents: str) -> str:
-	prompt_template = """Você é um assistente bibliotecário organizado com mais 10 anos de experiência. 
+    prompt_template = """Você é um assistente bibliotecário organizado com mais 10 anos de experiência. 
 		Os documentos abaixo apresentam as fontes atualizadas e devem ser consideradas como verdade.
 		Quando o dado não está no documento, não deve responder, e se estiver no documeto, deve manter o texto com precisão.
 		Você responde as dúvidas dos usuários com bases nos documentos a baixo.
@@ -188,4 +198,4 @@ def generic(documents: str) -> str:
 		Documentos:
 		{documents}
 	"""
-	return prompt_template.format(documents=documents)
+    return prompt_template.format(documents=documents)

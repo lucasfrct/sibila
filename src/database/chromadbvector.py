@@ -13,6 +13,7 @@ def client(path: str = "./data/chromadb") -> chromadb.ClientAPI:
         logging.error(e)
         return None
 
+
 def collection(collection_name: str) -> chromadb.Collection:
     """ Inicia uma coleçoa para chorma DB"""
     return client().get_or_create_collection(name=collection_name)

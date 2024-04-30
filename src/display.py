@@ -1,7 +1,6 @@
 
 import math
 import numpy as np
-
 from pyvis.network import Network
 from sklearn.manifold import TSNE
 

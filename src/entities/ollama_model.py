@@ -15,7 +15,7 @@ class OllamaModel:
     def set_chunks(self, chunks=None):
         if chunks is None:
             chunks = []
-            
+
         self.chunks = chunks
         return self.data
 
@@ -23,12 +23,12 @@ class OllamaModel:
         self.set_chunks(chunks)
         self.generate()
         return self.embeddings
-        
+
     @property
     def data(self):
         return self.chunks, self.embeddings
 
-    def embed(self, data: str = "") -> []:
+    def embed(self, data: str = ""):
         embedding = self.ollama.embeddings(model=self.model, prompt=data)
         return embedding["embedding"]
 
@@ -58,4 +58,3 @@ class OllamaModel:
             ],
             options={"temperature": 0.5},
         )
-
