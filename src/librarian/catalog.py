@@ -22,8 +22,8 @@ def register_in_batch(path: str = "") -> List[str]:
         
         for path_full in DocService.read(path):
     
-            if register_info_by_path(path_full) == False:
-                continue
+            # if register_info_by_path(path_full) == False:
+            #     continue
             
             paths.append(path_full)
             

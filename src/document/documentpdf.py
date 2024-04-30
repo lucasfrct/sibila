@@ -318,7 +318,7 @@ def read_pages_with_details(path: str = "", init: int = 1, final: int = 0)-> Lis
         pages = []
         for num in range(init - 1, final):
             
-            content = pdf.pages[num].extract_text()
+            content = pdf.pages[num].extract_text(0)
             chunk_list = String.split_to_chunks(content)
             
             page = DocumentMetadata()
@@ -329,7 +329,7 @@ def read_pages_with_details(path: str = "", init: int = 1, final: int = 0)-> Lis
             # page.name = inf.name
             # page.source = f"{page.name}, pg. {page.page}"
             # page.letters = len(content)
-            page.content = content
+            page.content = str(content).replace("\n", " ")
             
             # page.line = page.split_to_line(content)
             # page.size = 0
