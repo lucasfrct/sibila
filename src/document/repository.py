@@ -42,6 +42,9 @@ def table_metadata()-> bool:
 
 def save(document)-> bool :
 	try: 
+		if document == None:
+			return False
+
 		path = document["path"]
 		doc_data = show_by_path(path)
 
@@ -159,7 +162,7 @@ def query_metadata_include(term: str = "", results: int = 10) :
 			lines.append(extract_line(line))
 
 		if len(lines) == 0:
-			raise ValueError("Não foi encontrado nenhum documento")
+			return []
 
 		return lines
 	except Exception as e:

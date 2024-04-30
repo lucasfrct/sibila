@@ -1,14 +1,9 @@
 
 from openai import OpenAI
-import concurrent.futures
 import ollama
-import uuid
-import os
 
-from src.document.documentpdf import Doc
 from src.config.openai import OPENAI_API_KEY
 from src.prompts import prompts
-from src.database import chromadbvector as chromadb
 
 class ModelOpenAI:
     def __init__(self):
@@ -20,7 +15,7 @@ class ModelOpenAI:
         self.embeddings = []
         self.model_type= "text-embedding-ada-002"
 
-    def document(self, doc: Doc):
+    def document(self):
         self.doc = doc
         self.chunks, self.metadatas = self.doc.chunks_and_metadatas
     

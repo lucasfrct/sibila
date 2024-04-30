@@ -29,8 +29,6 @@ def register_in_bath(path: str = "") -> List[str]:
             for meta in all_meta:
                 DocRepository.save_metadata(meta)
                 DocRetrieval.register(meta['content'], meta)
-                
-        query_generic("casa")
             
         return paths
     except Exception as e:

@@ -185,6 +185,7 @@ def lines_to_text(lines = []) -> str:
 
 	formatted_list = []
 	for line in lines:
-		formatted_list.append("\n{}\n[{}]: {}".format(line['uuid'], line["source"], line['content']))
+		content = line.get('content', line.get('document'))
+		formatted_list.append("\n{}\n[{}]: {}".format(line['uuid'], line["source"], content))
 
 	return "\n".join(formatted_list)

@@ -1,8 +1,6 @@
 
-from typing import List, Tuple
 import ollama
 
-from src.document.documentpdf import Doc
 from src.prompts import prompts
 
 class OllamaModel:
@@ -13,20 +11,20 @@ class OllamaModel:
         self.embeddings = []
         self.model = model
 
-    def set_chunks(self, chunks = None)-> Tuple[[], []]:
+    def set_chunks(self, chunks = None):
         if chunks is None:
             chunks = []
             
         self.chunks = chunks
         return self.data
 
-    def make(self, chunks = [])-> Tuple[[], []]:
+    def make(self, chunks = []):
         self.set_chunks(chunks)
         self.generate()
         return self.embeddings
         
     @property
-    def data(self) -> Tuple[[], []]:
+    def data(self):
         return  self.chunks, self.embeddings
 
     def embed(self, data: str = "") -> []:

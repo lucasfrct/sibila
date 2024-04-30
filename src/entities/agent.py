@@ -16,7 +16,7 @@ class Agent:
     def __init__(self):
         self.model_ollama = OllamaModel()
         self.model_open_ai = ModelOpenAI()
-        self.doc_db = DocRetrieval
+        self.retrieval = DocRetrieval
         
     def welcome(self):
         print("\n",f"{colors.WARNING} Como posso ajudar hoje? {colors.ENDC}", "\n")
@@ -25,16 +25,16 @@ class Agent:
         print("\n",f"{colors.WARNING} Quer perguntar mais alguma coisa? {colors.ENDC}", "\n")
         
     def question(self, question):
-        result = self.doc_db.query(question, self.model_ollama.embed(question), 10)
-        documents = self.doc_db.docs_to_text(result)
+        result = DocRetrieval.query(question, self.model_ollama.embed(question), 10)
+        documents = DocRetrieval.docs_to_text(result)
         answer = self.model_open_ai.question(question, documents)
         self.delay_write(answer)
         self.available()
         return answer
     
     def consult(self, question):
-        doc1 = DocRetrieval.lines_to_text(DocRepository.query_metadata_include(question, 5))
-        doc2 = DocRetrieval.lines_to_text(DocRetrieval.query_text(question, 5))
+        doc1 = DocRetrieval.lines_to_text(DocRepository.query_metadata_include(question, 20))
+        doc2 = DocRetrieval.lines_to_text(DocRetrieval.query_text(question, 20))
         documents = f"{doc1} \n {doc2}"
         answer = self.model_open_ai.question(question, documents)
         self.delay_write(answer)

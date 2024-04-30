@@ -34,7 +34,7 @@ def info(path: str):
 
         pdf = reader(path)
         if pdf == None:
-            raise ValueError("Não foi possível ler o arquivo pdf.")
+            return None
         
         pages = len(pdf.pages)
         return { 'path': path, 'name': name, 'size': size, 'pages': pages, 'mimetype': "pdf" }
