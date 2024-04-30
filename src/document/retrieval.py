@@ -3,7 +3,7 @@ import logging
 import traceback
 
 from src.database import chromadbvector
-from src.document.doc import Doc
+from src.document.documentpdf import Doc
 
 COLLECTION = "documents"
 COLLECTIONRESUME = "resume"

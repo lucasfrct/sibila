@@ -5,14 +5,14 @@ from typing import List
 
 from src.document import repository as DocRepository
 from src.document import service as DocService
-from src.document import pdfdoc as PDFDoc
-from src.document.doc import Doc
+from src.document import documentpdf as PDFDoc
+from src.document.documentpdf import Documentpdf as DocumentPDF
 
 def register_by_path(path: str = "") -> bool:
     try:
     	# if DocRepository.has_document(path) == True:
         #     return True
-        return DocRepository.save(Doc(os.path.basename(path), path))
+        return DocRepository.save(DocumentPDF(os.path.basename(path), path))
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return False

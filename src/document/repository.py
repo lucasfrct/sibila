@@ -4,7 +4,7 @@ import traceback
 from typing import  List, Tuple, Optional
 
 from src.database import sqlitedb
-from src.document.doc import Doc
+from src.document.documentpdf import Doc
 
 def table()-> bool:
 	try:

@@ -1,12 +1,8 @@
 
 from typing import List, Tuple
-import concurrent.futures
 import ollama
-import uuid
-import os
 
-
-from src.document.doc import Doc
+from src.document.documentpdf import Doc
 from src.prompts import prompts
 
 class OllamaModel:

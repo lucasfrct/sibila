@@ -4,8 +4,8 @@ import logging
 import traceback
 from typing import List, Optional
 
-from src.document import pdfdoc as PDFDoc
-from src.document.doc import Doc
+from src.document import documentpdf as PDFDoc
+from src.document.documentpdf import Doc
 from src.document import repository as DocRepository 
 # from src.document import retrieval as DocRetrieval 
 

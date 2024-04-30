@@ -5,7 +5,7 @@ import ollama
 import uuid
 import os
 
-from src.document.doc import Doc
+from src.document.documentpdf import Doc
 from src.config.openai import OPENAI_API_KEY
 from src.prompts import prompts
 from src.database import chromadbvector as chromadb
