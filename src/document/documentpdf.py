@@ -6,9 +6,8 @@ import uuid
 import re
 import os
 
-import PyPDF2
+import pdfplumber
 
-from src.utils import archive as Archive
 from src.utils import string as String
 
 class DocumentInfo:
@@ -218,19 +217,18 @@ class DocumentMetadata:
         return self
     
     def split_to_line(self, content):
-        return content.split(' \n')
+        return content.split('\n')
     
     def split_to_pargraph(self, content):
-        return content.split('\n \n')
+        return content.split('\n\n')
     
 ## faz leitura de uma documento PDF   
 def reader(path: str = ""):
     try:
-        file = Archive.reader(path)
-        if file == None:
-            return None
+        if not os.path.exists(path):
+            raise ValueError("O path está inválido.")
         
-        return PyPDF2.PdfReader(file)
+        return pdfplumber.open(path)
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
@@ -318,31 +316,33 @@ def read_pages_with_details(path: str = "", init: int = 1, final: int = 0)-> Lis
         pages = []
         for num in range(init - 1, final):
             
-            content = pdf.pages[num].extract_text(0)
+            page_raw = pdf.pages[num]
+            content = page_raw.extract_text()
             chunk_list = String.split_to_chunks(content)
             
             page = DocumentMetadata()
             
             page.uuid = str(uuid.uuid4())
             page.path = path
-            # page.page = int(num + 1)
-            # page.name = inf.name
-            # page.source = f"{page.name}, pg. {page.page}"
-            # page.letters = len(content)
-            page.content = str(content).replace("\n ", " ")
+            page.page = int(num + 1)
+            page.name = inf.name
+            page.source = f"{page.name}, pg. {page.page}"
+            page.letters = len(content)
+            page.content = content
             
-            # page.line = page.split_to_line(content)
-            # page.size = 0
-            # page.lines = len(page.line)
-            # page.pages - inf.pages
-            # page.chunk = chunk_list
-            # page.chunks = len(page.chunk)
-            # page.mimetype = "pdf"
-            # page.paragraph = page.split_to_pargraph(content)
-            # page.paragraphs = len(page.paragraph)
+            page.line = page.split_to_line(content)
+            page.size = inf.size
+            page.lines = len(page.line)
+            page.pages - inf.pages
+            page.chunk = chunk_list
+            page.chunks = len(page.chunk)
+            page.mimetype = "pdf"
+            page.paragraph = page.split_to_pargraph(content)
+            page.paragraphs = len(page.paragraph)
                     
             pages.append(page)
         
+        pdf.close()
         return pages
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())

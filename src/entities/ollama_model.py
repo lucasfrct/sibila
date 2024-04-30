@@ -3,29 +3,30 @@ import ollama
 
 from src.prompts import prompts
 
+
 class OllamaModel:
-    def __init__(self, model: str = "llama2"):
+    def __init__(self, model: str = "splitpierre/bode-alpaca-pt-br"):
 
         self.ollama = ollama
         self.chunks = []
         self.embeddings = []
         self.model = model
 
-    def set_chunks(self, chunks = None):
+    def set_chunks(self, chunks=None):
         if chunks is None:
             chunks = []
             
         self.chunks = chunks
         return self.data
 
-    def make(self, chunks = []):
+    def make(self, chunks=[]):
         self.set_chunks(chunks)
         self.generate()
         return self.embeddings
         
     @property
     def data(self):
-        return  self.chunks, self.embeddings
+        return self.chunks, self.embeddings
 
     def embed(self, data: str = "") -> []:
         embedding = self.ollama.embeddings(model=self.model, prompt=data)
@@ -49,12 +50,12 @@ class OllamaModel:
         return chat_completion["message"]["content"]
 
     def completion(self, prompt: str, question: str):
-         return self.ollama.chat(
+        return self.ollama.chat(
             model=self.model,
             messages=[
-                { "role": "system", "content": f"{prompt}" },
-                { "role": "user", "content": f"{question}" }
+                {"role": "system", "content": f"{prompt}"},
+                {"role": "user", "content": f"{question}"}
             ],
-            options={ "temperature": 0.5 },
+            options={"temperature": 0.5},
         )
 
