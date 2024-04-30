@@ -1,10 +1,9 @@
 
 import logging
 import traceback
-from typing import  List, Tuple, Optional
+from typing import List
 
 from src.database import sqlitedb
-from src.document.documentpdf import Doc
 
 def table()-> bool:
 	try:
@@ -41,15 +40,15 @@ def table_metadata()-> bool:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def save(document: Doc)-> bool :
+def save(document)-> bool :
 	try: 
-		path = document.path
+		path = document["path"]
 		doc_data = show_by_path(path)
 
 		if doc_data != None:
 			return False
 
-		doc_body = (document.name, path, document.mimetype) 
+		doc_body = (document["name"], path, document["mimetype"]) 
 		conn = sqlitedb.client()
 		conn.execute("insert into documents (name, path, mimetype) values (?, ?, ?)", doc_body)
 		conn.commit()
@@ -59,13 +58,13 @@ def save(document: Doc)-> bool :
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def show_by_path(path: str = "") -> Optional[Doc]:
+def show_by_path(path: str = ""):
 	try:
 		_list = list_raw(path)
 		docs = []
 		for doc in _list:
 			_id, name, path, mimetype = doc
-			docs.append(Doc(name, path, mimetype, _id))
+			docs.append({ 'name': name, 'path': path, 'mimetype': mimetype, 'id': _id })
 
 		if(len(docs) == 0):
 			return None
@@ -75,24 +74,24 @@ def show_by_path(path: str = "") -> Optional[Doc]:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return None
 
-def show_list()-> List[Doc] :
+def show_list()-> List[object] :
 	try:
 		conn = sqlitedb.client()
 		cursor = conn.execute("select * from documents")
 		docs = []
 		for doc in cursor:
-			name, path, mimetype = doc
-			docs.append(Doc(name, path, mimetype))
+			_id, name, path, mimetype = doc
+			docs.append({ 'name': name, 'path': path, 'mimetype': mimetype, 'id': _id })
 
 		if len(docs) == 0:
-			raise ValueError("Não foi encontrado nenhum documento")
+			return []
 
 		return docs
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
-def list_raw(path: str = "")-> List[object]:
+def list_raw(path: str = ""):
 	try:
 		conn = sqlitedb.client()
 		cursor = conn.execute("select * from documents where path=?", (path,))
@@ -135,13 +134,13 @@ def save_metadata(metadata = {})-> bool :
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def list_lines()-> [] :
+def list_lines():
 	try:
 		conn = sqlitedb.client()
 		cursor = conn.execute("select * from lines")
 		lines = []
 		for line in cursor:
-			lines.append(extrat_line(line))
+			lines.append(extract_line(line))
 
 		if len(lines) == 0:
 			raise ValueError("Não foi encontrado nenhum documento")
@@ -151,7 +150,7 @@ def list_lines()-> [] :
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
-def query_metadata_include(term: str = "", results: int = 10)-> [] :
+def query_metadata_include(term: str = "", results: int = 10) :
 	try:
 		conn = sqlitedb.client()
 		cursor = conn.execute(f"select * from lines where content like '%{term}%' limit {results}")

@@ -8,13 +8,15 @@ import os
 
 import PyPDF2
 
+from src.utils import archive as Archive
+
 
 def reader(path: str = ""):
     try:
-        if not os.path.exists(path):
-            raise ValueError("O path está inválido.")
-
-        file = open(os.path.normpath(path), 'rb')
+        file = Archive.reader(path)
+        if file == None:
+            return None
+        
         return PyPDF2.PdfReader(file)
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
@@ -35,7 +37,7 @@ def info(path: str):
             raise ValueError("Não foi possível ler o arquivo pdf.")
         
         pages = len(pdf.pages)
-        return { 'name': name, 'size': size, 'pages': pages }
+        return { 'path': path, 'name': name, 'size': size, 'pages': pages, 'mimetype': "pdf" }
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
@@ -171,6 +173,7 @@ def read_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
                 'lines':  len(lines_clean),
                 'paragraph': paragraph_clean,
                 'paragraphs': len(paragraph_clean),
+                'mimetype': 'pdf',
             }
             
             pages.append(metadata)
@@ -217,7 +220,8 @@ def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
                     'size': page['size'],
                     'chunks': len(chunks),
                     'pages': page['pages'],
-                    'lines':  len(lines_clean)
+                    'lines':  len(lines_clean),
+                    'mimetype': 'pdf',
                 }
                 
                 paragraphs.append(paragraph)
@@ -254,6 +258,7 @@ def lines_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
                     'chunks': len(chunks),
                     'size': paragraph['size'],
                     'pages': paragraph['pages'],
+                    'mimetype': 'pdf',
                 }
                 
                 lines.append(line)
@@ -265,3 +270,7 @@ def lines_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
     
 def split_to_chunks(content: str= "", size: int = 1000) -> List[str]:
    return [content[i:i+size].ljust(size) for i in range(0, len(content), size)]
+
+def transform_to_chuncks_and_metadatas(datails):
+    for detail in datails:
+        print(detail)

@@ -3,13 +3,12 @@ import logging
 import traceback
 
 from src.database import chromadbvector
-from src.document.documentpdf import Doc
 
 COLLECTION = "documents"
 COLLECTIONRESUME = "resume"
 
 
-def save(document: Doc):
+def save(document):
     """salva em duas collections, uma para texto puro e outra para embeddings"""
     try: 
         if not save_embedings(document):
@@ -21,7 +20,7 @@ def save(document: Doc):
         return False
 
 # salva na collection com embeddings
-def save_embedings(document: Doc):
+def save_embedings(document):
 	try: 
 		chunks, embeddings, metadatas = document.chunks_embedings_and_metadatas
 
@@ -34,7 +33,7 @@ def save_embedings(document: Doc):
 		return False
 
 # sava na collection somente os textos
-def save_text(document: Doc):
+def save_text(document):
 	try: 
 		chunks, metadatas = document.chunks_and_metadatas
 		ids = [str(uuid.uuid4()) for _ in chunks]
@@ -71,7 +70,7 @@ def register(text: str, metadatas = None):
 		return False
  
 # consulta com embeddings
-def query_embeddings(embeddings: [] = [], results: int = 10)-> []:
+def query_embeddings(embeddings = [], results: int = 10):
 	try: 
 		collection = chromadbvector.collection(COLLECTION)
 		result = collection.query(query_embeddings=[embeddings], n_results=results)
@@ -91,7 +90,7 @@ def query_text(consult: str = "", results: int = 10)-> []:
 		return []
 
 # busca com texto e embeddings combinado
-def query(consultant: str = "",  embeddings = [], results: int = 10)-> []:
+def query(consultant: str = "",  embeddings = [], results: int = 10):
 	searchs = []
 	searchs.extend(query_text(consultant, results))
 	searchs.extend(query_embeddings(embeddings, results))
@@ -159,7 +158,7 @@ def extract_result(result)-> []:
 	return result_data
 	
 # remove documentos repetidos na lista
-def list_unique(list_items: [])-> []:
+def list_unique(list_items: []):
 
 	keys = set()
 	unique = []

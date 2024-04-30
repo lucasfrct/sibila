@@ -4,22 +4,20 @@ import logging
 import traceback
 from typing import List, Optional
 
-from src.document import documentpdf as PDFDoc
-from src.document.documentpdf import Doc
 from src.document import repository as DocRepository 
+from src.document import documentpdf as DocumentPDF
 # from src.document import retrieval as DocRetrieval 
+
+from src.utils import archive as Archive
 
 def read(path: str = "") -> List[str]:
     try:
-        if not os.path.exists(path):
-            raise ValueError("O path está inválido.")
-        
-        return os.listdir(path)
+       return Archive.paths(path)
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
 
-def build(paths: [] = []) -> List[Doc]:
+def build(paths: [] = []) -> List[object]:
     try:
         documents = []
 
@@ -38,14 +36,12 @@ def build(paths: [] = []) -> List[Doc]:
         logging.error(e)
         return []
     
-def builder(path: str = "") -> Optional[Doc]:
+def builder(path: str = ""):
     try:
         if not os.path.exists(path):
             raise ValueError("O path está inválido.")
         
-        path = os.path.normpath(path)
-        name = os.path.basename(path)
-        return Doc(name, path)
+        return DocumentPDF.read_with_details(path)
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
@@ -58,10 +54,10 @@ def process_bath(path: str = ""):
             if DocRepository.has_document(path_full):
                 continue
             
-            if not DocRepository.save(Doc(path_name, path_full)):
+            if not DocRepository.save(DocumentPDF.info(path)):
                 continue
             
-            all_meta = PDFDoc.paragraphs_with_details(path_full)
+            all_meta = DocumentPDF.paragraphs_with_details(path_full)
             for meta in all_meta:
                 if not DocRepository.save_metadata(meta):
                     continue
