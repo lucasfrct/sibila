@@ -22,7 +22,7 @@ def paths(path: str = "") -> List[str]:
     
 def register(path: str = "") -> List[str]:
     try:
-        return Catalog.register_in_bath(path)
+        return Catalog.register_in_batch(path)
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []

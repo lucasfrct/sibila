@@ -1,18 +1,25 @@
 
 import logging
 import traceback
-from typing import List
+from typing import List, Optional
 
 from src.database import sqlitedb
+from src.document.documentpdf import DocumentInfo, DocumentMetadata
 
-def table()-> bool:
+
+#################################################################
+## TABLE INFO
+#################################################################
+def table_documents_info()-> bool:
 	try:
 		conn = sqlitedb.client()
 		conn.execute("""
-			create table if not exists documents (
+			create table if not exists documents_info (
 				id text primary key,
-				name text,
 				path text,
+				name text,
+				size interger,
+				pages interger,
 				mimetype text
 			)
 		""")
@@ -21,39 +28,20 @@ def table()-> bool:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def table_metadata()-> bool:
-	try:
-		conn = sqlitedb.client()
-		conn.execute("""
-			create table if not exists lines (
-				uuid text primary key,
-				letters interger,
-				page interger,
-				content text,
-				source text,
-				name text,
-				path text
-			)
-		""")
-		return True
-	except Exception as e:
-		logging.error(f"{e}\n%s", traceback.format_exc())
-		return False
-
-def save(document)-> bool :
+def save_info(document: DocumentInfo)-> bool :
 	try: 
 		if document == None:
 			return False
 
-		path = document["path"]
-		doc_data = show_by_path(path)
+		path = document.path
+		doc_data = show_info_by_path(path)
 
 		if doc_data != None:
 			return False
 
-		doc_body = (document["name"], path, document["mimetype"]) 
+		info = document.to_tuple()
 		conn = sqlitedb.client()
-		conn.execute("insert into documents (name, path, mimetype) values (?, ?, ?)", doc_body)
+		conn.execute("insert into documents_info (path, name, size, pages, mimetype) values (?, ?, ?, ?, ?)", info)
 		conn.commit()
 		return True
 
@@ -61,30 +49,32 @@ def save(document)-> bool :
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def show_by_path(path: str = ""):
+def show_info_by_path(path: str = "") -> Optional[DocumentInfo]:
 	try:
-		_list = list_raw(path)
+		docs_raw = list_raw(path)
 		docs = []
-		for doc in _list:
-			_id, name, path, mimetype = doc
-			docs.append({ 'name': name, 'path': path, 'mimetype': mimetype, 'id': _id })
+		for doc_raw in docs_raw:
+			docs.append(doc_raw)
 
 		if(len(docs) == 0):
 			return None
 
-		return docs[0]
+		doc = DocumentInfo()
+		doc.from_tuple(docs[0])
+		return doc
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return None
 
-def show_list()-> List[object] :
+def list_info()-> List[DocumentInfo] :
 	try:
 		conn = sqlitedb.client()
 		cursor = conn.execute("select * from documents")
 		docs = []
-		for doc in cursor:
-			_id, name, path, mimetype = doc
-			docs.append({ 'name': name, 'path': path, 'mimetype': mimetype, 'id': _id })
+		for doc_raw in cursor:
+			doc = DocumentInfo()
+			doc.from_tuple(doc_raw)
+			docs.append(doc)
 
 		if len(docs) == 0:
 			return []
@@ -94,10 +84,10 @@ def show_list()-> List[object] :
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
-def list_raw(path: str = ""):
+def list_raw(path: str = "") -> List[object]:
 	try:
 		conn = sqlitedb.client()
-		cursor = conn.execute("select * from documents where path=?", (path,))
+		cursor = conn.execute("select * from documents_info where path=?", (path,))
 		docs = []
 		for doc in cursor:
 			docs.append(doc)
@@ -116,20 +106,41 @@ def has_document(path: str = "")-> bool:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def save_metadata(metadata = {})-> bool :
-	try: 
-		meta_body = (
-      		metadata['uuid'], 
-          	metadata['letters'], 
-        	metadata['page'], 
-           	metadata['content'], 
-           	metadata['source'], 
-            metadata['name'], 
-            metadata['path'],
-        ) 
-  
+#################################################################
+## TABLE METADATA
+#################################################################
+
+def table_documents_metadatas()-> bool:
+	try:
 		conn = sqlitedb.client()
-		conn.execute("insert into lines (uuid, letters, page, content, source, name, path) values (?, ?, ?, ?, ?, ?, ?)", meta_body)
+		conn.execute("""
+			create table if not exists documents_metadatas (
+				uuid text primary key,
+				path text,
+				page interger,
+				name text,
+				source text,
+				letters interger,
+				content text,
+    
+				size interger,
+				lines interger,
+				pages interger,
+				chunks interger,
+				mimetype text,
+				paragraphs interger
+			)
+		""")
+		return True
+	except Exception as e:
+		logging.error(f"{e}\n%s", traceback.format_exc())
+		return False
+
+def save_metadata(meta: DocumentMetadata)-> bool :
+	try: 
+		meta_save = meta.to_model()
+		conn = sqlitedb.client()
+		conn.execute("insert into documents_metadatas (uuid, path, page, name, source, letters, content, size, lines, pages, chunks, mimetype, paragraphs) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", meta_save)
 		conn.commit()
 		return True
 
@@ -137,46 +148,38 @@ def save_metadata(metadata = {})-> bool :
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-def list_lines():
+def list_metadata() -> List[DocumentMetadata]:
 	try:
 		conn = sqlitedb.client()
-		cursor = conn.execute("select * from lines")
-		lines = []
-		for line in cursor:
-			lines.append(extract_line(line))
+		cursor = conn.execute("select * from documents_metadatas")
+		metadatas = []
+		for metadata_raw in cursor:
+			metadata = DocumentMetadata()
+			metadata.from_model(metadata_raw)
+			metadatas.append(metadata)
 
-		if len(lines) == 0:
-			raise ValueError("Não foi encontrado nenhum documento")
-
-		return lines
-	except Exception as e:
-		logging.error(f"{e}\n%s", traceback.format_exc())
-		return []
-
-def query_metadata_include(term: str = "", results: int = 10) :
-	try:
-		conn = sqlitedb.client()
-		cursor = conn.execute(f"select * from lines where content like '%{term}%' limit {results}")
-		lines = []
-		for line in cursor:
-			lines.append(extract_line(line))
-
-		if len(lines) == 0:
+		if len(metadatas) == 0:
 			return []
 
-		return lines
+		return metadatas
 	except Exception as e:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
-def extract_line(line):
-    uuid, letters, page, content, source, name, path = line
-    return {
-		'letters': letters,
-		'content': content,
-		'source': source,
-		'uuid': uuid,
-		'page': page,
-		'name': name,
-		'path': path,
-	}
+def query_metadata(term: str = "", results: int = 10)-> List[DocumentMetadata] :
+	try:
+		conn = sqlitedb.client()
+		cursor = conn.execute(f"select * from documents_metadatas where content like '%{term}%' limit {results}")
+		metadatas = []
+		for metadata_raw in cursor:
+			metadata = DocumentMetadata()
+			metadata.from_model(metadata_raw)
+			metadatas.append(metadata)
+
+		if len(metadatas) == 0:
+			return []
+
+		return metadatas
+	except Exception as e:
+		logging.error(f"{e}\n%s", traceback.format_exc())
+		return []

@@ -1,24 +1,17 @@
 import uuid
 import logging
 import traceback
+from typing import List
 
 from src.database import chromadbvector
+from src.document.documentpdf import DocumentMetadata
 
 COLLECTION = "documents"
 COLLECTIONRESUME = "resume"
 
-
-def save(document):
-    """salva em duas collections, uma para texto puro e outra para embeddings"""
-    try: 
-        if not save_embedings(document):
-            return False
-        
-        return save_text(document)
-    except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
-        return False
-
+#################################################################
+## TABLE EMBEDDINGS
+#################################################################
 # salva na collection com embeddings
 def save_embedings(document):
 	try: 
@@ -32,43 +25,6 @@ def save_embedings(document):
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return False
 
-# sava na collection somente os textos
-def save_text(document):
-	try: 
-		chunks, metadatas = document.chunks_and_metadatas
-		ids = [str(uuid.uuid4()) for _ in chunks]
-		collection = chromadbvector.collection(COLLECTIONRESUME)
-		collection.add(documents=chunks, metadatas=metadatas, ids=ids)
-		return True
-  
-	except Exception as e:
-		logging.error(f"{e}\n%s", traceback.format_exc())
-		return False
-
-def register(text: str, metadatas = None):
-	try: 
-
-		_id = str(uuid.uuid4())
-		collection = chromadbvector.collection(COLLECTIONRESUME)
-  
-		if metadatas:
-			meta = {
-				'letters': str(metadatas['letters']),
-				'pages': str(metadatas['pages']),
-				'page': str(metadatas['page']),
-				'source': metadatas['source'],
-				'path': metadatas['path'],
-				'name': metadatas['name'],
-			}
-			collection.add(documents=[text], metadatas=meta, ids=[_id])
-			return True
-		
-		collection.add(documents=[text], ids=[_id])
-		return True
-	except Exception as e:
-		logging.error(f"{e}\n%s", traceback.format_exc())
-		return False
- 
 # consulta com embeddings
 def query_embeddings(embeddings = [], results: int = 10):
 	try: 
@@ -79,6 +35,59 @@ def query_embeddings(embeddings = [], results: int = 10):
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
+#################################################################
+## TABLE METADATA
+#################################################################
+def save_metadata(metadata: DocumentMetadata)-> bool:
+	try: 
+		uuid = metadata.uuid
+		text = metadata.content
+		meta = metadata.to_dict_model()
+		collection = chromadbvector.collection(COLLECTIONRESUME)
+		collection.add(documents=text, metadatas=meta, ids=uuid)
+		return True
+	except Exception as e:
+		logging.error(f"{e}\n%s", traceback.format_exc())
+		return False
+
+def query_metadata(consult: str = "", results: int = 10)-> List[DocumentMetadata]:
+	try: 
+		collection = chromadbvector.collection(COLLECTIONRESUME)
+		result = collection.query(query_texts=[consult], n_results=results)
+		return retrieval_to_metadata(result)
+	except Exception as e:
+		logging.error(f"{e}\n%s", traceback.format_exc())
+		return []
+
+def retrieval_to_metadata(retrieval)-> List[DocumentMetadata]:
+    
+    retrieval_ids = retrieval['ids']
+    retrieval_metadatas = retrieval['metadatas']
+    retrieval_distances = retrieval['distances']
+    
+    metadatas = []
+    
+    if len(retrieval_ids)== 0:
+        return []
+    
+    for i, ret_ids in enumerate(retrieval_ids):
+        for j, _id in enumerate(ret_ids):
+            metadata = DocumentMetadata()
+            
+            if retrieval_metadatas != None:
+                meta = retrieval_metadatas[i][j]
+                metadata.from_dict_model(meta)
+            
+            metadata.uuid = _id
+            metadata.distance = retrieval_distances[i][j]
+                
+            metadatas.append(metadata)
+    
+    return metadatas
+
+#################################################################
+## TABLE TEXT
+#################################################################
 # consulta com somente texto
 def query_text(consult: str = "", results: int = 10)-> []:
 	try: 
@@ -89,6 +98,10 @@ def query_text(consult: str = "", results: int = 10)-> []:
 		logging.error(f"{e}\n%s", traceback.format_exc())
 		return []
 
+
+#################################################################
+## TABLE COMBINADAS
+#################################################################
 # busca com texto e embeddings combinado
 def query(consultant: str = "",  embeddings = [], results: int = 10):
 	searchs = []

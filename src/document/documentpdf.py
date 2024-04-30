@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import List, Optional
 import traceback
 import logging
 import uuid
@@ -9,8 +9,221 @@ import os
 import PyPDF2
 
 from src.utils import archive as Archive
+from src.utils import string as String
 
+class DocumentInfo:
+    def __init__(self, path: str = "", name: str = "", size: int = 0, pages: int = 1, mimetype: str = "pdf"):
+        self.id = 0
+        self.path = path
+        self.name = name
+        self.size = size
+        self.pages = pages
+        self.mimetype = mimetype
 
+    def dict(self):
+        return { 'id': self.id, 'path': self.path, 'name': self.name, 'size': self.size, 'pages': self.pages, 'mimetype': self.mimetype }
+    
+    def to_tuple(self):
+        return (self.path, self.name, self.size, self.pages, self.mimetype) 
+    
+    def from_tuple(self, doc_tuple):
+        _id, path, name, size, pages, mimetype = doc_tuple
+        self.id = _id
+        self.path = path
+        self.name = name
+        self.size = size
+        self.pages = pages
+        self.mimetype = mimetype
+        return self
+    
+    def extract(self, path):
+        try:
+            if not os.path.exists(path):
+                raise ValueError("O path está inválido.")
+            
+            # Obter metadados do PDF
+            self.path = os.path.normpath(path)    
+            self.name = os.path.basename(path)
+            self.size = int(os.path.getsize(path))
+
+            pdf = reader(path)
+            if pdf == None:
+                return None
+            
+            self.pages = int(len(pdf.pages))
+            return self.dict()
+        except Exception as e:
+            logging.error(f"{e}\n%s", traceback.format_exc())
+            return None
+    
+class DocumentMetadata:
+    def __init__(self):
+        
+        self.uuid = ""          # identificador do arquivo
+        self.path = ""          # caminho do arquivo
+        self.page = 0           # numero da página no arquivo
+        self.name = ""          # nome do arquivo
+        self.source = ""        # fonte da informaçao
+        self.letters = 0        # total de letras
+        self.content = ""       # conteúdo íntegro
+        self.distance = 0.0     # distancia do vetor    #! (não guardar na base de dados)
+        
+        self.line = []          # lista de linas        #! (não guardar na base de dados)
+        self.size = 0           # tamanho do arquivo em bytes
+        self.lines = 0          # total de linas
+        self.pages = 0          # total de páginas
+        self.chunk = []         # lista de chunks       #! (não guardar na base de dados)
+        self.chunks = 0         # total de chuncks
+        self.mimetype = ""      # extenção do arquivo
+        self.paragraph = []     # lista de paragrafos   #! (não guardar na base de dados)
+        self.paragraphs = 0     # total de paragrafos
+
+    def dict(self):
+        return { 
+            'uuid': self.uuid, 
+            'path': self.path, 
+            'page': self.page, 
+            'name': self.name, 
+            'source': self.source, 
+            'letters': self.letters, 
+            'content': self.content, 
+            'distance': self.distance, 
+            
+            'line': self.line, 
+            'size': self.size, 
+            'lines': self.lines, 
+            'pages': self.pages, 
+            'chunk': self.chunk, 
+            'chunks': self.chunks, 
+            'mimetype': self.mimetype,
+            'paragraph': self.paragraph,
+            'paragraphs': self.paragraphs,
+        }
+       
+    # transforma num dicionario para salvar na base de dados SQL 
+    def to_dict_model(self):
+        return { 
+            'uuid': self.uuid, 
+            'path': self.path, 
+            'page': str(self.page), 
+            'name': self.name, 
+            'source': self.source, 
+            'letters': str(self.letters), 
+            'content': self.content, 
+             
+            'size': str(self.size), 
+            'lines': str(self.lines), 
+            'pages': str(self.pages), 
+            'chunks': str(self.chunks), 
+            'mimetype': self.mimetype,
+            'paragraphs': str(self.paragraphs),
+        }
+    
+    ## transforma um dicionario da base de dados SQL na classe 
+    def from_dict_model(self, model):
+        self.uuid = model['uuid']
+        self.path = model['path']
+        self.page = int(model['page'])
+        self.name = model['name']
+        self.source = model['source']
+        self.letters = int(model['letters'])
+        self.content = model['content']
+        self.distance = 0.0
+        
+        self.line = self.split_to_line(self.content)
+        self.size = int(model['size'])
+        self.lines = len(self.line)
+        self.pages = int(model['pages'])
+        self.chunk = String.split_to_chunks(self.content)
+        self.chunks = int(model['chunks'])
+        self.mimetype = model['mimetype']
+        self.paragraph = self.split_to_pargraph(self.content)
+        self.paragraphs = int(model['paragraphs'])
+        
+    # transforma aclassse num tupla
+    def to_tuple(self):
+        return (
+            self.uuid, 
+            self.path, 
+            self.page, 
+            self.name, 
+            self.source, 
+            self.letters, 
+            self.content, 
+            self.distance, 
+            
+            self.line, 
+            self.size, 
+            self.lines, 
+            self.pages, 
+            self.chunk, 
+            self.chunks, 
+            self.mimetype,
+            self.paragraph,
+            self.paragraphs
+        ) 
+    
+    # transforma uma tupla na classe
+    def from_tuple(self, meta_tuple):
+        uuid, path, page, name, source, letters, content, distance, line, size, lines, pages, chunk, chunks, mimetype, paragraph, paragraphs = meta_tuple
+        
+        self.uuid = uuid
+        self.path = path
+        self.page = page
+        self.name = name
+        self.source= source
+        self.letters = letters
+        self.content = content
+        self.distance = distance
+        
+        self.line = line
+        self.size = size
+        self.lines = lines
+        self.pages = pages
+        self.chunk = chunk
+        self.chunks = chunks
+        self.mimetype = mimetype
+        self.paragraph = paragraph
+        self.paragraphs = paragraphs
+        
+        return self
+
+    # transforma a classe numa tupla par a base de dados SQL
+    def to_model(self):
+        return (self.uuid, self.path, self.page, self.name, self.source, self.letters, self.content, self.size, self.lines, self.pages, self.chunks, self.mimetype, self.paragraphs)
+
+    # transforma a tupla da base de dados SQL na classe
+    def from_model(self, model_tuple):
+        uuid, path, page, name, source, letters, content, size, lines, pages, chunks, mimetype, paragraphs = model_tuple
+
+        self.uuid = uuid
+        self.path = path
+        self.page = page
+        self.name = name
+        self.source= source
+        self.letters = letters
+        self.content = content
+        self.distance = 0.0
+        
+        self.line = self.split_to_line(self.content)
+        self.size = size
+        self.lines = lines
+        self.pages = pages
+        self.chunk = String.split_to_chunks(self.content)
+        self.chunks = chunks
+        self.mimetype = mimetype
+        self.paragraph = self.split_to_pargraph(self.content)
+        self.paragraphs = paragraphs
+        
+        return self
+    
+    def split_to_line(self, content):
+        return content.split(' \n')
+    
+    def split_to_pargraph(self, content):
+        return content.split('\n \n')
+    
+## faz leitura de uma documento PDF   
 def reader(path: str = ""):
     try:
         file = Archive.reader(path)
@@ -22,27 +235,18 @@ def reader(path: str = ""):
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
 
-def info(path: str):
+## extra informaçoes de um PDF 
+def info(path: str) -> Optional[DocumentInfo]:
     try:
-        if not os.path.exists(path):
-            raise ValueError("O path está inválido.")
-        
-        # Obter metadados do PDF
-        path = os.path.normpath(path)    
-        name = os.path.basename(path)
-        size = os.path.getsize(path)
-
-        pdf = reader(path)
-        if pdf == None:
-            return None
-        
-        pages = len(pdf.pages)
-        return { 'path': path, 'name': name, 'size': size, 'pages': pages, 'mimetype': "pdf" }
+        doc = DocumentInfo()
+        doc.extract(path)
+        return doc 
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
-      
-def read(path: str = "", init: int = 1, final: int = 0)-> []:
+    
+## faz leitura de um trecho do PDF retornado as páginas em texto puro  
+def read(path: str = "", init: int = 1, final: int = 0)-> List[str]:
     try:
         if not os.path.exists(path):
             raise ValueError("O path está inválido.")
@@ -78,8 +282,9 @@ def read(path: str = "", init: int = 1, final: int = 0)-> []:
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
-    
-def read_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
+   
+##  faz a lietura das páginas em pdf extraindo os metadados
+def read_pages_with_details(path: str = "", init: int = 1, final: int = 0)-> List[DocumentMetadata]:
     try:
         if not os.path.exists(path):
             raise ValueError("O path está inválido.")
@@ -92,7 +297,7 @@ def read_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
         if pdf == None:
             raise ValueError("Não foi possível ler o arquivo pdf.")
     
-        total = len(pdf.pages)
+        total = inf.pages
         
         if init >= total:
             init = total - 1
@@ -114,79 +319,39 @@ def read_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
         for num in range(init - 1, final):
             
             content = pdf.pages[num].extract_text()
-            chunks = split_to_chunks(content)
-        
-            paragraph_raw = [] 
-            paragraph_long = content.split("\n\n")
-            for p in paragraph_long:
-                paragraph_raw.extend(p.split('\n \n'))
+            chunk_list = String.split_to_chunks(content)
             
-            paragraph_clean = []
-            for para in paragraph_raw:
-                para = para.strip()
-                
-                if not para:
-                    continue
-                
-                para = re.sub(r' {2,}', ' ', para)
-                para = re.sub(r'\n{2,}', ' ', para)
-                para = para.strip()
-                
-                if not para:
-                    continue
-                
-                paragraph_clean.append(para)
+            page = DocumentMetadata()
             
-            lines_clean = []
-            for paragraph in paragraph_clean:
-                paragraph = paragraph.strip()
-                
-                if not paragraph:
-                    continue
-                
-                lines = paragraph.split('\n')
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
+            page.uuid = str(uuid.uuid4())
+            page.path = path
+            # page.page = int(num + 1)
+            # page.name = inf.name
+            # page.source = f"{page.name}, pg. {page.page}"
+            # page.letters = len(content)
+            page.content = content
+            
+            # page.line = page.split_to_line(content)
+            # page.size = 0
+            # page.lines = len(page.line)
+            # page.pages - inf.pages
+            # page.chunk = chunk_list
+            # page.chunks = len(page.chunk)
+            # page.mimetype = "pdf"
+            # page.paragraph = page.split_to_pargraph(content)
+            # page.paragraphs = len(page.paragraph)
                     
-                    line = re.sub(r' {2,}', ' ', line)
-                    line = re.sub(r'\n{1,}', ' ', line)
-                    line = line.strip(' \n')
-                    lines_clean.append(line)
-                
-                      
-            metadata = {
-                'path': path,
-                'page': num + 1,
-                'content': content,
-                'name': inf['name'],
-                'letters': len(content),
-                'uuid': str(uuid.uuid4()),
-                'source': f"{inf['name']}, pg. {num + 1}",
-
-                'chunck': chunks,
-                'line': lines_clean,
-                'size': inf['size'],
-                'chunks': len(chunks),
-                'pages': inf['pages'],
-                'lines':  len(lines_clean),
-                'paragraph': paragraph_clean,
-                'paragraphs': len(paragraph_clean),
-                'mimetype': 'pdf',
-            }
-            
-            pages.append(metadata)
+            pages.append(page)
         
         return pages
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
 
-def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
+def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0)-> List[object]:
     try:
         
-        pages = read_with_details(path, init, final)
+        pages = read_pages_with_details(path, init, final)
 
         paragraphs = []
         for page in pages:
@@ -204,7 +369,7 @@ def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
                     line = line.strip(' \n')
                     lines_clean.append(line)
                 
-                chunks = split_to_chunks(content)
+                chunks = String.split_to_chunks(content)
                 paragraph = {
                     'path': page['path'],
                     'page': page['page'],
@@ -231,7 +396,7 @@ def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
 
-def lines_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
+def lines_with_details(path: str = "", init: int = 1, final: int = 0)-> List[object]:
     try:
         
         paragraphs = paragraphs_with_details(path, init, final)
@@ -241,7 +406,7 @@ def lines_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
             lns = paragraph['line']
             for i, content in enumerate(lns):
                 
-                chunks = split_to_chunks(content)
+                chunks = String.split_to_chunks(content)
 
                 line = {
                     'path': paragraph['path'],
@@ -267,9 +432,6 @@ def lines_with_details(path: str = "", init: int = 1, final: int = 0)-> []:
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
-    
-def split_to_chunks(content: str= "", size: int = 1000) -> List[str]:
-   return [content[i:i+size].ljust(size) for i in range(0, len(content), size)]
 
 def transform_to_chuncks_and_metadatas(datails):
     for detail in datails:

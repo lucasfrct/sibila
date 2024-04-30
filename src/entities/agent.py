@@ -1,8 +1,5 @@
 
-import os
-import sys
 import time
-import threading
 
 from src.utils.colors import colors
 from src.document import service as DocService
