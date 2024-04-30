@@ -329,7 +329,7 @@ def read_pages_with_details(path: str = "", init: int = 1, final: int = 0)-> Lis
             # page.name = inf.name
             # page.source = f"{page.name}, pg. {page.page}"
             # page.letters = len(content)
-            page.content = str(content).replace("\n", " ")
+            page.content = str(content).replace("\n ", " ")
             
             # page.line = page.split_to_line(content)
             # page.size = 0
