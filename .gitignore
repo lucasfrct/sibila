@@ -295,10 +295,12 @@ cython_debug/
 .env
 ./docs
 ./ollama
+./.ollama
 ./data
 ./.vs
 
 docs
 ollama
+.ollama
 data
 .vs
