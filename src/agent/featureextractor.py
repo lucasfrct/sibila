@@ -13,7 +13,7 @@ from src.agent.preprocessor import PreProcessor
 class FeatureExtractor:
     def __init__(self):
 
-        nltk.download('maxent_ne_chunker')
+        # nltk.download('maxent_ne_chunker')
 
         self.preprocessor = PreProcessor()
         self.vectorizer = CountVectorizer()
@@ -133,7 +133,7 @@ class FeatureExtractor:
         return self.vocabulary
 
     def tfidf(self, text: str = ""):
-        """ TF-IDF(Term Frequency-Inverse Document Frequency) extrai a matrix de frequencia"""  # noqa: E501
+        """ matrix de características TF-IDF(Term Frequency-Inverse Document Frequency)"""  # noqa: E501
 
         # Transformação dos documentos em uma matriz TF-IDF
         tfidf = self.tfidf_vectorizer.fit_transform([text])

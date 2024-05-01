@@ -9,6 +9,7 @@ RUN python -m venv .
 
 # TOOLS
 RUN pip install pyvis
+RUN pip install joblib
 RUN pip install fastapi
 RUN pip install reportlab
 RUN pip install unidecode

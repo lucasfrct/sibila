@@ -452,11 +452,6 @@ def lines_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ob
         return []
 
 
-def transform_to_chuncks_and_metadatas(datails):
-    for detail in datails:
-        print(detail)
-
-
 def txt_to_pdf(path: str = "", path_out: str = ""):
 
     # Criar instância da classe FPDF que é a base para a criação do documento

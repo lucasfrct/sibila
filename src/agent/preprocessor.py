@@ -18,9 +18,9 @@ class PreProcessor:
         # nltk.download('averaged_perceptron_tagger')
         # nltk.download('punkt')
         
-        nltk.download('stopwords')
-        nltk.download('words')
-        nltk.download('rslp')
+        # nltk.download('stopwords')
+        # nltk.download('words')
+        # nltk.download('rslp')
 
         self.stop_words = set(stopwords.words('portuguese'))
         self.spell = SpellChecker(language='pt')

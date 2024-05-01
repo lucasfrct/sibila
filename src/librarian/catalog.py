@@ -23,8 +23,8 @@ def register_in_batch(path: str = "") -> List[str]:
 
         for path_full in DocService.read(path):
 
-            if register_info_by_path(path_full) is False:
-                continue
+            # if register_info_by_path(path_full) is False:
+            #     continue
 
             paths.append(path_full)
 
@@ -33,7 +33,7 @@ def register_in_batch(path: str = "") -> List[str]:
             for metadata in pages_metadatas:
                 DocRepository.save_metadata(metadata)
                 DocRetrieval.save_metadata(metadata)
-                DocRetrieval.save_metadata_with_embedings(metadata)
+                # DocRetrieval.save_metadata_with_embedings(metadata)
 
         return paths
     except Exception as e:

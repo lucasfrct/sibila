@@ -2,11 +2,6 @@
 import nltk
 from nltk.corpus import stopwords
 
-from sklearn.svm import SVC
-from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -18,6 +13,7 @@ from src.document import documentpdf as DocumentPDF
 from src.entities.model_open_ai import ModelOpenAI
 from src.agent.preprocessor import PreProcessor
 from src.agent.featureextractor import FeatureExtractor
+from src.agent import classifier as Model
 
 
 # Coleta dos dados - rotular dados
@@ -84,38 +80,8 @@ class Agent:
 
     def intentions(self, text: str = ""):
         """ descobre uma intençao no texto. """  # noqa: E501
-
-        intentions = [
-            "Enganar",
-            "informar",
-            "Entreter",
-            "Instruir",
-            "Persuadir",
-            "Descrever",
-            "Questionar",
-            "Convocar ação",
-            "Expressar sentimentos ou opiniões",
-        ]
-
-        texts = [
-            "Quero comprar um bilhete de avião",
-            "Qual é a previsão do tempo para amanhã?",
-            "Preciso de uma receita de bolo"
-        ]
-
-        # Pré-processamento e extração de características
-        vectorizer = TfidfVectorizer(stop_words='english')
-        X = vectorizer.fit_transform(texts)
-
-        # Dividir dados em treino e teste
-        X_train, X_test, y_train, y_test = train_test_split(X, intentions, test_size=0.25, random_state=42)  # noqa: E501
-        # Construção do modelo
-        model = SVC(kernel='linear')
-        model.fit(X_train, y_train)
-
-        # Avaliação do modelo
-        predictions = model.predict(X_test)
-        return classification_report(y_test, predictions)
+        # Model.classifier_train()
+        return Model.classifier(text)
 
     def plot(self, data):
         G = nx.DiGraph()
