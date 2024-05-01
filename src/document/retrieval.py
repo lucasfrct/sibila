@@ -34,7 +34,7 @@ def save_metadata_with_embedings(metadata: DocumentMetadata) -> bool:
 # consulta com embeddings
 
 
-def query_embeddings(consult: str = "", results: int = 10) -> List[DocumentMetadata]:  # noqa: E501
+def query_embeddings(consult: str = "", results: int = 5) -> List[DocumentMetadata]:  # noqa: E501
     try:
         model = OllamaModel()
         embeddings = model.embed(consult)
@@ -64,7 +64,7 @@ def save_metadata(metadata: DocumentMetadata) -> bool:
         return False
 
 
-def query_metadata(consult: str = "", results: int = 10) -> List[DocumentMetadata]:  # noqa: E501
+def query_metadata(consult: str = "", results: int = 5) -> List[DocumentMetadata]:  # noqa: E501
     try:
         collection = chromadbvector.collection(COLLECTIONRESUME)
         result = collection.query(query_texts=[consult], n_results=results)
@@ -119,11 +119,11 @@ def save_text(text: str = "", metadata={}) -> bool:
 # consulta com somente texto
 
 
-def query_text(consult: str = "", results: int = 10):
+def query_text(consult: str = "", results: int = 5):
     try:
         collection = chromadbvector.collection(COLLECTIONRESUME)
         result = collection.query(query_texts=[consult], n_results=results)
-        return result
+        return retrieval_to_metadata(result)
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
@@ -133,37 +133,38 @@ def query_text(consult: str = "", results: int = 10):
 # TABLE COMBINADAS
 #################################################################
 # busca com texto e embeddings combinado
-def query(consultant: str = "",  embeddings=[], results: int = 10):
-    searchs = []
-    searchs.extend(query_text(consultant, results))
-    searchs.extend(query_embeddings(embeddings, results))
-    return list_unique(searchs)
+def query(consult: str = "", results: int = 5) -> List[DocumentMetadata]:
+    result = []
+    result.extend(query_embeddings(consult, results))
+    result.extend(query_metadata(consult, results))
+    result.extend(query_text(consult, results))
+    return list_unique(result)
 
 # remove documentos repetidos na lista
 
 
-def list_unique(list_items=[]):
+def list_unique(documents: List[DocumentMetadata] = []) -> List[DocumentMetadata]:  # noqa: E501
 
-    keys = set()
-    unique = []
+    # keys = set()
+    # unique = []
 
-    for _, item in enumerate(list_items):
-        value = item['document']
+    # for _, item in enumerate(list_items):
+    #     value = item['document']
 
-        if value not in keys:
-            keys.add(value)
-            unique.append(item)
+    #     if value not in keys:
+    #         keys.add(value)
+    #         unique.append(item)
 
-    return unique
+    # return unique
+    return documents
 
 # formata a lista de documentos para um texto
 
 
-def docs_to_text(docs=[]) -> str:
-
-    formatted_list = []
+def to_text(docs: List[DocumentMetadata] = []) -> str:
+    documents = []
     for doc in docs:
-        formatted_list.append("\n{}\n[{}]: {}".format(
-            doc['id'], doc["source"], doc['document']))
+        text = "\nID: {}\n[{}]: {}".format(doc.uuid, doc.source, doc.content)  # noqa: E501
+        documents.append(text)
 
-    return "\n".join(formatted_list)
+    return "\n".join(documents)

@@ -11,6 +11,7 @@ RUN python -m venv .
 RUN pip install pyvis
 RUN pip install PyPDF2
 RUN pip install fastapi
+RUN pip install unidecode
 
 # ! ## STAGE 2 - Maquina databases
 FROM environment-python-tools AS environment-python-database
@@ -20,9 +21,9 @@ WORKDIR /app
 ## DATABASE
 RUN pip install postgres
 RUN pip install pysqlite3
-RUN pip install unicorn --user
-RUN pip install chromadb --user
-RUN pip install onnxruntime --user
+RUN pip install unicorn 
+RUN pip install chromadb
+RUN pip install onnxruntime 
 
 # ! ## STAGE 3 - Maquina para machine learn
 FROM environment-python-database AS environment-python-ml
@@ -35,6 +36,7 @@ RUN pip install numpy
 RUN pip install keras
 RUN pip install pandas
 RUN pip install scikit-learn
+RUN pip install pyspellchecker
 
 # ! ## STAGE 4 - Maquina para llm
 FROM environment-python-ml AS environment-python-llm

@@ -14,11 +14,12 @@ def run():
         print("Nehum novo livro encontrado")
     else:
         print("Lista de livros adcionados: ", paths)
-        
+
     agent = Agent()
     agent.welcome()
     for line in sys.stdin:
-        agent.consult(line)
+        # agent.question(line)
+        print(agent.digest(line))
 
 
 if __name__ == "__main__":
