@@ -18,7 +18,8 @@ def run():
     agent = Agent()
     agent.welcome()
     for line in sys.stdin:
-        agent.question(line)
+        # agent.question(line)
+        agent.digest(line)
 
 
 if __name__ == "__main__":
