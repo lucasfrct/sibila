@@ -28,3 +28,11 @@ def register(path: str = "") -> List[str]:
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
+
+
+def search(question: str = "") -> List[str]:
+    try:
+        return Catalog.query_generic(question)
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return []

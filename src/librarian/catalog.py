@@ -24,19 +24,17 @@ def register_in_batch(path: str = "") -> List[str]:
 
         for path_full in DocService.read(path):
 
-            # if register_info_by_path(path_full) == False:
-            #     continue
+            if register_info_by_path(path_full) is False:
+                continue
 
             paths.append(path_full)
 
             # salva metadados
             pages_metadatas = DocumentPDF.read_pages_with_details(path_full)
             for metadata in pages_metadatas:
-                # DocRepository.save_metadata(metadata)
-                # DocRetrieval.save_metadata(metadata)
+                DocRepository.save_metadata(metadata)
+                DocRetrieval.save_metadata(metadata)
                 DocRetrieval.save_metadata_with_embedings(metadata)
-
-        query_generic("casa")
 
         return paths
     except Exception as e:
@@ -45,17 +43,22 @@ def register_in_batch(path: str = "") -> List[str]:
 
 
 def query_generic(question: str = ""):
-    # res_sql = DocRepository.query_metadata(question, 3)
-    # res_vec = DocRetrieval.query_metadata(question, 3)
+
+    print()
+    print("CONSULTA SQL -----------------------------------------------------------------------------------------------------------")  # noqa: E501
+    res_sql = DocRepository.query_metadata(question, 3)
+    for res in res_sql:
+        print("-> ", res.content)
+    print()
+
+    print("CONSULTA METADATA ------------------------------------------------------------------------------------------------------------------")  # noqa: E501
+    res_vec = DocRetrieval.query_metadata(question, 3)
+    for re in res_vec:
+        print("-> ", re.content)
+    print()
+
+    print("CONSULTA EMBEDDING ------------------------------------------------------------------------------------------------------------------")  # noqa: E501
     res_emb = DocRetrieval.query_embeddings(question, 3)
-
-    print(res_emb)
-
-    # print()
-    # for re in res_sql:
-    #     print(re.content)
-    # print()
-    # print("------------------------------------------------------------------------------------------------------------------")
-    # print()
-    # for r in res_vec:
-    #     print(r.content)
+    for r in res_emb:
+        print("-> ", r.content)
+    print()

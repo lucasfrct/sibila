@@ -17,7 +17,7 @@ COLLECTIONRESUME = "resume"
 # salva na collection com embeddings
 
 
-def save_metadata_with_embedings(metadata: DocumentMetadata):
+def save_metadata_with_embedings(metadata: DocumentMetadata) -> bool:
     try:
         model = OllamaModel()
         chunks = metadata.chunk
@@ -25,8 +25,7 @@ def save_metadata_with_embedings(metadata: DocumentMetadata):
         meta = metadata.to_dict_model()
         ids = [str(uuid.uuid4()) for _ in chunks]
         collection = chromadbvector.collection(COLLECTION)
-        collection.add(embeddings=embeddings, documents=chunks,
-                       metadatas=meta, ids=ids)
+        collection.add(embeddings=embeddings, documents=chunks, metadatas=meta, ids=ids)   # noqa: E501
         return True
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
@@ -35,17 +34,17 @@ def save_metadata_with_embedings(metadata: DocumentMetadata):
 # consulta com embeddings
 
 
-def query_embeddings(consultant: str = "", results: int = 10):
+def query_embeddings(consult: str = "", results: int = 10) -> List[DocumentMetadata]:  # noqa: E501
     try:
         model = OllamaModel()
-        embeddings = model.embed(consultant)
+        embeddings = model.embed(consult)
         collection = chromadbvector.collection(COLLECTION)
-        result = collection.query(
-            query_embeddings=[embeddings], n_results=results)
-        return result
+        result = collection.query(query_embeddings=[embeddings], n_results=results)  # noqa: E501
+        return retrieval_to_metadata(result)
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
+
 
 #################################################################
 # TABLE METADATA
@@ -100,6 +99,7 @@ def retrieval_to_metadata(retrieval) -> List[DocumentMetadata]:
             metadatas.append(metadata)
 
     return metadatas
+
 
 #################################################################
 # TABLE TEXT

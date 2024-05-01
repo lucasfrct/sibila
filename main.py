@@ -8,9 +8,13 @@ sys.dont_write_bytecode = True
 
 # execuçao principal
 def run():
-    print("Iniciando leitura de arquivos")
     paths = Librarian.register("./bookcase")
-    print(paths)
+    if len(paths) == 0:
+        print("Nehum novo livro encontrado")
+    else:
+        print("Lista de livros adcionados: ", paths)
+
+    Librarian.search("casa")
 
 
 if __name__ == "__main__":
