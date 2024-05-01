@@ -11,8 +11,7 @@ def matrix_tsne(embeddings):
     embeddings_matrix = np.array(embeddings)
 
     # Reduza a dimensionalidade
-    tsne = TSNE(n_components=2, perplexity=15, random_state=42,
-                init='random', learning_rate=200.0)  # ou n_components=3 para 3D
+    tsne = TSNE(n_components=2, perplexity=15, random_state=42, init='random', learning_rate=200.0)  # ou n_components=3 para 3D   # noqa: E501
 
     return tsne.fit_transform(embeddings_matrix.reshape(-1, 1))
 
@@ -69,8 +68,7 @@ def display(embeddings, chunks):
         if (size < 3):
             val = val * 0.1
 
-        g.add_node(num_id, label=f"({key}) {chunk}",
-                   value=val, x=int(emb_l), y=int(emb_r))
+        g.add_node(num_id, label=f"({key}) {chunk}", value=val, x=int(emb_l), y=int(emb_r))  # noqa: E501
 
         if (key in connections):
             g.add_edge(connections[key], num_id)
@@ -86,6 +84,6 @@ def display(embeddings, chunks):
     return g
 
 
-# def chart(name, model: ModelLlama):
-#     graph = display(model.embeddings, model.chunks)
-#     graph.show(f"{name}.html")
+def chart(name, model):
+    graph = display(model.embeddings, model.chunks)
+    graph.show(f"{name}.html")
