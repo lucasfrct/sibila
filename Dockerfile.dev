@@ -9,9 +9,10 @@ RUN python -m venv .
 
 # TOOLS
 RUN pip install pyvis
-RUN pip install PyPDF2
 RUN pip install fastapi
+RUN pip install reportlab
 RUN pip install unidecode
+RUN pip install pdfplumber
 
 # ! ## STAGE 2 - Maquina databases
 FROM environment-python-tools AS environment-python-database

@@ -8,6 +8,8 @@ import os
 
 import pdfplumber
 
+from fpdf import FPDF
+
 from src.utils import string as String
 
 
@@ -453,3 +455,26 @@ def lines_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ob
 def transform_to_chuncks_and_metadatas(datails):
     for detail in datails:
         print(detail)
+
+
+def txt_to_pdf(path: str = "", path_out: str = ""):
+
+    # Criar instância da classe FPDF que é a base para a criação do documento
+    pdf = FPDF()
+
+    # Adicionar uma página ao PDF
+    pdf.add_page()
+
+    # Definir a fonte e o tamanho da fonte que será usada
+    pdf.set_font("Arial", size=12)
+
+    # Abrir o arquivo de texto e ler cada linha
+    with open(path, "r", encoding="utf-8") as arquivo:
+        for linha in arquivo:
+            # Adicionar a linha ao PDF
+            pdf.cell(200, 10, txt=linha, ln=True)
+
+    # Salvar o PDF criado
+    pdf.output(path_out)
+
+    return path_out

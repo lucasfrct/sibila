@@ -14,6 +14,7 @@ from src.utils.colors import colors
 from src.utils import writer as Writer
 from src.entities.ollama_model import OllamaModel
 from src.document import retrieval as DocRetrieval
+from src.document import documentpdf as DocumentPDF
 from src.entities.model_open_ai import ModelOpenAI
 from src.agent.preprocessor import PreProcessor
 from src.agent.featureextractor import FeatureExtractor
@@ -136,5 +137,7 @@ class Agent:
         plt.title('Grafo de Co-ocorrências')
         plt.show()
 
-    def txt_to_PDF(self, path: str = ""):
-        print("TXT")
+    def txt_to_pdf(self, path: str = "", path_out: str = ""):
+        print()
+        print(DocumentPDF.txt_to_pdf(path, path_out))
+        print()

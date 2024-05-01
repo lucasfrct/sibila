@@ -16,7 +16,6 @@ def run():
         print("Lista de livros adcionados: ", paths)
 
     agent = Agent()
-    agent.txt_to_PDF("./lexicon")
     agent.welcome()
     for line in sys.stdin:
         agent.question(line)
