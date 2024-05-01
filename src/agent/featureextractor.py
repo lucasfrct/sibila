@@ -22,8 +22,6 @@ class FeatureExtractor:
 
         self.preprocessor = PreProcessor()
         self.vectorizer = CountVectorizer()
-        self.bag_words
-        self.vocabulary
 
     def syntax_analisys(self, text: str = ""):
         """ aplica análise sintática para retira do texto plavras chaves e entidades. """  # noqa: E501
