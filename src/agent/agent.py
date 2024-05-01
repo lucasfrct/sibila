@@ -135,3 +135,6 @@ class Agent:
 
         plt.title('Grafo de Co-ocorrências')
         plt.show()
+
+    def txt_to_PDF(self, path: str = ""):
+        print("TXT")
