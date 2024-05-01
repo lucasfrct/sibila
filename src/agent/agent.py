@@ -30,7 +30,7 @@ from src.agent.featureextractor import FeatureExtractor
 # Extraçao de características
 # - análise sintática (tags e entidades)
 # - janela de context (tags e entidades)
-# - bag of words
+# - bag of words (matrix de )
 # - TF-IDF (Term Frequency-Inverse Document Frequency).
 # - Embeddings de palavras
 
@@ -43,11 +43,6 @@ class Agent:
         self.preprocessor = PreProcessor()
         self.featureextractor = FeatureExtractor()
 
-        nltk.download('averaged_perceptron_tagger')
-        nltk.download('maxent_ne_chunker')
-        nltk.download('stopwords')
-        nltk.download('punkt')
-        nltk.download('words')
         self.stop_words = set(stopwords.words('portuguese'))
 
     def welcome(self):
@@ -58,7 +53,20 @@ class Agent:
 
     def question(self, question):
         """ envia uma consulta para o banco. """  # noqa: E501
-        docs = DocRetrieval.query(question)
+
+        # abre a janela de contexto
+        ctx = self.featureextractor.window_context(question)
+        hot_words = ctx['hot']
+
+        # busca os documentos
+        docs = []
+        docs.extend(DocRetrieval.query(question))
+        for word, val in hot_words.items():
+            d = DocRetrieval.query(word)
+            if d is None:
+                continue
+            docs.extend(DocRetrieval.query(word))
+
         documents = DocRetrieval.to_text(docs)
         answer = self.model_open_ai.question(question, documents)
         self.write(answer)
@@ -71,7 +79,7 @@ class Agent:
 
     def digest(self, text: str = ""):
         """ faz a digestão do texto. """  # noqa: E501
-        return self.featureextractor.bag_words(text)  # noqa: E501
+        return self.featureextractor.window_context(text)  # noqa: E501
 
     def intentions(self, text: str = ""):
         """ descobre uma intençao no texto. """  # noqa: E501

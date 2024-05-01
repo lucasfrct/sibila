@@ -14,10 +14,8 @@ COLLECTIONRESUME = "resume"
 #################################################################
 # TABLE EMBEDDINGS
 #################################################################
-# salva na collection com embeddings
-
-
 def save_metadata_with_embedings(metadata: DocumentMetadata) -> bool:
+    """ salva na collection com embeddings. """  # noqa: E501
     try:
         model = OllamaModel()
         chunks = metadata.chunk
@@ -31,10 +29,9 @@ def save_metadata_with_embedings(metadata: DocumentMetadata) -> bool:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return False
 
-# consulta com embeddings
-
 
 def query_embeddings(consult: str = "", results: int = 5) -> List[DocumentMetadata]:  # noqa: E501
+    """ consulta com embeddings. """  # noqa: E501
     try:
         model = OllamaModel()
         embeddings = model.embed(consult)
@@ -49,9 +46,8 @@ def query_embeddings(consult: str = "", results: int = 5) -> List[DocumentMetada
 #################################################################
 # TABLE METADATA
 #################################################################
-
-
 def save_metadata(metadata: DocumentMetadata) -> bool:
+    """ salva os metadados. """  # noqa: E501
     try:
         uuid = metadata.uuid
         text = metadata.content
@@ -65,6 +61,7 @@ def save_metadata(metadata: DocumentMetadata) -> bool:
 
 
 def query_metadata(consult: str = "", results: int = 5) -> List[DocumentMetadata]:  # noqa: E501
+    """ cnsulta os metadados. """  # noqa: E501
     try:
         collection = chromadbvector.collection(COLLECTIONRESUME)
         result = collection.query(query_texts=[consult], n_results=results)
@@ -75,6 +72,7 @@ def query_metadata(consult: str = "", results: int = 5) -> List[DocumentMetadata
 
 
 def retrieval_to_metadata(retrieval) -> List[DocumentMetadata]:
+    """ transforma uma resultados do banco numa metadata. """  # noqa: E501
 
     retrieval_ids = retrieval['ids']
     retrieval_metadatas = retrieval['metadatas']
@@ -104,9 +102,8 @@ def retrieval_to_metadata(retrieval) -> List[DocumentMetadata]:
 #################################################################
 # TABLE TEXT
 #################################################################
-
-
 def save_text(text: str = "", metadata={}) -> bool:
+    """ salva um texto. """  # noqa: E501
     try:
         _uuid = str(uuid.uuid4())
         collection = chromadbvector.collection(COLLECTIONRESUME)
@@ -120,6 +117,7 @@ def save_text(text: str = "", metadata={}) -> bool:
 
 
 def query_text(consult: str = "", results: int = 5):
+    """ consulta um texto. """  # noqa: E501
     try:
         collection = chromadbvector.collection(COLLECTIONRESUME)
         result = collection.query(query_texts=[consult], n_results=results)
@@ -132,36 +130,18 @@ def query_text(consult: str = "", results: int = 5):
 #################################################################
 # TABLE COMBINADAS
 #################################################################
-# busca com texto e embeddings combinado
 def query(consult: str = "", results: int = 5) -> List[DocumentMetadata]:
-    result = []
+    """ busca com texto e embeddings combinado """  # noqa: E501
+
+    result: List[DocumentMetadata] = []
     result.extend(query_embeddings(consult, results))
     result.extend(query_metadata(consult, results))
     result.extend(query_text(consult, results))
-    return list_unique(result)
-
-# remove documentos repetidos na lista
-
-
-def list_unique(documents: List[DocumentMetadata] = []) -> List[DocumentMetadata]:  # noqa: E501
-
-    # keys = set()
-    # unique = []
-
-    # for _, item in enumerate(list_items):
-    #     value = item['document']
-
-    #     if value not in keys:
-    #         keys.add(value)
-    #         unique.append(item)
-
-    # return unique
-    return documents
-
-# formata a lista de documentos para um texto
+    return result
 
 
 def to_text(docs: List[DocumentMetadata] = []) -> str:
+    """" formata a lista de documentos para um texto"""
     documents = []
     for doc in docs:
         text = "\nID: {}\n[{}]: {}".format(doc.uuid, doc.source, doc.content)  # noqa: E501

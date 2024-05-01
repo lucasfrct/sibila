@@ -18,10 +18,7 @@ def run():
     agent = Agent()
     agent.welcome()
     for line in sys.stdin:
-        # agent.question(line)
-        data = agent.digest(line)
-        print(data)
-        # agent.plot(data)
+        agent.question(line)
 
 
 if __name__ == "__main__":
