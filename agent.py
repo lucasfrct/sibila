@@ -1,7 +1,7 @@
 import sys
 
 from src.routines import migrate
-from src.entities.agent import Agent
+from src.agent.agent import Agent
 from src.document import service as DocService
 
 sys.dont_write_bytecode = True

@@ -14,8 +14,6 @@ def run():
     else:
         print("Lista de livros adcionados: ", paths)
 
-    Librarian.search("casa")
-
 
 if __name__ == "__main__":
     Migrate.tables()
