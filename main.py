@@ -22,11 +22,11 @@ def run():
 
     agent = Agent()
     agent.welcome()
-    print(agent.intentions("Quero reservar um voo para Paris"))
+    # print(agent.intentions("Quero reservar um voo para Paris"))
     for line in sys.stdin:
-        # agent.question(line)
+        agent.question(line)
         print()
-        print(json.dumps(agent.digest(line), indent=4, ensure_ascii=False))
+        # print(json.dumps(agent.digest(line), indent=4, ensure_ascii=False))
         
 
 if __name__ == "__main__":

@@ -38,6 +38,7 @@ RUN pip install numpy
 RUN pip install keras
 RUN pip install spacy
 RUN pip install pandas
+RUN pip install textblob
 RUN pip install scikit-learn
 RUN pip install pyspellchecker
 RUN python -m spacy download pt
