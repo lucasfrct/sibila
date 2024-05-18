@@ -5,7 +5,7 @@
 3. Extrator de início
 4. Extrator de vigência
 5. Extrator de recisão
-6. Extrator de dadts
+6. Extrator de dados
 7. Extrator de prazo do contrato
 8. Extrator de valor do contrato
 9. Extrator de Lei aplicável
@@ -33,3 +33,11 @@ Uma abordagem para construir o modelo de aprendizado de máquina é fazer uso de
 ## Plataforma de dados públicos
 
 - Zenodo
+
+## NLPs disponíveis
+
+- <https://nlpprogress.com/english/taxonomy_learning.html> | <https://github.com/sebastianruder/NLP-progress>
+- NILC - modelo nlp brasileiro
+- projetos de lei <https://www.kaggle.com/datasets?search=tcu&fileType=csv>
+- indice de médicos no brasil - <https://www.kaggle.com/datasets/miguelcorraljr/doctoralia-brasil>
+- perfil eleitorado <https://www.kaggle.com/datasets/aryvini/tse-perfil-eleitorado-2020>

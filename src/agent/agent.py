@@ -1,5 +1,5 @@
 
-import nltk
+import sys
 from nltk.corpus import stopwords
 
 import networkx as nx
@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 
 from src.utils.colors import colors
 from src.utils import writer as Writer
-from src.entities.ollama_model import OllamaModel
+from src.models.ollama import ModelOllama
 from src.document import retrieval as DocRetrieval
 from src.document import documentpdf as DocumentPDF
-from src.entities.model_open_ai import ModelOpenAI
+from src.models.open_ai import ModelOpenAI
 from src.agent.preprocessor import PreProcessor
 from src.agent.featureextractor import FeatureExtractor
 from src.agent import classifier as Model
@@ -35,7 +35,7 @@ class Agent:
 
     def __init__(self):
 
-        self.model_ollama = OllamaModel()
+        self.model_ollama = ModelOllama()
         self.model_open_ai = ModelOpenAI()
         self.preprocessor = PreProcessor()
         self.featureextractor = FeatureExtractor()
@@ -107,3 +107,10 @@ class Agent:
         print()
         print(DocumentPDF.txt_to_pdf(path, path_out))
         print()
+
+    def run(self, text: str = ""):
+        """ descobre uma intençao no texto. """  # noqa: E501)
+        self.welcome()
+        # print(agent.intentions("Quero reservar um voo para Paris"))
+        for line in sys.stdin:
+            self.question(line)

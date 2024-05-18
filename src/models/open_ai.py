@@ -1,14 +1,14 @@
 
 from openai import OpenAI
 
-from src.config.openai import OPENAI_API_KEY
+from src.config import openai as config
 from src.prompts import prompts
 
 
 class ModelOpenAI:
     def __init__(self):
 
-        self.openai_client = OpenAI(api_key=OPENAI_API_KEY)
+        self.openai_client = OpenAI(api_key=config.OPENAI_API_KEY)
         self.chunks = []
         self.metadatas = []
         self.embeddings = []

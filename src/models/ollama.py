@@ -4,7 +4,7 @@ import ollama
 from src.prompts import prompts
 
 
-class OllamaModel:
+class ModelOllama:
     def __init__(self, model: str = "splitpierre/bode-alpaca-pt-br"):
 
         self.ollama = ollama

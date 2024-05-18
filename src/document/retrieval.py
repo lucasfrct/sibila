@@ -5,7 +5,7 @@ from typing import List
 
 from src.database import chromadbvector
 from src.document.documentpdf import DocumentMetadata
-from src.entities.ollama_model import OllamaModel
+from src.models.ollama import ModelOllama
 
 COLLECTION = "documents"
 COLLECTIONRESUME = "resume"
@@ -17,7 +17,7 @@ COLLECTIONRESUME = "resume"
 def save_metadata_with_embedings(metadata: DocumentMetadata) -> bool:
     """ salva na collection com embeddings. """  # noqa: E501
     try:
-        model = OllamaModel()
+        model = ModelOllama()
         chunks = metadata.chunk
         embeddings = model.make(chunks)
         meta = metadata.to_dict_model()
