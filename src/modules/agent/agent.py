@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 from src.utils.colors import colors
 from src.utils import writer as Writer
 from src.models.ollama import ModelOllama
-from src.document import retrieval as DocRetrieval
-from src.document import documentpdf as DocumentPDF
 from src.models.open_ai import ModelOpenAI
-from src.agent.preprocessor import PreProcessor
-from src.agent.featureextractor import FeatureExtractor
-from src.agent import classifier as Model
+from src.modules.agent import classifier as Model
+from src.modules.agent.preprocessor import PreProcessor
+from src.modules.document import retrieval as DocRetrieval
+from src.modules.document import documentpdf as DocumentPDF
+from src.modules.agent.featureextractor import FeatureExtractor
 
 
 # Coleta dos dados - rotular dados
@@ -108,9 +108,7 @@ class Agent:
         print(DocumentPDF.txt_to_pdf(path, path_out))
         print()
 
-    def run(self, text: str = ""):
-        """ descobre uma intençao no texto. """  # noqa: E501)
+    def run(self):
         self.welcome()
-        # print(agent.intentions("Quero reservar um voo para Paris"))
         for line in sys.stdin:
             self.question(line)

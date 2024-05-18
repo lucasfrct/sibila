@@ -1,22 +1,18 @@
 
 import ollama
-
-from src.prompts import prompts
+from src.models import handle
 
 
 class ModelOllama:
     def __init__(self, model: str = "splitpierre/bode-alpaca-pt-br"):
 
-        self.ollama = ollama
-        self.chunks = []
+        self.client = ollama
         self.embeddings = []
         self.model = model
+        self.chunks = []
 
     def set_chunks(self, chunks=None):
-        if chunks is None:
-            chunks = []
-
-        self.chunks = chunks
+        self.chunks = handle.set_chunks(chunks)
         return self.data
 
     def make(self, chunks=[]):
@@ -29,28 +25,18 @@ class ModelOllama:
         return self.chunks, self.embeddings
 
     def embed(self, data: str = ""):
-        embedding = self.ollama.embeddings(model=self.model, prompt=data)
+        embedding = self.client.embeddings(model=self.model, prompt=data)
         return embedding["embedding"]
 
     def generate(self):
-        info = "- - - > Embedding"
+        return handle.generate_embeddings(self)
 
-        step = (100 / len(self.chunks))
-        for i, chunk in enumerate(self.chunks):
-            self.embeddings.append(self.embed(chunk))
-            print(f"{info} - {int(i*step)}%", end='\r', flush=True)
-
-        print(f"{info} - 100%", end='\r', flush=True)
-        print("\n", end='', flush=True)
-
-        return self.data
-
-    def question(self, question: str, documents: str) -> str:
-        chat_completion = self.completion(prompts.generic(documents), question)
-        return chat_completion["message"]["content"]
+    def question(self, prompt: str, question: str = "") -> str:
+        chat = self.completion(prompt, question)
+        return chat["message"]["content"]
 
     def completion(self, prompt: str, question: str):
-        return self.ollama.chat(
+        return self.client.chat(
             model=self.model,
             messages=[
                 {"role": "system", "content": f"{prompt}"},
