@@ -7,6 +7,6 @@ class Analyst:
     def add_clause(self, clause: str = ""):
         self.append(clause)
 
-    def infer(self):
+    def predict(self):
         inference = "teste de inferencia"
         return inference

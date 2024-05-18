@@ -5,6 +5,7 @@ from src.utils.colors import colors
 from src.utils import writer as Writer
 from src.models.ollama import ModelOllama
 from src.models.open_ai import ModelOpenAI
+from src.modules.analyst.analyst import Analyst
 
 
 # Coleta dos dados - rotular dados
@@ -28,6 +29,7 @@ class Agent:
 
         self.ollama = ModelOllama()
         self.openai = ModelOpenAI()
+        self.analyst = Analyst()
 
     def welcome(self):
         print("\n", f"{colors.WARNING}Como posso ajudar? {colors.ENDC}", "\n")   # noqa: E501
@@ -49,3 +51,7 @@ class Agent:
         self.welcome()
         for line in sys.stdin:
             self.question(line)
+
+    def analyze(self):
+        answer = self.analyst.predict()
+        self.write(answer)
