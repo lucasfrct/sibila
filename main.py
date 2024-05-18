@@ -1,11 +1,10 @@
-
-from src.routines import migrate as Migrate
+from src.modules.agent.agent import Agent
 
 
 def run():
-    pass
+    agent = Agent()
+    agent.run()
 
 
 if __name__ == "__main__":
-    Migrate.tables()
     run()

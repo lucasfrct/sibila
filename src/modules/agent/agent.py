@@ -9,11 +9,6 @@ from src.utils.colors import colors
 from src.utils import writer as Writer
 from src.models.ollama import ModelOllama
 from src.models.open_ai import ModelOpenAI
-from src.modules.agent import classifier as Model
-from src.modules.agent.preprocessor import PreProcessor
-from src.modules.document import retrieval as DocRetrieval
-from src.modules.document import documentpdf as DocumentPDF
-from src.modules.agent.featureextractor import FeatureExtractor
 
 
 # Coleta dos dados - rotular dados
@@ -35,10 +30,8 @@ class Agent:
 
     def __init__(self):
 
-        self.model_ollama = ModelOllama()
-        self.model_open_ai = ModelOpenAI()
-        self.preprocessor = PreProcessor()
-        self.featureextractor = FeatureExtractor()
+        self.ollama = ModelOllama()
+        self.openai = ModelOpenAI()
 
         self.stop_words = set(stopwords.words('portuguese'))
 
@@ -49,23 +42,7 @@ class Agent:
         print("\n", f"{colors.WARNING}Quer perguntar mais alguma coisa? {colors.ENDC}", "\n")  # noqa: E501
 
     def question(self, question):
-        """ envia uma consulta para o banco. """  # noqa: E501
-
-        # abre a janela de contexto
-        ctx = self.featureextractor.window_context(question)
-        hot_words = ctx['hot']
-
-        # busca os documentos
-        docs = []
-        docs.extend(DocRetrieval.query(question))
-        for word, val in hot_words.items():
-            d = DocRetrieval.query(word)
-            if d is None:
-                continue
-            docs.extend(DocRetrieval.query(word))
-
-        documents = DocRetrieval.to_text(docs)
-        answer = self.model_open_ai.question(question, documents)
+        answer = self.openai.question(question, "")
         self.write(answer)
         self.available()
         return answer
@@ -77,11 +54,6 @@ class Agent:
     def digest(self, text: str = ""):
         """ faz a digestão do texto. """  # noqa: E501
         return self.featureextractor.window_context(text)  # noqa: E501
-
-    def intentions(self, text: str = ""):
-        """ descobre uma intençao no texto. """  # noqa: E501
-        # Model.classifier_train()
-        return Model.classifier(text)
 
     def plot(self, data):
         G = nx.DiGraph()
@@ -102,11 +74,6 @@ class Agent:
 
         plt.title('Grafo de Co-ocorrências')
         plt.show()
-
-    def txt_to_pdf(self, path: str = "", path_out: str = ""):
-        print()
-        print(DocumentPDF.txt_to_pdf(path, path_out))
-        print()
 
     def run(self):
         self.welcome()
