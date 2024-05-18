@@ -1,9 +1,5 @@
 
 import sys
-from nltk.corpus import stopwords
-
-import networkx as nx
-import matplotlib.pyplot as plt
 
 from src.utils.colors import colors
 from src.utils import writer as Writer
@@ -33,8 +29,6 @@ class Agent:
         self.ollama = ModelOllama()
         self.openai = ModelOpenAI()
 
-        self.stop_words = set(stopwords.words('portuguese'))
-
     def welcome(self):
         print("\n", f"{colors.WARNING}Como posso ajudar? {colors.ENDC}", "\n")   # noqa: E501
 
@@ -50,30 +44,6 @@ class Agent:
     def write(self, content, delay=0.01):
         """ escreve a resposta num terminal com delay. """  # noqa: E501
         Writer.delay(content, delay)
-
-    def digest(self, text: str = ""):
-        """ faz a digestão do texto. """  # noqa: E501
-        return self.featureextractor.window_context(text)  # noqa: E501
-
-    def plot(self, data):
-        G = nx.DiGraph()
-
-        # Adicionar as arestas ao grafo
-        for node, edges in data.items():
-            for adjacent, weight in edges.items():
-                G.add_edge(node, adjacent, weight=weight)
-
-        # Desenhar o grafo
-        pos = nx.spring_layout(G)  # Layout para o grafo
-        nx.draw(G, pos, with_labels=True, node_color='skyblue',
-                node_size=1000, edge_color='k', linewidths=1, font_size=10)
-
-        # Desenhar os pesos das arestas
-        edge_labels = nx.get_edge_attributes(G, 'weight')
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
-
-        plt.title('Grafo de Co-ocorrências')
-        plt.show()
 
     def run(self):
         self.welcome()
