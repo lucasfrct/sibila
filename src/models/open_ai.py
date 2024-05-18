@@ -44,6 +44,6 @@ class ModelOpenAI:
                 {"role": "user", "content": f"{question}"}
             ],
             model="gpt-3.5-turbo",
-            max_tokens=500,
+            max_tokens=1000,
             temperature=0.5
         )

@@ -57,7 +57,9 @@ class Agent:
         predic = self.analyst.predict()
         
         promt_errors = """"
-        levante erros jurídicos ou pontos sensíveis de questionamento nessa cláusula se houver. me forneçao a resposta num formato json, com o campo tags, sendo este array com no mínimo 3 tags relacionadas a justificativa alegada, outro campo com a justificativa sendo uma string descrevendo o erro encontrado. Para cada erro sera uma objeto { tags: [], justificativa: ''}. 
+        O documento é uma contrato de plano de saúde sobre a jurisdiçao brasileira de orgões como, ANS, CFM, JusBrasil, ANVISA, CDC, 
+        levante no mínimo 3 erros jurídicos diferentes entre si nessa cláusula quando houver erros. me forneça a resposta num formato json cru, sem comentários, com o campo tags, sendo este um array com no mínimo 3 tags relacionadas a justificativa encontrada, outro campo com a justificativa sendo uma string descrevendo o erro encontrado. outro campo com o sentimento, positivo ou negativo da justificativa. outro campo com a intenção geral a justificativa em poucas palavras. outro campo chamado adendo que escreve o novo trecho para a cláusula adicionando a correção com base na justiticafiva encontrada de modo a ser parte da narrativa do texto original tomando atenção para que não haja repetição de idéias ou cacofonia no texto. Para cada erro crie um objeto { tags: [], justificativa: '', sentimento: '', intenção: '', adendo: ''}. para a resposta siga o formato: [ { tags: [...], justificativa: '', sentimento: '', intencao: '', adendo: '' }, ... ] 
         """
-        answer = self.openai.question(promt_errors, predic) 
+        answer = self.ollama.question(promt_errors, predic) 
+        # answer = self.openai.question(f"{promt_errors}\n{answer}", predic) 
         self.write(answer)
