@@ -1,4 +1,4 @@
-
+# flake8: noqa: E501
 
 def keywords(documents: str) -> str:
     prompt_template = """Você é um assistente de IA com experiencia de um bibliotecário organizado. 

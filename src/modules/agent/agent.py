@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 
 import sys
 
@@ -32,10 +33,10 @@ class Agent:
         self.analyst = Analyst()
 
     def welcome(self):
-        print("\n", f"{colors.WARNING}Como posso ajudar? {colors.ENDC}", "\n")   # noqa: E501
+        print("\n", f"{colors.WARNING}Como posso ajudar? {colors.ENDC}", "\n")
 
     def available(self):
-        print("\n", f"{colors.WARNING}Quer perguntar mais alguma coisa? {colors.ENDC}", "\n")  # noqa: E501
+        print("\n", f"{colors.WARNING}Quer perguntar mais alguma coisa? {colors.ENDC}", "\n") 
 
     def question(self, question):
         answer = self.openai.question(question, "")
@@ -44,7 +45,7 @@ class Agent:
         return answer
 
     def write(self, content, delay=0.01):
-        """ escreve a resposta num terminal com delay. """  # noqa: E501
+        """ escreve a resposta num terminal com delay. """ 
         Writer.delay(content, delay)
 
     def run(self):
@@ -53,5 +54,10 @@ class Agent:
             self.question(line)
 
     def analyze(self):
-        answer = self.analyst.predict()
+        predic = self.analyst.predict()
+        
+        promt_errors = """"
+        levante erros jurídicos ou pontos sensíveis de questionamento nessa cláusula se houver. me forneçao a resposta num formato json, com o campo tags, sendo este array com no mínimo 3 tags relacionadas a justificativa alegada, outro campo com a justificativa sendo uma string descrevendo o erro encontrado. Para cada erro sera uma objeto { tags: [], justificativa: ''}. 
+        """
+        answer = self.openai.question(promt_errors, predic) 
         self.write(answer)
