@@ -1,5 +1,6 @@
+# flake8: noqa: E501
 
-from typing import List, Optional
+from typing import Any, List, Optional
 import traceback
 import logging
 import uuid
@@ -230,10 +231,9 @@ class DocumentMetadata:
     def split_to_pargraph(self, content):
         return content.split('\n\n')
 
-# faz leitura de uma documento PDF
-
 
 def reader(path: str = ""):
+    """faz leitura de uma documento PDF"""
     try:
         if not os.path.exists(path):
             raise ValueError("O path está inválido.")
@@ -243,10 +243,9 @@ def reader(path: str = ""):
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
 
-# extra informaçoes de um PDF
-
 
 def info(path: str) -> Optional[DocumentInfo]:
+    """extra informaçoes de um PDF"""
     try:
         doc = DocumentInfo()
         doc.extract(path)
@@ -255,10 +254,9 @@ def info(path: str) -> Optional[DocumentInfo]:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
 
-# faz leitura de um trecho do PDF retornado as páginas em texto puro
-
 
 def read(path: str = "", init: int = 1, final: int = 0) -> List[str]:
+    """faz leitura de um trecho do PDF retornado as páginas em texto puro"""
     try:
         if not os.path.exists(path):
             raise ValueError("O path está inválido.")
@@ -295,10 +293,9 @@ def read(path: str = "", init: int = 1, final: int = 0) -> List[str]:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
 
-# faz a lietura das páginas em pdf extraindo os metadados
 
-
-def read_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[DocumentMetadata]:  # noqa: E501
+def read_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[DocumentMetadata]:
+    """# faz a lietura das páginas em pdf extraindo os metadados"""
     try:
         if not os.path.exists(path):
             raise ValueError("O path está inválido.")
@@ -365,14 +362,14 @@ def read_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> Li
         return []
 
 
-def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[object]:  # noqa: E501
+def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[dict[str, Any]]:  # noqa: E501
     try:
 
         pages = read_pages_with_details(path, init, final)
 
         paragraphs = []
         for page in pages:
-            for i, content in enumerate(page['paragraph']):
+            for i, content in enumerate(page.paragraph):
 
                 lines_clean = []
                 lines = content.split('\n')
@@ -388,20 +385,20 @@ def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> Li
 
                 chunks = String.split_to_chunks(content)
                 paragraph = {
-                    'path': page['path'],
-                    'page': page['page'],
+                    'path': page.path,
+                    'page': page.page,
                     'content': content,
-                    'name': page['name'],
+                    'name': page.name,
                     'letters': len(content),
                     'uuid': str(uuid.uuid4()),
-                    'source': f"{page['name']}, pg. {page['page']}, pr. {i+1}",
+                    'source': f"{page.name}, pg. {page.page}, pr. {i+1}",
 
                     'num': i + 1,
                     'chunk': chunks,
                     'line': lines_clean,
-                    'size': page['size'],
+                    'size': page.size,
                     'chunks': len(chunks),
-                    'pages': page['pages'],
+                    'pages': page.pages,
                     'lines':  len(lines_clean),
                     'mimetype': 'pdf',
                 }

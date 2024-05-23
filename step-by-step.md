@@ -41,3 +41,10 @@ Uma abordagem para construir o modelo de aprendizado de máquina é fazer uso de
 - projetos de lei <https://www.kaggle.com/datasets?search=tcu&fileType=csv>
 - indice de médicos no brasil - <https://www.kaggle.com/datasets/miguelcorraljr/doctoralia-brasil>
 - perfil eleitorado <https://www.kaggle.com/datasets/aryvini/tse-perfil-eleitorado-2020>
+
+
+## Corpus
+
+- constituição: <https://github.com/abjur/constituicao>
+- código civil: <https://www.kaggle.com/datasets/juniorbueno/codigo-civil-brasileiro>
+- 
