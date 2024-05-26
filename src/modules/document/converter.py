@@ -2,7 +2,7 @@
 
 import re
 import pandas as pd
-from src.modules.document import documentpdf
+from src.modules.document import service as DocService
 
 # Path to the PDF file
 pdf_path = "./codigo_civil_brasileiro.pdf"
@@ -143,7 +143,7 @@ def extract_and_structure_text(lines):
 # Extract and structure the text  the PDF
 
 
-linesRaw = documentpdf.lines_with_details(pdf_path, 26, 26)
+linesRaw = DocService.read_lines_with_details(pdf_path, 26, 26)
 lines = [l['content'] for l in linesRaw]
 
 data = extract_and_structure_text(lines)

@@ -1,3 +1,4 @@
+# flake8: noqa: E501
 
 from openai import OpenAI
 from src.config import open_ai as config

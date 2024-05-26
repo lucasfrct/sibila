@@ -13,7 +13,7 @@ from src.agent.preprocessor import PreProcessor
 class FeatureExtractor:
     def __init__(self):
 
-        # nltk.download('maxent_ne_chunker')
+        nltk.download('maxent_ne_chunker')
 
         self.preprocessor = PreProcessor()
         self.vectorizer = CountVectorizer()

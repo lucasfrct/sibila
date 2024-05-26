@@ -13,6 +13,7 @@ from src.modules.document.document_info import DocumentInfo
 from src.modules.document.page_metadata import PageMetadata
 from src.modules.document.reader import reader
 from src.utils import archive as Archive
+from src.utils import string as String
 
 
 def read(path: str = "") -> List[str]:
@@ -126,7 +127,7 @@ def read_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> Li
         return []
 
 
-def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ParagraphMetadata]:
+def read_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ParagraphMetadata]:
     """extrai os paragrafos com os detlhes do doumento"""
     try:
 
@@ -162,11 +163,11 @@ def paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> Li
         return []
 
 
-def phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PharseMetadata]:
+def read_phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PharseMetadata]:
     """extrai as frases com os detalhes dos docuemnto"""
     try:
 
-        paragraphs = paragraphs_with_details(path, init, final)
+        paragraphs = read_paragraphs_with_details(path, init, final)
 
         phrases: List[PharseMetadata] = []
         for paragraph in paragraphs:
@@ -191,6 +192,36 @@ def phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> List[
             phrases.append(phrase)
 
         return phrases
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return []
+
+
+def read_lines_with_details(path: str = "", init: int = 1, final: int = 0) -> List[object]:
+    try:
+        paragraphs = read_paragraphs_with_details(path, init, final)
+        lines = []
+        for paragraph in paragraphs:
+            lns = paragraph.line
+            for i, content in enumerate(lns):
+                chunks = String.split_to_chunks(content)
+                line = {
+                    'path': paragraph.path,
+                    'page': paragraph.page,
+                    'content': content,
+                    'name': paragraph.name,
+                    'letters': len(content),
+                    'uuid': str(uuid.uuid4()),
+                    'source': f"{paragraph.name}, pg. {paragraph.page}, ln {i+1}",
+                    'num': i+1,
+                    'chunk': chunks,
+                    'lines': len(lns),
+                    'chunks': len(chunks),
+                    'size': paragraph.size,
+                    'mimetype': paragraph.mimetype,
+                }
+                lines.append(line)
+        return lines
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []

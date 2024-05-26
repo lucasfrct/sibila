@@ -44,17 +44,17 @@ def register_in_bath(directory: str = "") -> List[str]:
         paths = []
 
         # lista dos pths no diretório
-        for path_full in DocService.read(directory):
+        for path in DocService.read(directory):
 
-            ## registra o documento para indexado, caso der um erro pula pra o proxímo
-            if register_info_by_path(path_full) is False:
+            # registra o documento para indexado, caso der um erro pula pra o proxímo
+            if register_info_by_path(path) is False:
                 continue
 
-            ## adiciona o path na lista de indexados
-            paths.append(path_full)
+            # adiciona o path na lista de indexados
+            paths.append(path)
 
             # extra os metadados do documento
-            pargraphs = DocPDF.paragraphs_with_details(path_full)
+            pargraphs = DocService.read_paragraphs_with_details(path)
             for paragraph in pargraphs:
                 DocRepository.save_metadata(paragraph)
                 DocRetrieval.save_metadata(paragraph)

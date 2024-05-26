@@ -3,11 +3,11 @@
 from typing import List
 import traceback
 import logging
-import os
 
 import pdfplumber
 
 from src.utils import archive as Archive
+
 
 def reader(path: str = ""):
     """faz leitura de uma documento PDF"""
@@ -20,7 +20,7 @@ def reader(path: str = ""):
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
 
-    
+
 def reader_pages(path: str = "", init: int = 1, final: int = 0) -> List[str]:
     """faz leitura de um trecho do PDF retornado as páginas em texto puro"""
     try:

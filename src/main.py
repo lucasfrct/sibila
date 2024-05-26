@@ -1,14 +1,10 @@
-# from src.modules.agent.agent import Agent
+# flake8: noqa: E501
 
-from src.modules.librarian from librarian
+from src.modules.librarian import librarian as Librarian
 
 
 def run():
-
-    
-    # agent = Agent()
-    # agent.analyze()
-
+    Librarian.register_in_bath("./library")
 
 if __name__ == "__main__":
     run()
