@@ -6,8 +6,9 @@ from typing import List
 
 from src.utils import archive as Archive
 from src.modules.document import service as DocService
-from src.modules.document import repository as DocRepository
-from src.modules.document import retrieval as DocRetrieval
+from src.modules.document import document_info_repository as DocInfoRepository
+from src.modules.document import paragraph_metadata_retrieval as ParagraphRetrieval
+from src.modules.document import paragraph_metadata_repository as ParagraphRepository
 
 
 def names(path: str = "") -> List[str]:
@@ -31,7 +32,7 @@ def paths(path: str = "") -> List[str]:
 def register_info_by_path(path: str = "") -> bool:
     """registra as informaçoes de metadados do documento"""
     try:
-        return DocRepository.save_info(DocService.info(path))
+        return DocInfoRepository.save_info(DocService.info(path))
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return False
@@ -56,9 +57,9 @@ def register_in_bath(directory: str = "") -> List[str]:
             # extra os metadados do documento
             pargraphs = DocService.read_paragraphs_with_details(path)
             for paragraph in pargraphs:
-                DocRepository.save_metadata(paragraph)
-                DocRetrieval.save_metadata(paragraph)
-                DocRetrieval.save_metadata_with_embedings(paragraph)
+                ParagraphRepository.save_metadata(paragraph)
+                ParagraphRetrieval.save_metadata(paragraph)
+                ParagraphRetrieval.save_embedings(paragraph)
 
         return paths
     except Exception as e:

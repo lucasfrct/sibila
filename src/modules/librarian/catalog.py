@@ -1,56 +1,26 @@
-import logging
-import traceback
-from typing import List
+# flake8: noqa: E501
 
-from src.modules.document import service as DocService
-from src.modules.document import documentpdf as DocumentPDF
-from src.modules.document import repository as DocRepository
-from src.modules.document import retrieval as DocRetrieval
-
-
-
-def register_in_batch(path: str = "") -> List[str]:
-    try:
-        # paths salvas
-        paths = []
-
-        for path_full in DocService.read(path):
-
-            # if register_info_by_path(path_full) is False:
-            #     continue
-
-            paths.append(path_full)
-
-            # salva metadados
-            pages_metadatas = DocumentPDF.read_pages_with_details(path_full)
-            for metadata in pages_metadatas:
-                DocRepository.save_metadata(metadata)
-                DocRetrieval.save_metadata(metadata)
-                # DocRetrieval.save_metadata_with_embedings(metadata)
-
-        return paths
-    except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
-        return []
+from src.modules.document import paragraph_metadata_retrieval as ParagraphRetrieval
+from src.modules.document import paragraph_metadata_repository as ParagraphRepository
 
 
 def query_generic(question: str = ""):
 
     print()
-    print("CONSULTA SQL -----------------------------------------------------------------------------------------------------------")  # noqa: E501
-    res_sql = DocRepository.query_metadata(question, 3)
+    print("CONSULTA SQL (PARAGRAFOS) -----------------------------------------------------------------------------------------------------------")  # noqa: E501
+    res_sql = ParagraphRepository.query_metadata(question, 3)
     for res in res_sql:
         print("-> ", res.content)
     print()
 
-    print("CONSULTA METADATA ------------------------------------------------------------------------------------------------------------------")  # noqa: E501
-    res_vec = DocRetrieval.query_metadata(question, 3)
+    print("CONSULTA METADATA (PARAGRAFOS) ------------------------------------------------------------------------------------------------------------------")  # noqa: E501
+    res_vec = ParagraphRetrieval.query_metadata(question, 3)
     for re in res_vec:
         print("-> ", re.content)
     print()
 
-    print("CONSULTA EMBEDDING ------------------------------------------------------------------------------------------------------------------")  # noqa: E501
-    res_emb = DocRetrieval.query_embeddings(question, 3)
+    print("CONSULTA EMBEDDING (PARAGRAFOS) ------------------------------------------------------------------------------------------------------------------")  # noqa: E501
+    res_emb = ParagraphRetrieval.query_embeddings(question, 3)
     for r in res_emb:
         print("-> ", r.content)
     print()

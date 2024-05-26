@@ -7,7 +7,7 @@ from nltk.chunk import ne_chunk
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
-from src.agent.preprocessor import PreProcessor
+from src.modules.agent.preprocessor import PreProcessor
 
 
 class FeatureExtractor:
