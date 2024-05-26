@@ -2,18 +2,11 @@ import logging
 import traceback
 from typing import List
 
-from src.document import service as DocService
-from src.document import retrieval as DocRetrieval
-from src.document import documentpdf as DocumentPDF
-from src.document import repository as DocRepository
+from src.modules.document import service as DocService
+from src.modules.document import documentpdf as DocumentPDF
+from src.modules.document import repository as DocRepository
+from src.modules.document import retrieval as DocRetrieval
 
-
-def register_info_by_path(path: str = "") -> bool:
-    try:
-        return DocRepository.save_info(DocumentPDF.info(path))
-    except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
-        return False
 
 
 def register_in_batch(path: str = "") -> List[str]:

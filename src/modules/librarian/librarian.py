@@ -1,12 +1,17 @@
+# flake8: noqa: E501
+
 import logging
 import traceback
 from typing import List
 
-from src.librarian import catalog as Catalog
 from src.utils import archive as Archive
+from src.modules.document import service as DocService
+from src.modules.document import repository as DocRepository
+from src.modules.document import retrieval as DocRetrieval
 
 
 def names(path: str = "") -> List[str]:
+    """captura os nomes dos arquivos no caminho passado"""
     try:
         return Archive.names(path)
     except Exception as e:
@@ -15,6 +20,7 @@ def names(path: str = "") -> List[str]:
 
 
 def paths(path: str = "") -> List[str]:
+    """captura os paths dos arquivos no caminho passado"""
     try:
         return Archive.paths(path)
     except Exception as e:
@@ -22,17 +28,39 @@ def paths(path: str = "") -> List[str]:
         return []
 
 
-def register(path: str = "") -> List[str]:
+def register_info_by_path(path: str = "") -> bool:
+    """registra as informaçoes de metadados do documento"""
     try:
-        return Catalog.register_in_batch(path)
+        return DocRepository.save_info(DocService.info(path))
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
-        return []
+        return False
 
 
-def search(question: str = "") -> List[str]:
+def register_in_bath(directory: str = "") -> List[str]:
+    """Registra documentos PDF em lote para um diretório com os PDFs"""
     try:
-        return Catalog.query_generic(question)
+        # paths salvas
+        paths = []
+
+        # lista dos pths no diretório
+        for path_full in DocService.read(directory):
+
+            ## registra o documento para indexado, caso der um erro pula pra o proxímo
+            if register_info_by_path(path_full) is False:
+                continue
+
+            ## adiciona o path na lista de indexados
+            paths.append(path_full)
+
+            # extra os metadados do documento
+            pargraphs = DocPDF.paragraphs_with_details(path_full)
+            for paragraph in pargraphs:
+                DocRepository.save_metadata(paragraph)
+                DocRetrieval.save_metadata(paragraph)
+                DocRetrieval.save_metadata_with_embedings(paragraph)
+
+        return paths
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
