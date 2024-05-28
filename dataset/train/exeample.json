@@ -1,0 +1,18 @@
+[
+	{
+			"prompt": "Cliente: Olá, eu gostaria de saber o status do meu pedido.",
+			"response": "Assistente: Claro, por favor, informe o número do seu pedido para que eu possa verificar."
+	},
+	{
+			"prompt": "Cliente: Meu pedido ainda não chegou e já passou do prazo de entrega.",
+			"response": "Assistente: Lamento pelo atraso. Vou verificar o que pode ter acontecido e retornarei com uma atualização em breve."
+	},
+	{
+			"prompt": "Cliente: Como faço para devolver um item?",
+			"response": "Assistente: Para devolver um item, acesse a seção de devoluções no nosso site, preencha o formulário e siga as instruções fornecidas."
+	},
+	{
+			"prompt": "Cliente: Qual é o horário de funcionamento da loja?",
+			"response": "Assistente: Nossa loja funciona de segunda a sexta, das 9h às 18h, e aos sábados, das 9h às 14h."
+	}
+]
