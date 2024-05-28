@@ -25,13 +25,15 @@ def table_pages_metadatas() -> bool:
                 source text,
                 letters interger,
                 content text,
-
-                size interger,
-                lines interger,
-                pages interger,
-                chunks interger,
+                
                 mimetype text,
+                pages interger,
+                size interger,
+,
                 paragraphs interger
+                phrases interger,
+                lines interger,
+                chunks interger,
             )
         """)
         return True
