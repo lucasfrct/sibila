@@ -55,11 +55,11 @@ def register_in_bath(directory: str = "") -> List[str]:
             paths.append(path)
 
             # extra os metadados do documento
-            pargraphs = DocService.read_paragraphs_with_details(path)
-            for paragraph in pargraphs:
-                ParagraphRepository.save_metadata(paragraph)
-                ParagraphRetrieval.save_metadata(paragraph)
-                ParagraphRetrieval.save_embedings(paragraph)
+            # pargraphs = DocService.read_paragraphs_with_details(path)
+            # for paragraph in pargraphs:
+            #     ParagraphRepository.save_metadata(paragraph)
+            #     ParagraphRetrieval.save_metadata(paragraph)
+            #     ParagraphRetrieval.save_embedings(paragraph)
 
         return paths
     except Exception as e:

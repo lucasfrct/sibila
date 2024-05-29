@@ -1,62 +1,14 @@
 # flake8: noqa: E501
 
-import sys
+from src.routines import migrate
 
-from src.utils.colors import colors
-from src.utils import writer as Writer
-from src.models.ollama import ModelOllama
-from src.models.open_ai import ModelOpenAI
-from src.modules.analyst.analyst import Analyst
+from src.modules.document.paragraph_metadata import ParagraphMetadata
+from src.modules.document import paragraph_metadata_repository as PragraphRepository
 
 
-# Coleta dos dados - rotular dados
-# Pré processamento
-# - limpeza do texto
-# - tokenizaçao
-# - remoçao de palavra de parada
-# - normalização (acentuaçao, ortografia, conversão para minúsculas)
-# - lemarizaçao (extrair o lema da palavra)
-# - stemming (extrair radical da palavras)
-# Extraçao de características
-# - análise sintática (tags e entidades)
-# - janela de context (tags e entidades)
-# - bag of words (matrix de )
-# - TF-IDF (Term Frequency-Inverse Document Frequency).
-# - Embeddings de palavras
-
-class Agent:
-
-    def __init__(self):
-
-        self.ollama = ModelOllama()
-        self.openai = ModelOpenAI()
-        self.analyst = Analyst()
-
-    def welcome(self):
-        print("\n", f"{colors.WARNING}Como posso ajudar? {colors.ENDC}", "\n")
-
-    def available(self):
-        print("\n", f"{colors.WARNING}Quer perguntar mais alguma coisa? {
-              colors.ENDC}", "\n")
-
-    def question(self, question):
-        answer = self.openai.question(question, "")
-        self.write(answer)
-        self.available()
-        return answer
-
-    def write(self, content, delay=0.01):
-        """ escreve a resposta num terminal com delay. """
-        Writer.delay(content, delay)
-
-    def run(self):
-        self.welcome()
-        for line in sys.stdin:
-            self.question(line)
-
-    def analyze(self):
-        
-        self.analyst.add_clause(""" 
+def run():
+    p = ParagraphMetadata()
+    p.content = """ 
             2.1 Poderão se inscrever no Plano, nas seguintes categorias:   
             2.1.1 Beneficiário Titular: pessoa física contratante 
             2.1.2 Beneficiários Dependentes: considerados como tais aqueles também admitidos pelo regime previdenciário oficial vigente, a saber: 
@@ -75,15 +27,14 @@ class Agent:
             2.5.2  O  Dependente  que  vier  a  perder  a  condição  de  dependência  poderá  assinar Contrato em seu próprio nome, em até 30 (trinta) dias a contar da data da perda do direito  de  Beneficiário  Dependente,  aproveitando  as  carências  já  cumpridas  neste Contrato.  
             2.6  O  Beneficiário  Titular  é  responsável  pela  constante  atualização  dos  dados cadastrais  informados,  em  relação  a  si  e  aos  seus  Dependentes,  inclusive  com  o envio  de  documentos  quando  se  fizer  necessário,  incluindo  eventual  alteração  de endereço, que deverá ser comunicada imediatamente à CONTRATADA.  
             2.7  O  CONTRATANTE  e  a  CONTRATADA  poderão  negociar,  entre  si,  a  ampliação do  rol  de  dependentes,  independente  de  alteração  no  rol  do  regime  previdenciário oficial,  desde  que  respeitados  os  limites  de  parentesco  definidos  na  legislação vigente.
-            """)
-        
-        predic = self.analyst.predict()
-
-        promt_errors = """"
-        O documento é uma contrato de plano de saúde sobre a jurisdiçao brasileira de orgãos como, ANS, CFM, JusBrasil, ANVISA, CDC, 
-        levante no mínimo 3 erros jurídicos diferentes entre si nessa cláusula quando houver erros. me forneça a resposta num formato json cru, sem comentários, com o campo tags, sendo este um array com no mínimo 3 tags relacionadas a justificativa encontrada, outro campo com a justificativa sendo uma string descrevendo o erro encontrado. outro campo com o sentimento, positivo ou negativo da justificativa. outro campo com a intenção geral a justificativa em poucas palavras. outro campo chamado adendo que escreve o novo trecho para a cláusula adicionando a correção com base na justiticafiva encontrada de modo a ser parte da narrativa do texto original tomando atenção para que não haja repetição de idéias ou cacofonia no texto. Para cada erro crie um objeto { tags: [], justificativa: '', sentimento: '', intenção: '', adendo: ''}. para a resposta siga o formato: [ { tags: [...], justificativa: '', sentimento: '', intencao: '', adendo: '' }, ... ] 
         """
-        answer = self.ollama.question(promt_errors, predic)
-        # answer = self.openai.question(f"{promt_errors}\n{answer}", predic)
-        # answer = self.openai.question(f"{promt_errors}", predic)
-        self.write(answer)
+            
+    p.generate_phrases()
+    p.generate_lines()
+    p.generate_chunks()
+    p.new_uuid()
+    print("Documentos: ", PragraphRepository.save(p))
+
+if __name__ == "__main__":
+    migrate.tables()
+    run()

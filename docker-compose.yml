@@ -47,7 +47,7 @@ services:
       - ./.env
     pull_policy: always
     tty: true
-    restart: always
+    restart: no
     ports:
       - 11434:11434
   

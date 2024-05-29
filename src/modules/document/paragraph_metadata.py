@@ -1,7 +1,8 @@
 # flake8: noqa: E501
 
-from dataclasses import dataclass, asdict, astuple
+from dataclasses import dataclass
 from typing import List
+import uuid
 
 from src.utils import string as String
 
@@ -9,15 +10,15 @@ from src.utils import string as String
 class ParagraphMetadata:
     def __init__(
         self, 
-        uuid: str = None, 
-        path: str = None, 
+        uuid: str = "", 
+        path: str = "", 
         page: int = 0, 
-        name: str = None, 
-        source: str = None, 
+        name: str = "", 
+        source: str = "", 
         letters: int = 0, 
-        content: str = None, 
+        content: str = "", 
         distance: float = 0.0, 
-        mimetype: str = None,
+        mimetype: str = "",
         size: int = 0,
         phrase: List[str] = [],
         phrases: int = 0,
@@ -52,17 +53,21 @@ class ParagraphMetadata:
         self.chunk: List[str] = []          # lita pedaços do paragrafo
         self.chunks: int = 0                # total de chuncks
 
+    def new_uuid(self):
+        self.uuid = str(uuid.uuid4())
+        return self.uuid
+    
     def dict(self):
-        return asdict(self)
+         return self.__dict__
 
-    def to_tuple(self):
-        return astuple(self)
+    def tuple(self):
+        return tuple(self.__dict__.values())
 
     def generate_phrases(self) -> List[str]:
         """transforma o conteúdo em freses"""
         self.phrase = String.split_to_phrases(self.content)
         self.phrases = len(self.phrase)
-        return self.phrases
+        return self.phrase
     
     def generate_lines(self) -> List[str]:
         """quebra o conteúdo em linhas removendo linhas vazias"""

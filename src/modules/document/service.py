@@ -4,6 +4,7 @@ from typing import List, Optional
 import traceback
 import logging
 import uuid
+import os
 
 from fpdf import FPDF
 
@@ -18,7 +19,13 @@ from src.utils import string as String
 
 def read(path: str = "") -> List[str]:
     try:
-        return Archive.paths(path)
+        paths = []
+        paths_raw = Archive.paths(path)
+        for p in paths_raw:
+            if os.path.isdir(p):
+                continue
+            paths.append(p)
+        return paths
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []

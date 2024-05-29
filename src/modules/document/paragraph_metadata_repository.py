@@ -12,26 +12,27 @@ from src.modules.document.paragraph_metadata import ParagraphMetadata
 #################################################################
 
 
-def table_paragraph_metadatas() -> bool:
+def table_paragraphs_metadatas() -> bool:
     """cria a tabela de paragrafos com metadados"""
     try:
         conn = sqlitedb.client()
         conn.execute("""
-            create table if not exists paragraphs_metadatas (
-                uuid text primary key,
-                path text,
-                page interger,
-                name text,
-                source text,
-                letters interger,
-                content text,
+            CREATE TABLE IF NOT EXISTS paragraphs_metadatas (
+                uuid TEXT PRIMARY KEY,
+                path TEXT,
+                page INTEGER,
+                name TEXT,
+                source TEXT,
+                letters INTEGER,
+                content TEXT,
+                
+                distance REAL,
+                mimetype TEXT,
+                size INTEGER,
 
-                size interger,
-                lines interger,
-                pages interger,
-                chunks interger,
-                mimetype text,
-                paragraphs interger
+                phrases INTEGER,
+                lines INTEGER,
+                chunks INTEGER
             )
         """)
         return True
@@ -40,12 +41,20 @@ def table_paragraph_metadatas() -> bool:
         return False
 
 
-def save_metadata(meta: ParagraphMetadata) -> bool:
+def save(paragraph: ParagraphMetadata) -> bool:
     """salva um paragrafo com metadados"""
     try:
-        meta_save = meta.to_model()
+        paragraph_list = list(paragraph.tuple())
+        rm_positions = [10, 12, 14]
+        for pos in sorted(rm_positions, reverse=True):
+            del paragraph_list[pos]
+            
+        paragraph = tuple(paragraph_list)
         conn = sqlitedb.client()
-        conn.execute("insert into paragraphs_metadatas (uuid, path, page, name, source, letters, content, size, lines, pages, chunks, mimetype, paragraphs) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", meta_save)  # noqa: E501
+        conn.execute("""insert into 
+            paragraphs_metadatas (uuid, path, page, name, source, letters, content, distance, mimetype, size, phrases, lines, chunks) 
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", 
+        paragraph)
         conn.commit()
         return True
 
