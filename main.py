@@ -3,6 +3,7 @@
 from src.routines import migrate
 
 from src.modules.document.paragraph_metadata import ParagraphMetadata
+from src.modules.document import paragraph_metadata_retrieval as PragraphRetrieval
 from src.modules.document import paragraph_metadata_repository as PragraphRepository
 
 
@@ -33,7 +34,10 @@ def run():
     p.generate_lines()
     p.generate_chunks()
     p.new_uuid()
-    print("Documentos: ", PragraphRepository.save(p))
+    # print("Documentos: ", PragraphRepository.save(p))
+    # print("DOC Retrieval: ", PragraphRetrieval.save(p))
+    print("DOC Retrieval: ", PragraphRetrieval.save_with_embedings(p))
+    print("QUERY: ", [a.content for a in PragraphRetrieval.query_with_embeddings("rol do regime", 10)])
 
 if __name__ == "__main__":
     migrate.tables()

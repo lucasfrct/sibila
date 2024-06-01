@@ -15,24 +15,48 @@ COLLECTION = "paragraphs"
 # TABLE PARAGRAPHS EMBEDDINGS
 #################################################################
 
-
-def save_embedings(metadata: ParagraphMetadata) -> bool:
-    """ salva na collection com embeddings. """
+def save(paragraph: ParagraphMetadata) -> bool:
+    """ salva os paragrafos. """ 
     try:
-        model = ModelOllama()
-        chunks = metadata.chunk
-        embeddings = model.make(chunks)
-        meta = metadata.dict()
-        ids = [str(uuid.uuid4()) for _ in chunks]
+        uuid = paragraph.uuid
+        text = paragraph.content
+        paragraph_dict = paragraph.data_retrieval()
         collection = chromadbvector.collection(COLLECTION)
-        collection.add(embeddings=embeddings, documents=chunks, metadatas=meta, ids=ids)   # noqa: E501
+        collection.add(documents=text, metadatas=paragraph_dict, ids=uuid)
         return True
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return False
 
 
-def query_embeddings(consult: str = "", results: int = 5) -> List[ParagraphMetadata]:
+def query(query: str = "", results: int = 5) -> List[ParagraphMetadata]:
+    """ consulta os paragrafos. """ 
+    try:
+        collection = chromadbvector.collection(COLLECTION)
+        result = collection.query(query_texts=[query], n_results=results)
+        return retrieval_to_paragraphs(result)
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return []
+
+
+def save_with_embedings(metadata: ParagraphMetadata) -> bool:
+    """ salva na collection com embeddings. """
+    try:
+        model = ModelOllama()
+        chunks = metadata.chunk
+        embeddings = model.make(chunks)
+        paragraph_dict = metadata.data_retrieval()
+        ids = [str(uuid.uuid4()) for _ in chunks]
+        collection = chromadbvector.collection(COLLECTION)
+        collection.add(embeddings=embeddings, documents=chunks, metadatas=paragraph_dict, ids=ids)
+        return True
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return False
+
+
+def query_with_embeddings(consult: str = "", results: int = 5) -> List[ParagraphMetadata]:
     """ consulta com embeddings. """
     try:
         model = ModelOllama()
@@ -46,38 +70,14 @@ def query_embeddings(consult: str = "", results: int = 5) -> List[ParagraphMetad
         return []
 
 
-def save_metadata(metadata: ParagraphMetadata) -> bool:
-    """ salva os metadados. """ 
-    try:
-        uuid = metadata.uuid
-        text = metadata.content
-        meta = metadata.to_dict_model()
-        collection = chromadbvector.collection(COLLECTION)
-        collection.add(documents=text, metadatas=meta, ids=uuid)
-        return True
-    except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
-        return False
-
-
-def query_metadata(consult: str = "", results: int = 5) -> List[ParagraphMetadata]:  # noqa: E501
-    """ cnsulta os metadados. """  # noqa: E501
-    try:
-        collection = chromadbvector.collection(COLLECTION)
-        result = collection.query(query_texts=[consult], n_results=results)
-        return retrieval_to_paragraphs(result)
-    except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
-        return []
-
-
 def retrieval_to_paragraphs(retrieval) -> List[ParagraphMetadata]:
     """ transforma uma resultados do banco numa metadata. """  # noqa: E501
 
     retrieval_ids = retrieval['ids']
     retrieval_metadatas = retrieval['metadatas']
     retrieval_distances = retrieval['distances']
-
+    retrieval_documents = retrieval['documents']
+    
     metadatas = []
 
     if len(retrieval_ids) == 0:
@@ -89,10 +89,11 @@ def retrieval_to_paragraphs(retrieval) -> List[ParagraphMetadata]:
 
             if retrieval_metadatas is not None:
                 meta = retrieval_metadatas[i][j]
-                metadata.from_dict_model(meta)
+                metadata.from_retrieval(meta)
 
             metadata.uuid = _id
             metadata.distance = retrieval_distances[i][j]
+            metadata.content = retrieval_documents[i][j]
 
             metadatas.append(metadata)
 

@@ -1,7 +1,7 @@
 # flake8: noqa: E501
 
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List, Mapping
 import uuid
 
 from src.utils import string as String
@@ -33,22 +33,22 @@ class ParagraphMetadata:
         self.letters: int = letters         # total de letras
         self.content: str = content         # conteúdo íntegro do paragrafo
 
-        # distancia do vetor    #! (não guardar na base de dados)
+        # distancia do vetor                #! (não guardar na base de dados)
         self.distance: float = distance     # distancia vetorial
         self.mimetype: str = mimetype       # extenção do arquivo
         self.size: int = size               # tamanho do arquivo em bytes
 
-        # lista de frases       #! (não guardar na base de dados)
+        # lista de frases                   #! (não guardar na base de dados)
         # frases são textos recortados do início até que encontre um ponto final
         self.phrase: List[str] = phrase     # lista de frases
         self.phrases: int = phrases         # total de frases
 
-        # lista de linas        #! (não guardar na base de dados)
+        # lista de linas                    #! (não guardar na base de dados)
         # linhas são pedaços de textos até que encontre um \n ou zr (slato de linha)
         self.line: List[str] = []           # lista das linhas
         self.lines: int = 0                 # total de linas
 
-        # lista de chunks       #! (não guardar na base de dados)
+        # lista de chunks                   #! (não guardar na base de dados)
         # chaunks são pedaços de texto quebrados dentro de um parágrafo para armazenamento em vetor
         self.chunk: List[str] = []          # lita pedaços do paragrafo
         self.chunks: int = 0                # total de chuncks
@@ -62,6 +62,16 @@ class ParagraphMetadata:
 
     def tuple(self):
         return tuple(self.__dict__.values())
+    
+    def data_retrieval(self):
+        return { "uuid": self.uuid, "path": self.path, "name": self.name, "source": self.source, "mimetype": self.mimetype }
+    
+    
+    def from_retrieval(self, data: Mapping[str, str]):
+        self.uuid = data['uuid']
+        self.name = data['name']
+        self.path = data['path']
+        self.source = data['source']
 
     def generate_phrases(self) -> List[str]:
         """transforma o conteúdo em freses"""
