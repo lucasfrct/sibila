@@ -6,7 +6,7 @@ import json
 import uuid
 
 from src.utils import string as String
-from src.modules.document.bow import generate_bow as BoW
+from src.modules.nlp.bow import generate_bow as BoW
 
 @dataclass
 class ParagraphMetadata:

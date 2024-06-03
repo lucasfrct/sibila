@@ -1,3 +1,5 @@
+# flake8: noqa: E501
+
 from collections import defaultdict, Counter
 from typing import List
 
@@ -7,27 +9,21 @@ from nltk.chunk import ne_chunk
 
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
-from src.modules.agent.preprocessor import PreProcessor
+from src.modules.nlp.preprocessor import PreProcessor
+from src.modules.nlp.bow import generate_bow
+from src.modules.nlp.tfidf import generate_tfidf
 
 
 class FeatureExtractor:
     def __init__(self):
 
-        nltk.download('maxent_ne_chunker')
-
         self.preprocessor = PreProcessor()
-        self.vectorizer = CountVectorizer()
-        self.tfidf_vectorizer = TfidfVectorizer()
 
-        self.vocabulary_tfidf = None
         self.vocabulary = None
         self.entities = None
         self.ngramas = None
         self.tags = None
 
-        self.vocabulary_tfidf_list = []
-        self.bag_words_matrix = []
-        self.tfidf_matrix = []
         self.ctx_ngrams = []
         self.entity = []
         self.tag = []
@@ -51,8 +47,8 @@ class FeatureExtractor:
 
         return digest
 
-    def window_context(self, text: str = "", window_size=2):  # noqa: E501
-        """ Gera n-gramas em torno de uma palavra-alvo com um tamanho de janela específico. """  # noqa: E501
+    def window_context(self, text: str = "", window_size=2):
+        """ Gera n-gramas em torno de uma palavra-alvo com um tamanho de janela específico. """
 
         # aplica a análise sintpatica
         digest = self.syntax_analisys(text)
@@ -67,7 +63,7 @@ class FeatureExtractor:
         tokens_expands.extend(digest['tag'])
 
         # separa os indíces de tokens que sõa entidades
-        target_indices = [i for i, token in enumerate(tokens_expands) if token in entities]  # noqa: E501
+        target_indices = [i for i, token in enumerate(tokens_expands) if token in entities]
 
         # monta os n-gramas (palavras distrinuidas por nós)
         self.ctx_ngrams = []
@@ -79,7 +75,7 @@ class FeatureExtractor:
         self.ngramas = self.cooccurrence_matrix(self.ctx_ngrams)
 
         # monta o vacabuláriodas bag words com base nos tokens
-        vocabulary = self.bow(tokens_expands)
+        vocabulary = self.bow(' '.join(tokens_expands))
         # monta o vacabulário TFIDF
         vocabulary_tfidf = self.tfidf(text)
 
@@ -121,38 +117,21 @@ class FeatureExtractor:
 
         return dict(cooccurrence_counts)
 
-    def bow(self, tokens: List[str] = []):
-        """ extrai a bag words. """  # noqa: E501
+    def bow(self, text: str = "") -> List[str]:
+        """ extrai a bag words. """
+        vocabulary = generate_bow(text)
+        return vocabulary.keys()
 
-        # extrai a matrix de bag words
-        bag_words = self.vectorizer.fit_transform(tokens)
-        self.bag_words_matrix = bag_words.toarray()
-
-        # extrai o vacabulário em volta do bag words
-        self.vocabulary = self.vectorizer.vocabulary_
+    def tfidf(self, text: str = "") -> dict:
+        """ matrix de características TF-IDF(Term Frequency-Inverse Document Frequency)"""
+        
+        self.vocabulary = generate_tfidf(text)
         return self.vocabulary
 
-    def tfidf(self, text: str = ""):
-        """ matrix de características TF-IDF(Term Frequency-Inverse Document Frequency)"""  # noqa: E501
-
-        # Transformação dos documentos em uma matriz TF-IDF
-        tfidf = self.tfidf_vectorizer.fit_transform([text])
-        self.tfidf_matrix = tfidf.toarray()
-
-        # Vocabulário com índices
-        self.vocabulary_tfidf_list = self.tfidf_vectorizer.get_feature_names_out()   # noqa: E501
-
-        # Monta um vocabulario de frequencia
-        self.vocabulary_tfidf = {}
-        for word, weight in zip(self.vocabulary_tfidf_list, self.tfidf_matrix[0]):   # noqa: E501
-            self.vocabulary_tfidf[word] = weight
-
-        return self.vocabulary_tfidf
-
-    def min(self, vocabulary={}, size: int = 5):
-        """ Extrai os items de menor valor """  # noqa: E501
-        return dict(sorted(vocabulary.items(), key=lambda item: item[1])[:size])   # noqa: E501
+    def min(self, vocabulary: dict = {}, size: int = 5):
+        """ Extrai os items de menor valor """
+        return dict(sorted(vocabulary.items(), key=lambda item: item[1])[:size])
 
     def max(self, vocabulary={}, size: int = 5):
-        """ Extrai os items de maior valor """  # noqa: E501
-        return dict(sorted(vocabulary.items(), key=lambda item: item[1], reverse=True)[:size])   # noqa: E501
+        """ Extrai os items de maior valor """ 
+        return dict(sorted(vocabulary.items(), key=lambda item: item[1], reverse=True)[:size])
