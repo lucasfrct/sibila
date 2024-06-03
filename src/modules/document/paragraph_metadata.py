@@ -1,10 +1,12 @@
 # flake8: noqa: E501
 
-from dataclasses import dataclass
 from typing import Dict, List, Mapping
+from dataclasses import dataclass
+import json
 import uuid
 
 from src.utils import string as String
+from src.modules.document.bow import generate_bow as BoW
 
 @dataclass
 class ParagraphMetadata:
@@ -98,3 +100,54 @@ class ParagraphMetadata:
         self.chunk = String.split_to_chunks(self.content, 2000)
         self.chunks = len(self.chunk)
         return self.chunk
+    
+    def generate_dataset(self):
+        """Função para gerar pares de perguntas e respostas"""
+      
+        # extrair as palavras principais do BoW 
+        main_words = []
+        frequences, names = BoW(self.content)
+        for freq, name in zip(frequences, names):
+            if(freq > 3):
+                main_words.append(name)
+        
+        dataset = []
+        
+        # gerar dataset
+        for phrase in self.phrase :
+            question = f"Usuário: {str(uuid.uuid4())} O que diz  {phrase[:90]}?"
+            answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
+            dataset.append({"prompt": question, "response": answer})
+        
+        for phrase in self.phrase :
+            question = f"Usuário: {str(uuid.uuid4())} O que diz  {phrase[:90]}?"
+            answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
+            dataset.append({"prompt": question, "response": answer})
+            
+        for line in self.line :
+            question = f"Usuário: {str(uuid.uuid4())} Conforme  {line[:60]}"
+            answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
+            dataset.append({"prompt": question, "response": answer})
+            
+        for chunk in self.chunk :
+            question = f"Usuário: {str(uuid.uuid4())} O que diz {chunk[:30]}?"
+            answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
+            dataset.append({"prompt": question, "response": answer})
+            
+        for word in main_words :
+            question = f"Usuário: {str(uuid.uuid4())} sobre {word}"
+            answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
+            dataset.append({"prompt": question, "response": answer})
+            
+        question = f"Usuário: {' '.join(main_words)}"
+        answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
+        dataset.append({"prompt": question, "response": answer})
+            
+        return dataset
+
+    # Função para salvar o dataset em formato JSON
+    def export_dataset(self):
+        file_path = './dataset/train/paragraphs.json'
+        dataset = self.generate_dataset()
+        with open(file_path, "w", encoding='utf-8') as f:
+            json.dump(dataset, f, ensure_ascii=False, indent=4)
