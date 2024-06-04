@@ -29,7 +29,7 @@ def run():
             2.7  O  CONTRATANTE  e  a  CONTRATADA  poderão  negociar,  entre  si,  a  ampliação do  rol  de  dependentes,  independente  de  alteração  no  rol  do  regime  previdenciário oficial,  desde  que  respeitados  os  limites  de  parentesco  definidos  na  legislação vigente.
         """
         
-    Catalogretrieval.save("./doc.pdf", "Artigo 2", 18, content)
+    # Catalogretrieval.save("./doc.pdf", "Artigo 2", 18, content)
     print(Catalogretrieval.query("quando o titular é responsável"))
     
 
