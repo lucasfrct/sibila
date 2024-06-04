@@ -3,14 +3,12 @@
 
 from src.routines import migrate
 
-from src.modules.document.paragraph_metadata import ParagraphMetadata
-from src.modules.document import paragraph_metadata_retrieval as PragraphRetrieval
-from src.modules.document import paragraph_metadata_repository as PragraphRepository
+from src.modules.librarian import catalog_retrieval as Catalogretrieval
 
 
 def run():
-    p = ParagraphMetadata()
-    p.content = """ 
+
+    content = """ 
             2.1 Poderão se inscrever no Plano, nas seguintes categorias:   
             2.1.1 Beneficiário Titular: pessoa física contratante 
             2.1.2 Beneficiários Dependentes: considerados como tais aqueles também admitidos pelo regime previdenciário oficial vigente, a saber: 
@@ -30,18 +28,9 @@ def run():
             2.6  O  Beneficiário  Titular  é  responsável  pela  constante  atualização  dos  dados cadastrais  informados,  em  relação  a  si  e  aos  seus  Dependentes,  inclusive  com  o envio  de  documentos  quando  se  fizer  necessário,  incluindo  eventual  alteração  de endereço, que deverá ser comunicada imediatamente à CONTRATADA.  
             2.7  O  CONTRATANTE  e  a  CONTRATADA  poderão  negociar,  entre  si,  a  ampliação do  rol  de  dependentes,  independente  de  alteração  no  rol  do  regime  previdenciário oficial,  desde  que  respeitados  os  limites  de  parentesco  definidos  na  legislação vigente.
         """
-            
-    p.generate_phrases()
-    p.generate_lines()
-    p.generate_chunks()
-    p.new_uuid()
-    p.export_dataset()
-    # print("Documentos: ", PragraphRepository.save(p))
-    # print("DOC Retrieval: ", PragraphRetrieval.save(p))
-    # print("DOC Retrieval: ", PragraphRetrieval.save_with_embedings(p))
-    
-    # print("QUERY: ", [a.content for a in PragraphRetrieval.query("rol do regime", 10)]) 
-    # print("QUERY: ", [a.content for a in PragraphRetrieval.query_with_embeddings("rol do regime", 10)])
+        
+    Catalogretrieval.save("./doc.pdf", "Artigo 2", 18, content)
+    print(Catalogretrieval.query("quando o titular é responsável"))
     
 
 if __name__ == "__main__":

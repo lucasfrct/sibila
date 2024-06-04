@@ -120,3 +120,14 @@ def removal_stopwords(text: str = "") -> str:
     tokens = [word for word in tokens if word.lower() not in stopwords_pt]
     
     return ' '.join(tokens)
+
+
+def unique(contents: List[str] = []) -> List[str]:
+    """ remove documentos com conteúdo repetido """
+    content_unique = set()
+    results: List[str] = []
+    for content in contents:
+        if content not in content_unique:
+            results.append(content)
+            content_unique.add(content)
+    return results

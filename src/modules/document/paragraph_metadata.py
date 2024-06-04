@@ -6,7 +6,7 @@ import json
 import uuid
 
 from src.utils import string as String
-from src.modules.nlp.bow import generate_bow as BoW
+from src.modules.nlp.bow import generate_bow
 
 @dataclass
 class ParagraphMetadata:
@@ -66,8 +66,7 @@ class ParagraphMetadata:
         return tuple(self.__dict__.values())
     
     def data_retrieval(self):
-        return { "uuid": self.uuid, "path": self.path, "name": self.name, "source": self.source, "mimetype": self.mimetype }
-    
+        return { "uuid": self.uuid, "path": self.path, "name": self.name, "source": self.source, "mimetype": self.mimetype, "content": self.content }
     
     def from_retrieval(self, data: Mapping[str, str]):
         self.uuid = data['uuid']
@@ -91,6 +90,7 @@ class ParagraphMetadata:
                 continue
 
             lines_clean.append(String.clean_lines(line))
+            
         self.line = lines_clean
         self.lines = len(self.line)
         return self.line
@@ -101,17 +101,23 @@ class ParagraphMetadata:
         self.chunks = len(self.chunk)
         return self.chunk
     
+    def generate_bow(self):
+        """ funçao para exrair bag of words"""
+        return generate_bow(self.content)
+        
+    
     def generate_dataset(self):
         """Função para gerar pares de perguntas e respostas"""
       
         # extrair as palavras principais do BoW 
-        main_words = []
-        frequences, names = BoW(self.content)
-        for freq, name in zip(frequences, names):
-            if(freq > 3):
-                main_words.append(name)
+        words = self.generate_bow()
+            
+        main_words: List[str] = []
+        for word in words.keys():
+            if(words[word] >= 3):
+                main_words.append(word)
         
-        dataset = []
+        dataset: List[dict] = []
         
         # gerar dataset
         for phrase in self.phrase :
@@ -120,7 +126,7 @@ class ParagraphMetadata:
             dataset.append({"prompt": question, "response": answer})
         
         for phrase in self.phrase :
-            question = f"Usuário: {str(uuid.uuid4())} O que diz  {phrase[:90]}?"
+            question = f"Usuário: {str(uuid.uuid4())} segundo {phrase[:90]}?"
             answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
             dataset.append({"prompt": question, "response": answer})
             
@@ -130,7 +136,7 @@ class ParagraphMetadata:
             dataset.append({"prompt": question, "response": answer})
             
         for chunk in self.chunk :
-            question = f"Usuário: {str(uuid.uuid4())} O que diz {chunk[:30]}?"
+            question = f"Usuário: {str(uuid.uuid4())} caso {chunk[:30]}?"
             answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
             dataset.append({"prompt": question, "response": answer})
             
@@ -139,7 +145,7 @@ class ParagraphMetadata:
             answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
             dataset.append({"prompt": question, "response": answer})
             
-        question = f"Usuário: {' '.join(main_words)}"
+        question = f"Usuário: para as pallavras chaves {' '.join(main_words)}"
         answer = f"Assistente: {self.content.strip()} [Fonte: {self.source}]"
         dataset.append({"prompt": question, "response": answer})
             
