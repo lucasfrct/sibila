@@ -48,7 +48,7 @@ def query(query: str = "", results: int = 5, cut: float = 1.2) -> List[dict]:
         cut (float): corte superior da distancia (proxidade) do documento pesquisado.
         
     Returns:
-        bool: Retinra falso apra quando há algum erro e true para dado salvo.
+        bool: Retorna TURE para dsalvo e FALSE para erro.
     """
     try:
         collection = chromadbvector.collection(COLLECTION)
