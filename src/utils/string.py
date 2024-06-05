@@ -121,7 +121,6 @@ def removal_stopwords(text: str = "") -> str:
     
     return ' '.join(tokens)
 
-
 def unique(contents: List[str] = []) -> List[str]:
     """ remove documentos com conteúdo repetido """
     content_unique = set()

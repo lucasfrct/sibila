@@ -3,7 +3,8 @@
 
 from src.routines import migrate
 
-from src.modules.librarian import catalog_retrieval as Catalogretrieval
+from src.modules.legislation import federal_constitution_retrieval as FederalConstitutionRetrieval
+from src.modules.analyst.analyst import Analyst
 
 
 def run():
@@ -28,9 +29,13 @@ def run():
             2.6  O  Beneficiário  Titular  é  responsável  pela  constante  atualização  dos  dados cadastrais  informados,  em  relação  a  si  e  aos  seus  Dependentes,  inclusive  com  o envio  de  documentos  quando  se  fizer  necessário,  incluindo  eventual  alteração  de endereço, que deverá ser comunicada imediatamente à CONTRATADA.  
             2.7  O  CONTRATANTE  e  a  CONTRATADA  poderão  negociar,  entre  si,  a  ampliação do  rol  de  dependentes,  independente  de  alteração  no  rol  do  regime  previdenciário oficial,  desde  que  respeitados  os  limites  de  parentesco  definidos  na  legislação vigente.
         """
-        
+    # FederalConstitutionRetrieval.save("./doc", "Constituiçao Federal", 1, content)
+    analyst = Analyst()
+    analyst.add_clause(content)
+    print(analyst.legislative_correlation())
+    
     # Catalogretrieval.save("./doc.pdf", "Artigo 2", 18, content)
-    print(Catalogretrieval.query("quando o titular é responsável"))
+    # print(Catalogretrieval.query("quando o titular é responsável"))
     
 
 if __name__ == "__main__":
