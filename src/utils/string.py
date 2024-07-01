@@ -1,10 +1,10 @@
 # flake8: noqa: E501
 
 import re
-import spacy
 import string
+# import spacy
 from typing import List
-from spellchecker import SpellChecker
+# from spellchecker import SpellChecker
 from nltk.tokenize import word_tokenize
 
 from src.utils.stop_words import stopwords_pt
@@ -83,30 +83,32 @@ def tokenize(text: str = "") -> List[str]:
 def normalize(text: str = "") -> List[str]:
     """ normaliza o texto corriginjo palavra com grafia errada """
 
-    words_white = ["vc", "pv", 'fds', 'blz', 'tmj', 'pdc', 's2', 'sdds', 'sqn', 'mlr', 'tldg', 'tb', 'bj', 'obg', 'pfv', 'msg', 'add']
-    words_black = ["none", "None"]
-    words = [str(word).lower() for word in tokenize(text) if word is not None]
-    normalized_text = []
-    spell = SpellChecker(language='pt')
+    # words_white = ["vc", "pv", 'fds', 'blz', 'tmj', 'pdc', 's2', 'sdds', 'sqn', 'mlr', 'tldg', 'tb', 'bj', 'obg', 'pfv', 'msg', 'add']
+    # words_black = ["none", "None"]
+    # words = [str(word).lower() for word in tokenize(text) if word is not None]
+    # normalized_text = []
+    # spell = SpellChecker(language='pt')
 
-    for word in words:
-        correct_word = spell.correction(word)
-        if word in words_white or correct_word in words_white:
-            correct_word = word
-        if word in words_black or correct_word in words_black:
-            continue
-        if word is None:
-            continue
-        if correct_word is None:
-            correct_word = word
-        normalized_text.append(str(correct_word))
+    # for word in words:
+    #     correct_word = spell.correction(word)
+    #     if word in words_white or correct_word in words_white:
+    #         correct_word = word
+    #     if word in words_black or correct_word in words_black:
+    #         continue
+    #     if word is None:
+    #         continue
+    #     if correct_word is None:
+    #         correct_word = word
+    #     normalized_text.append(str(correct_word))
 
-    return normalized_text
+    # return normalized_text
+    return []
 
 def lemmatization(text: str = "") ->  List[str]:
-    nlp = spacy.load('pt_core_news_sm')
-    doc = nlp(str([str(word) for word in tokenize(text)]))
-    return [token.lemma_ for token in doc if token.pos_ == 'NOUN']
+    # nlp = spacy.load('pt_core_news_sm')
+    # doc = nlp(str([str(word) for word in tokenize(text)]))
+    # return [token.lemma_ for token in doc if token.pos_ == 'NOUN']
+    return []
 
 def removal_stopwords(text: str = "") -> str:
     """ Remove as plavras de parada a lista """

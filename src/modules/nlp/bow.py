@@ -27,7 +27,7 @@ def relevant_words(content: str = "", cut: int = 3) -> str:
 
     Args:
         content (str): Conteúdo de origem.
-        cut (int): corte inferior da frequência das palavras a serem retornadas.
+        cut (int): corte inferior da frequência das palavras selecionadas.
 
     Returns:
         str: retorna um texto com as palavras relevantes separadas por espaço.

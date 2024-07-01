@@ -63,7 +63,7 @@ def save(paragraph: ParagraphMetadata) -> bool:
         return False
 
 
-def lis() -> List[ParagraphMetadata]:
+def list() -> List[ParagraphMetadata]:
     """lista paragrafos com metadados"""
     try:
         conn = sqlitedb.client()

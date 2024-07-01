@@ -14,7 +14,7 @@ from src.modules.document.document_info import DocumentInfo
 
 
 def table_documents_info() -> bool:
-    """cria a tabela de iformaçoes do documwnto"""
+    """cria a tabela de iformaçoes do documento"""
     try:
         conn = sqlitedb.client()
         conn.execute("""
@@ -59,7 +59,7 @@ def save(document: DocumentInfo) -> bool:
 
 
 def show_by_path(path: str = "") -> Optional[DocumentInfo]:
-    """busca uma documento por path"""
+    """busca um documento por path"""
     try:
         path = os.path.normpath(path)
         docs = list_by_path(path)
