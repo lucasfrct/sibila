@@ -3,6 +3,8 @@ from typing import List
 
 from src.modules.analyst import injuctive_relief_against_execution_of_an_illegal_act_retieval as InjuctiveReliefAgainstExecutionOfAnIllegalActRetieval
 from src.modules.analyst import hipothesis_of_inadequate_execution_retrieval as HipothesisOfInadequateExecutionRetrieval
+from src.modules.analyst import redibitory_vides_retrieval as RidibitoryVidesRetieval
+from src.modules.analyst import null_hipothesis_retrieval as NullHipothesisRetieval
 from src.modules.legislation import legislation as Legislation
 
 
@@ -73,12 +75,33 @@ class Analyst:
         Vícios redibitórios:
         O vício redibitório é um defeito oculto em coisa objeto de contrato comutativo, tornando-a imprópria ou desvalorizada.
         
+        Returns:
+            List[dict]: retorna uma lista de cláusulas com seus vícios redibitórios.
         """
-        pass
+        redibitory = []
+        
+        redibitory.extend(RidibitoryVidesRetieval.query(self.clause, 5, self.correlation))
+        
+        return redibitory
 
-    def null_hypothesis(self, clause: str = ""):
-        """hipótese de nulidade"""
-        pass
+    def null_hypothesis(self):
+        """
+         São situações em que um ato jurídico ou um processo é considerado inválido ou sem efeito devido à violação de normas legais. 
+         Existem dois tipos principais:
+            Nulidade absoluta: 
+                Ocorre quando o ato infringe normas de ordem pública, resultando em vício grave e insanável. Pode ser alegada a qualquer tempo e por qualquer interessado, e o juiz pode declará-la de ofício. Exemplos incluem falta de capacidade do agente ou objeto ilícito.
+            Nulidade relativa: 
+                Acontece quando o ato possui vícios menos graves que afetam interesses particulares, sendo passível de convalidação. Deve ser alegada pela parte interessada dentro de um prazo específico. Exemplos são a coação ou erro na manifestação de vontade.
+         Ambas visam garantir a regularidade dos atos jurídicos e proteger os direitos das partes envolvidas.
+         
+         Returns:
+            List[dict]: retorna uma lista de cláusulas com suas hipóteses.
+        """
+        hipothesys = []
+        
+        hipothesys.extend(NullHipothesisRetieval.query(self.clause, 5, self.correlation))
+
+        return hipothesys
 
     def writing_erros(self, clause: str = ""):
         """erros de redaçao"""
