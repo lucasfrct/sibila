@@ -14,7 +14,7 @@ def client(path: str = "./data/chromadb") -> chromadb.ClientAPI:
         path (str): caminho em disco para o arquivo
         
     Returns:
-        hromadb.ClientAPI: RRetorna uma cliente da instancia de ChromaDB.
+        chromadb.ClientAPI: RRetorna uma cliente da instancia de ChromaDB.
     """
     try:
         if not os.path.exists(path):
@@ -38,13 +38,32 @@ def collection(collection_name: str) -> chromadb.Collection:
     return client().get_or_create_collection(name=collection_name)
 
 
-def result_to_dict(result: chromadb.QueryResult, cut: float = 1.2) -> List[dict]:
+def conflict_id(collection: chromadb.Collection, id: str = ""):
+    """
+    Verifica se o ID fornecido já existe na coleção.
+
+    Recupera itens da coleção correspondentes ao ID fornecido e determina
+    se há algum conflito com base na existência do ID.
+
+    Parâmetros:
+        collection: O objeto de coleção que fornece um método `get`.
+        id (str, opcional): O ID para verificar conflito. O padrão é uma string vazia.
+
+    Retorna:
+        bool: True se o ID existe na coleção (indicando conflito), False caso contrário.
+    """
+    
+    results = collection.get(ids=[id])
+    return len(results['ids']) > 0
+
+def result_to_dict(result: chromadb.QueryResult, threshold: float = 0.5) -> List[dict]:
     """
     Recebe um objeto do ChromaDB e  transforma numa lista de dicionários
 
     Args:
         result (chromadb.QueryResult): resultado da consulta no chromaDB.
-        cut (float): corte superior para a distancia (proximidade) dos resultados encontrados.
+        threshold (float): corte superior para a distancia euclidiana (proximidade) dos resultados encontrados.
+        os valores de threshold variam de 0 a 1;
 
     Returns:
         List[dic]: | dict: { id, distance, keys ...metadata } | retorna uma lista dicionários (cada dicionário é uma documento encontrado)
@@ -59,7 +78,11 @@ def result_to_dict(result: chromadb.QueryResult, cut: float = 1.2) -> List[dict]
     list_docs = []
     for ids, metadatas, distances, documents in zip(retrieval_ids, retrieval_metadatas, retrieval_distances, retrieval_documents):
         for _id, metadata, distance, document in zip(ids, metadatas, distances, documents):
-            if distance > cut:
+
+            # Converter distância euclidianan em similaridade
+            similarity_score = 1 / (1 + distance)
+            
+            if similarity_score >= threshold:
                 continue
             
             doc = { "id": _id, "distance": distance, "keys": document.split() } 

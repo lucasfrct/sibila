@@ -11,6 +11,8 @@ RUN sleep 5;
 
 # faz pull do model - 3.8GB
 RUN /bin/sh -c ollama pull splitpierre/bode-alpaca-pt-br
+RUN /bin/sh -c ollama pull llama3.1
+RUN /bin/sh -c ollama pull phi3.5
 
 # RUN /bin/sh -c ollama create sibila -f ./Modelfile
 

@@ -2,7 +2,9 @@
 
 import re
 import string
+import hashlib
 # import spacy
+import unicodedata
 from typing import List
 # from spellchecker import SpellChecker
 from nltk.tokenize import word_tokenize
@@ -10,62 +12,215 @@ from nltk.tokenize import word_tokenize
 from src.utils.stop_words import stopwords_pt
 
 def split_to_lines(content: str = "")-> List[str]:
-    """quegra o conteúdo em linhas"""
+    """
+    Divide o conteúdo fornecido em uma lista de linhas, removendo espaços em branco no início e no final de cada linha e garantindo a codificação em UTF-8.
+
+    **Parâmetros:**
+    - `content` (*str*, opcional): O conteúdo de texto a ser dividido em linhas. Padrão é uma string vazia "".
+
+    **Retorna:**
+    - `List[str]`: Uma lista de strings, cada uma representando uma linha do conteúdo original, sem espaços em branco extras e codificada em UTF-8.
+    """
     
     # Regex para identificar quebras de linha
-    lines = re.split(r'\r?\n', content.strip())
+    line_breaks = r'(?:\r\n|[\n\r\x0b\x0c\u0085\u2028\u2029])'
+    
+    lines = re.split(line_breaks, content.strip())
     return [line.strip().encode('utf-8').decode('utf-8') for line in lines]
 
 def split_to_phrases(content: str = "")-> List[str]:
-    """transforms o conteúdo em freses"""
+    """
+    Transforma o conteúdo em uma lista de frases.
+
+    **Parâmetros:**
+    - `content` (*str*, opcional): O texto a ser dividido em frases. O padrão é uma string vazia "".
+
+    **Retorna:**
+    - `List[str]`: Uma lista de frases extraídas do conteúdo original, sem espaços em branco extras e codificadas em UTF-8.
+    """
     
     # Regex para identificar pontos finais seguidos de um espaço ou fim da string
-    phrases = re.split(r'(?<=\.)\s', content.strip())
-    
+    phrases = re.split(r'(?<=[.!?])\s+', content.strip())
     
     return [phrase.strip().encode('utf-8').decode('utf-8') for phrase in phrases]
 
 def split_to_pargraphs(content: str = "") -> List[str]:
-    """separa um texto em parágrafos"""
+    """
+    Separa um texto em parágrafos, considerando várias formas de separação de linha.
+
+    Este método processa o conteúdo fornecido e divide-o em uma lista de parágrafos. 
+    Ele considera diferentes tipos de quebras de linha e separações de parágrafo, garantindo 
+    que todas as formas comuns de separação sejam tratadas. Além disso, remove quebras de linha 
+    internas dentro de um parágrafo, substituindo-as por um espaço para manter a fluidez do texto.
+
+    Parâmetros:
+        content (str): O texto a ser separado em parágrafos.
+
+    Retorna:
+        List[str]: Uma lista de parágrafos processados, sem quebras de linha internas.
+    """
     
-    paragraphs_split = re.split(r'(?:\r?\n){2,}', content.strip())
+    # Define um padrão que encontra o fim da linha
+    line_breaks = r'(?:\r\n|\n|\r|\x0b|\x0c|\u0085|\u2028|\u2029)'
+    
+    # Define um padrão que captura duas ou mais quebras de linha (incluindo diferentes tipos)
+    paragraph_breaks = r'(?:\r\n|\n|\r|\x0b|\x0c|\u0085|\u2028|\u2029){2,}'
+    paragraphs_split = re.split(paragraph_breaks, content.strip())
     paragraphs = []
+    
 
     for paragraph in paragraphs_split:
-        # Remove quebras de linha dentro dos parágrafos
-        paragraph_unique = re.sub(r'\r?\n', ' ', paragraph).strip()
+        # Remove todas as quebras de linha internas substituindo-as por um espaço
+        paragraph_unique = re.sub(line_breaks, ' ', paragraph).strip()
+
+        # Adiciona o parágrafo à lista
         paragraphs.append(paragraph_unique.encode('utf-8').decode('utf-8'))
 
     return paragraphs
 
-def split_to_chunks(content: str = "", size: int = 1000)-> List[str]:
-    """quebra o conteúdo em pedaços baseado em paragrafos"""
+def split_to_chunks(content: str = "", size: int = 1000, overlap: int = 0)-> List[str]:
+    """
+    Divide o conteúdo de um texto em pedaços (chunks) baseado em texto, com um tamanho máximo especificado e sobreposição opcional.
+
+    Args:
+        content (str): O conteúdo a ser dividido em pedaços, representado como uma string. Por padrão, está vazio.
+        size (int): O tamanho máximo de cada chunk (pedaço de texto) em caracteres. O valor padrão é 1000.
+        overlap (int): A quantidade de caracteres que cada chunk deve sobrepor o próximo. O valor padrão é 200.
+
+    Returns:
+        List[str]: Uma lista contendo os chunks (pedaços de texto) gerados.
+
+    Descrição:
+        A função primeiro divide o conteúdo em chunks de acordo com o tamanho especificado; 
+        Cada chunk pode ter uma sobreposição com o próximo, definida pelo parâmetro `overlap`.
+    """
     
     paragraphs = split_to_pargraphs(content)
     chunks = []
     
     for paragraph in paragraphs:
         # transforma um parágrafo em chunks (pedaços de texto)
-        cks = split_to_chunks_raw(paragraph.encode('utf-8').decode('utf-8'), size)
+        cks = split_to_chunks_raw(paragraph.encode('utf-8').decode('utf-8'), size, overlap)
         chunks.extend(cks)
         
     return chunks
 
-def split_to_chunks_raw(content: str = "", size: int = 1000) -> List[str]:
-    """Quebra o texto em pedaços conforme definido"""
+def split_to_chunks_raw(content: str = "", size: int = 1000, overlap: int = 0) -> List[str]:
+    """"
+    Divide um texto em pedaços de tamanho fixo, com sobreposição opcional entre os pedaços.
+
+    Args:
+        content (str): O texto a ser dividido em chunks. Por padrão, está vazio.
+        size (int): O número máximo de caracteres por chunk (pedaço de texto). O valor padrão é 1000.
+        overlap (int): A quantidade de caracteres de sobreposição entre os chunks. O valor padrão é 200.
+
+    Returns:
+        List[str]: Uma lista contendo os chunks (pedaços de texto) gerados.
+
+    Descrição:
+        A função utiliza uma expressão regular para dividir o conteúdo em pedaços de tamanho máximo `size`. A expressão regular 
+        é configurada para capturar blocos de texto de até `size` caracteres, sem considerar a sobreposição.
+        O conteúdo é primeiro codificado e decodificado como 'utf-8' para garantir que caracteres especiais sejam corretamente processados.
+    """
     
-    # Regex para capturar chunks de tamanho específico
-    pattern = re.compile(f'.{{1,{size}}}')
-    return pattern.findall(content.encode('utf-8').decode('utf-8'))
+    # valor limit de onde overlap começa a valer
+    cut_overlap = 10
+    
+    if size <= overlap:
+        overlap = int(size * 0.4)
+        
+    if overlap <= cut_overlap: 
+        overlap = 0
+    
+    chunks = []
+    start = 0
+    content_length = len(content)
+    
+    while start < content_length:
+        
+        # Define o fim do chunk com base no size e no overlap
+        end = min(start + size, content_length)
+        
+        # Busca o último ponto final antes de tamnaho (size) do chunk
+        last_period = content.rfind('.', start, end)
+        
+        # Se houver um ponto final, ajusta o final do chunk para ele
+        if last_period != -1:
+            end = last_period + 1
+        
+        # Remove espaços em branco no início e no fim
+        chunk = content[start:end].strip() 
+        chunks.append(chunk)
+        
+        # Avança o início para o próximo chunk, levando em conta o overlap
+        new_start = end - overlap
+        
+        # Se não houver parágrafo, usa o início calculado normalmente
+        start = new_start
+        
+        if overlap <= cut_overlap:
+            # Busca o primeiro início de parágrafo (\n\n) antes de 200 caracteres no overlap
+            first_paragraph_start = content.rfind('\n\n', max(0, new_start - overlap), new_start)
+            
+            # Se houver um início de parágrafo, ajusta o novo início para ele
+            if first_paragraph_start != -1:
+                # Pula os dois caracteres de nova linha
+                start = first_paragraph_start + 2  
+    
+    return chunks
 
 def clean_lines(line: str = "") -> str:
-    """Limpa uma linha com muitos espaços e saltos de \n"""
+    """
+    Remove espaços e quebras de linha extras de uma string.
+    Esta função limpa uma linha de texto removendo múltiplos espaços consecutivos e quebras de linha (`\n`), 
+    substituindo-os por um único espaço. 
+    Também remove pontuações no início e no fim da linha resultante.
+
+    Parâmetros:
+        line (str): A linha de texto a ser limpa.
+
+    Retorna:
+        str: A linha de texto limpa, sem espaços ou quebras de linha extras e sem pontuações nas extremidades.
+    """
+    
+    # Normaliza caracteres unicode para decompor caracteres compostos
+    line = unicodedata.normalize('NFKC', line)
+    
+    # Remove caracteres de controle e não imprimíveis
+    line = ''.join(ch for ch in line if unicodedata.category(ch)[0] != 'C')
+    
+    # Substitui todos os tipos de espaços em branco por um único espaço
+    line = re.sub(r'\s+', ' ', line).strip()
+    
+    # Remove espaços antes de pontuação
+    line = re.sub(r'\s+([{}])'.format(re.escape(string.punctuation)), r'\1', line)
+    
+    # Remove pontuações duplicadas
+    line = re.sub(r'([{}])\1+'.format(re.escape(string.punctuation)), r'\1', line)
     
     line = re.sub(r' +|\n+', ' ', line.encode('utf-8').decode('utf-8')).strip()
-    return line.strip(string.punctuation)
+    
+     # Remove pontuações no início e fim da linha
+    line = line.strip(string.punctuation)
+    
+    return line
 
 def clean(text: str = "") -> str:
-    """limpa texto para processamento"""
+    """
+    Limpa o texto para processamento, removendo sinais de pontuação, caracteres não alfanuméricos e espaços extras.
+
+    Esta função remove todos os caracteres que não sejam letras, números ou espaços em branco do texto fornecido.
+    Além disso, substitui múltiplos espaços por um único espaço e remove espaços no início e no fim da string.
+
+    Parâmetros:
+        text (str): O texto a ser limpo.
+
+    Retorna:
+        str: O texto limpo e normalizado, pronto para processamento.
+    """
+    
+    # Normaliza caracteres unicode para decompor caracteres compostos
+    text = unicodedata.normalize('NFKD', text)
     
     # Remover sinais de pontuação e caracteres não alfanuméricos. Isso remove tudo exceto letras, números e espaços
     text = re.sub(r'[^\w\s]', '', text)
@@ -76,8 +231,17 @@ def clean(text: str = "") -> str:
     return clean_lines(clean_text)
 
 def tokenize(text: str = "") -> List[str]:
-    """ transfomaq o texto em tokens """
-    tokens = word_tokenize(text)
+    """
+    Transforma o texto em uma lista de tokens (palavras), utilizando a tokenização de palavras do NLTK para o português.
+    Esta função recebe uma string de texto e a divide em tokens individuais usando a função `word_tokenize` da biblioteca NLTK, configurada para o idioma português. Em seguida, filtra os tokens para incluir apenas aqueles compostos por caracteres alfabéticos, excluindo números, pontuação e outros símbolos.
+
+    Parâmetros:
+        text (str): O texto a ser tokenizado.
+
+    Retorna:
+        List[str]: Uma lista de tokens (palavras) extraídos do texto.
+    """
+    tokens = word_tokenize(text, language='portuguese')
     return [str(token) for token in tokens if token.isalpha()]
 
 def normalize(text: str = "") -> List[str]:
@@ -111,7 +275,22 @@ def lemmatization(text: str = "") ->  List[str]:
     return []
 
 def removal_stopwords(text: str = "") -> str:
-    """ Remove as plavras de parada a lista """
+    """ 
+    Remove as stopwords de um texto fornecido.
+
+    Esta função processa uma string de texto realizando os seguintes passos:
+    1. **Tokenização**: Divide o texto em uma lista de tokens (palavras) usando a função `tokenize`.
+    2. **Limpeza dos Tokens**: Aplica a função `clean_lines` em cada token para remover pontuação e caracteres indesejados.
+    3. **Remoção de Stopwords**: Filtra os tokens removendo aqueles que estão presentes na lista `stopwords_pt`, contendo as stopwords em português.
+    4. **Reconstrução do Texto**: Junta os tokens restantes em uma única string, separada por espaços.
+
+    Parâmetros:
+        text (str): O texto a ser processado e do qual as stopwords serão removidas.
+
+    Retorna:
+        str: O texto resultante após a remoção das stopwords, como uma única string.
+    """
+
     # Tokenização
     tokens = tokenize(text)
     
@@ -132,3 +311,9 @@ def unique(contents: List[str] = []) -> List[str]:
             results.append(content)
             content_unique.add(content)
     return results
+
+def hash(text: str = "")-> str:
+    text_bytes = text.encode('utf-8')
+    hash_obj = hashlib.sha3_256()
+    hash_obj.update(text_bytes)
+    return hash_obj.hexdigest()

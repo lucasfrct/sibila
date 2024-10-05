@@ -3,6 +3,7 @@ from typing import List
 
 from src.modules.analyst import injuctive_relief_against_execution_of_an_illegal_act_retieval as InjuctiveReliefAgainstExecutionOfAnIllegalActRetieval
 from src.modules.analyst import hipothesis_of_inadequate_execution_retrieval as HipothesisOfInadequateExecutionRetrieval
+from src.modules.analyst import hipothesis_of_inadequate_execution_scope as HipothesisOfInadequateExecutionScope
 from src.modules.analyst import redibitory_vides_retrieval as RidibitoryVidesRetieval
 from src.modules.analyst import null_hipothesis_retrieval as NullHipothesisRetieval
 from src.modules.legislation import legislation as Legislation
@@ -15,7 +16,6 @@ class Analyst:
         
         self.correlation: float = 2.5
 
-    
     def add_clause(self, clause: str = ""):
         """
         Adciona uma Cláusula na lista de cláusulas para análise
@@ -45,15 +45,13 @@ class Analyst:
 
     def hipothesis_of_inadequate_execution(self) -> List[dict]:
         """
-        Enumera as hipóteses de execuçao inadequada da cláusula
+        Enumera as hipóteses de execução inadequada da cláusula
         Returns:
             List[dict]: retorna uma lista de hipotesis.
         """
         hipothesis: List[dict] = []
-        
         hipothesis.extend(HipothesisOfInadequateExecutionRetrieval.query(self.clause, 5, self.correlation))
-        
-        return hipothesis
+        return HipothesisOfInadequateExecutionScope.execution_out_of_time(hipothesis)
     
     def injuctive_relief_against_execution_of_an_illegal_act(self)-> List[dict]:
         """
