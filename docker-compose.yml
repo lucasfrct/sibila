@@ -2,36 +2,6 @@ version: "3"
 
 services:
 
-  sibila:
-    image: sibila
-    hostname: sibila
-    container_name: sibila
-    working_dir: /app
-    build:
-      context: ./
-      dockerfile: Dockerfile.dev
-    develop:
-      watch:
-        - action: rebuild
-          path: .
-    env_file:
-      - ./.env
-    environment:
-      - ENVIRONMENT=development
-    volumes:
-      - ./:/app
-      - ./viz:/app/viz
-      - ./data:/app/data
-      - ./library:/app/library
-      - ./lexicon:/app/lexicon
-      - ./bookcase:/app/bookcase
-    restart: always # Reinica sempre que houver algum erro
-    ports:
-      - 5000:5000
-
-  # #################################################################################################################
-  # OLLAMA BODE
-  # #################################################################################################################
   ollama:
     image: ollama-model
     hostname: ollama-model
@@ -42,99 +12,22 @@ services:
     environment:
       - ENVIRONMENT=development
     volumes:
-      - ./.ollama:/root/.ollama
+      - ./data/.ollama:/root/.ollama
     restart: unless-stopped
     env_file:
       - ./.env
     ports:
       - 11434:11434
   
-  # #################################################################################################################
-  # CHATBOT
-  # #################################################################################################################
   chatbot:
     image: lobehub/lobe-chat
     hostname: chatbot
     container_name: chatbot
     volumes:
-      - ./ollama:/root/.ollama
+      - ./data/.ollama:/root/.ollama
     environment:
       - OLLAMA_PROXY_URL=http://host.docker.internal:11434/v1
     restart: always
     ports:
       - 3210:3210
 
-  # #################################################################################################################
-  # POSTGRES
-  # #################################################################################################################
-  postgres:
-    image: postgres:14-alpine
-    hostname: postgres
-    container_name: postgres
-    ports:
-      - 5433:5432
-    healthcheck:
-      test: ["CMD", "pg_isready", "-q", "-d", "vdbms", "-U", "vectoradmin"]
-      timeout: 45s
-      interval: 5s
-      retries: 10
-    environment:
-      POSTGRES_USER: vectoradmin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: vdbms
-    depends_on:
-      - chromadb
-
-  # #################################################################################################################
-  # CHROMA DB
-  # #################################################################################################################
-  chromadb:
-    image: chromadb/chroma:latest
-    hostname: chromadb
-    container_name: chromadb
-    volumes:
-      - ./data/chromadb:/chroma/chroma
-    environment:
-      - IS_PERSISTENT=TRUE
-      - PERSIST_DIRECTORY=/chroma/chroma
-      - ANONYMIZED_TELEMETRY=TRUE
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: always
-    ports:
-      - 8000:8000
-
-  # #################################################################################################################
-  # VECTOR ADMIN
-  # #################################################################################################################
-  vector-admin:
-    image: mintplexlabs/vectoradmin
-    hostname: vector-admin
-    container_name: vector-admin
-    environment:
-      SERVER_PORT: 3001
-      JWT_SECRET: secret
-      SYS_PASSWORD: password
-      TZ: America/Los_Angeles
-      DISABLE_TELEMETRY: false
-      INNGEST_LANDING_PAGE: true
-      INNGEST_SIGNING_KEY: secret
-      SYS_EMAIL: root@vectoradmin.com
-      INNGEST_EVENT_KEY: background_workers
-      DATABASE_CONNECTION_STRING: postgresql://vectoradmin:password@postgres:5432/vdbms
-    cap_add:
-      - SYS_ADMIN
-    restart: always
-    ports:
-      - 3001:3001
-      - 3355:3355
-      - 8288:8288
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-volumes:
-    exclude:
