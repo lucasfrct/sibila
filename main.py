@@ -13,6 +13,9 @@ from src.modules.analyst.analyst import Analyst
 
 def run():
     
+    
+    # 4. Lê o arquivo de cláusulas
+    
     # Lê o arquivo de cláusulas
     clause_file = open("./seeder/clause.txt", "r", encoding="utf-8")
     clause_content = clause_file.read()
@@ -45,20 +48,20 @@ def run():
     
     # ## salvando aem formato vetorial
     # FederalConstitutionRetrieval.save("./doc/constituicao_do_brasil", "Constituiçao Federal do Brasil Art. 6", 1, federal_constitution_content)
-    HipothesisOfInadequateExecutionRetrieval.save("", clause_content, hipothesis_content)
+    # HipothesisOfInadequateExecutionRetrieval.save("", clause_content, hipothesis_content)
     # InjuctiveReliefAgainstExecutionOfAnIllegalActRetieval.save("Inibitório 1", clause_content, inhibitory_content)
     # RidibitoryVidesRetieval.save("Redibitório 1", clause_content, redibitory_content)
     # NullHipothesisRetieval.save("Hipótese de nulidade 1", clause_content, null_hipothesis_content)
     
     analyst = Analyst()
-    analyst.add_clause(clause_content)
+    # analyst.add_clause(clause_content)
     # analyst.legislative_correlation()
     # analyst.hipothesis_of_inadequate_execution()
     # analyst.injuctive_relief_against_execution_of_an_illegal_act()
     # analyst.redibitory_vides()
     # analyst.null_hypothesis()
     
-    print(analyst.hipothesis_of_inadequate_execution())
+    # print(analyst.hipothesis_of_inadequate_execution())
     
     # Catalogretrieval.save("./doc.pdf", "Artigo 2", 18, content)
     # print(Catalogretrieval.query("quando o titular é responsável"))

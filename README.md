@@ -1,8 +1,8 @@
-# Sibila (Profetisa)
+# Sibila Sínica (Profetisa)
 
 As sibilas eram figuras da mitologia grega, mulheres proféticas que supostamente possuíam o dom da profecia e faziam previsões do futuro. Elas eram conhecidas por serem inspiradas pelos deuses e frequentemente consultadas para obter orientação divina.
 
-Esse repositório é uma exemplo de aplicaçaão capaz de responder perguntas baseadas em documentos fornecidos pelo usuário.
+Esse repositório é um exemplo de aplicaçaão capaz de responder perguntas baseadas em documentos fornecidos pelo usuário.
 
 ## Estrutura de diretórios
 
@@ -32,6 +32,7 @@ Tudo está sendo construido em docker, e `docker-compose` é o gerenciador para 
 - Consulta sobre os documentos via api: <http://localhost:2000>
 - Consulta sobre os documentos via chat: <http://localhost:3210>
 - Consulta ao modelo ollama via chat: <http://localhost:3210>
+  
 
 ## Anotações
 

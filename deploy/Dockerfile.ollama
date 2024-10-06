@@ -1,0 +1,23 @@
+FROM ollama/ollama:0.3.12 AS llm
+
+WORKDIR /app
+
+# carrega o volume
+# COPY ./.ollama/ /root/.ollama/
+COPY ./.config/ollama ./
+
+RUN chmod +x ./Modelfile
+
+# faz pull do model e executa o modelo
+# RUN ollama pull llama3.2
+# RUN ollama run llama3.2
+# RUN ollama create sibila -f /app/Modelfile
+
+# Exponha a porta que o Ollama utiliza
+EXPOSE 11434
+
+# Defina um volume para persistir os dados do Ollama
+VOLUME ["/root/.ollama/"]
+
+# Comando padrão para iniciar o Ollama quando o container for executado
+CMD ["serve"]

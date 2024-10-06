@@ -38,16 +38,14 @@ services:
     container_name: ollama-model
     build:
       context: ./
-      dockerfile: Dockerfile.ollama
+      dockerfile: ./deploy/Dockerfile.ollama
     environment:
       - ENVIRONMENT=development
     volumes:
       - ./.ollama:/root/.ollama
+    restart: unless-stopped
     env_file:
       - ./.env
-    pull_policy: always
-    tty: true
-    restart: no
     ports:
       - 11434:11434
   

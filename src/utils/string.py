@@ -3,10 +3,8 @@
 import re
 import string
 import hashlib
-# import spacy
 import unicodedata
 from typing import List
-# from spellchecker import SpellChecker
 from nltk.tokenize import word_tokenize
 
 from src.utils.stop_words import stopwords_pt
