@@ -6,21 +6,12 @@ Esse repositório é um exemplo de aplicaçaão capaz de responder perguntas bas
 
 ## Estrutura de diretórios
 
-- `./lexicon`: Possui um compilado dos verbetes da lingua portugesa
-
-- `./bookcase`: Diretório usado para armazenar arquivos ou documentos de teste
-
-- `./library`: Diretório usado para armazenar os livros no formato pdf. Somente conteúdo em pdf deve estar nesse diretório.
-
-- `./docs`: Diretório usado para armazenar documentos gerais tendo como subdiretórios os formatos dos documentos.
-Por exempo: para arquivos .txt, um diretótio `./docs/txt` deve ser usado, para arquivos .csv um diretório `./docs/csv` deve ser usado.
-
 - `./data`: A pasta é a persistência dos bancos de dados usados no projeto
+- `./dataset`: A pasta com os arquivos de treinamento do modelo e inicialização do banco de dados
 
 ## Estrutura de containers
 
-- `librarian`: Container para responder perguntas relacionados com os documentos informados
-- `ollama`: A LLM usada é a Bode (<https://ollama.com/splitpierre/bode-alpaca-pt-br>), uma versão do llam2 em potuguês. Acesso em <http://localhost:11434>
+- `ollama`: A LLM é o llama do facebook. Acesso em <http://localhost:11434>
 - `chatbot`: Um container da Lobe-chat foi usado apra poder conversar com ollama model. Acessso em <http://localhost:3210>
 
 ## Para Executar a aplicação
@@ -28,9 +19,8 @@ Por exempo: para arquivos .txt, um diretótio `./docs/txt` deve ser usado, para 
 Tudo está sendo construido em docker, e `docker-compose` é o gerenciador para rodar tudo em desenvolvimento
 ```docker-compse up -d```
 
-- Consulta sobre os documentos via terminal: `docker compose exec sibila /bin/bash`
-- Consulta sobre os documentos via api: <http://localhost:2000>
-- Consulta sobre os documentos via chat: <http://localhost:3210>
+``` pip freeze > requirements.txt ```
+
 - Consulta ao modelo ollama via chat: <http://localhost:3210>
   
 

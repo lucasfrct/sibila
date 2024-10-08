@@ -1,9 +1,11 @@
 # flake8: noqa: E501
 
 import os
-import chromadb
 import logging
+import chromadb
+import traceback
 from typing import List
+from src.modules.nlp.bow import relevant_words
 
 
 def client(path: str = "./data/chromadb") -> chromadb.ClientAPI:
@@ -56,6 +58,28 @@ def conflict_id(collection: chromadb.Collection, id: str = ""):
     results = collection.get(ids=[id])
     return len(results['ids']) > 0
 
+def query(collection: chromadb.Collection, query: str = "", results: int = 5, threshold: float = 0.5) -> List[dict]:
+    """
+    Consulta por similaridade convertendo o texto para uma BoW (bag of words) com relevâcia >= a 3. 
+    O retorno esperado é um array de textos.
+
+    Args:
+        collection (chromadb.Collection): coleçao do bancod e dados
+        query (str): texto da consulta
+        results (int): numero de respostas
+        threshold (float): corte superior para a distancia euclidiana (proximidade) dos resultados encontrados.
+        os valores de threshold variam de 0 a 1;
+        
+    Returns:
+        List[dict]: List[dic]:
+    """
+    try:
+        result = collection.query(query_texts=[query], n_results=results)
+        return result_to_dict(result, threshold)
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return []
+    
 def result_to_dict(result: chromadb.QueryResult, threshold: float = 0.5) -> List[dict]:
     """
     Recebe um objeto do ChromaDB e  transforma numa lista de dicionários
@@ -82,10 +106,13 @@ def result_to_dict(result: chromadb.QueryResult, threshold: float = 0.5) -> List
             # Converter distância euclidianan em similaridade
             similarity_score = 1 / (1 + distance)
             
-            if similarity_score >= threshold:
+            if similarity_score <= threshold:
                 continue
             
-            doc = { "id": _id, "distance": distance, "keys": document.split() } 
+            if "keys" in metadata and metadata["keys"]:
+                metadata["keys"] = metadata["keys"].split()
+                
+            doc = { "id": _id, "distance": similarity_score } 
             doc.update(metadata)    
             list_docs.append(doc)
         

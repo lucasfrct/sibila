@@ -45,11 +45,12 @@ class DocumentInfo:
             _, ext = os.path.splitext(path)
             self.mimetype = ext.replace(".", "")
 
-            pdf = reader(path)
-            if pdf is None:
-                return None
+            if "pdf" in self.mimetype.lower():
+                pdf = reader(path)
+                if pdf is None:
+                    return None
 
-            self.pages = int(len(pdf.pages))
+                self.pages = int(len(pdf.pages))
             return self.dict()
         except Exception as e:
             logging.error(f"{e}\n%s", traceback.format_exc())

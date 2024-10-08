@@ -5,7 +5,7 @@ from src.models import handle
 
 
 class ModelOllama:
-    def __init__(self, model: str = "splitpierre/bode-alpaca-pt-br"):
+    def __init__(self, model: str = "sibila"):
 
         self.client = ollama
         self.embeddings = []

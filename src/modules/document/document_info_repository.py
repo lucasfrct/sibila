@@ -91,7 +91,7 @@ def list() -> List[DocumentInfo]:
     """lista todos os docuemntos"""
     try:
         conn = sqlitedb.client()
-        cursor = conn.execute("select * from documents")
+        cursor = conn.execute("select * from documents_info")
         docs: List[DocumentInfo] = []
         for doc in cursor:
             docs.append(DocumentInfo(*doc))

@@ -6,8 +6,6 @@ import logging
 import uuid
 import os
 
-from fpdf import FPDF
-
 from src.modules.document.paragraph_metadata import ParagraphMetadata
 from src.modules.document.phrase_metadata import PharseMetadata
 from src.modules.document.document_info import DocumentInfo
@@ -24,7 +22,7 @@ def read(path: str = "") -> List[str]:
         for p in paths_raw:
             if os.path.isdir(p):
                 continue
-            paths.append(p)
+            paths.append(os.path.normpath(p))
         return paths
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())

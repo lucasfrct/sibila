@@ -35,7 +35,7 @@ def save(name: str = "Hipótese de execução inadequada", clause: str = "",  ju
         if chromadbvector.conflict_id(collection, hash_id): 
             return True
         
-        meta = { "name": name, "clause": clause, "justification": justification }
+        meta = { "hash": hash_id,  "name": name, "clause": clause, "justification": justification }
         collection.add(ids=[hash_id], documents=[relevant_words(clause)], metadatas=[meta])
         return True
     except Exception as e:
@@ -60,8 +60,7 @@ def query(query: str = "", results: int = 5, threshold: float = 0.5) -> List[dic
     """
     try:
         collection = chromadbvector.collection(COLLECTION)
-        result = collection.query(query_texts=[f"{relevant_words(query)}"], n_results=results)
-        return chromadbvector.result_to_dict(result, threshold)
+        return chromadbvector.query(collection, query, results, threshold)
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
