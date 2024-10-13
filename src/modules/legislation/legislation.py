@@ -47,11 +47,24 @@ def federal_constitution():
     return FederalConstitutionRetrieval
 
 def split_into_articles(text: str):
-    """ Quebra um texto jurídico em artigos """
-    # Supondo que os artigos começam com "Art. " seguido de um número
-    articles = re.split(r'\bArt\. \d+\b', text)
-    # Remover entradas vazias resultantes da divisão
-    articles = [article.strip() for article in articles if article.strip()]
+    
+    # Regex para capturar "Art. 9o" e "Art. 12"
+    regex = re.compile(r'\bArt\.\s*\d+(?:o\b)?', re.IGNORECASE)
+    
+    articles = [] 
+    content_current = [] 
+
+    for line in text.splitlines():
+        
+        # Verifica se a linha é um novo artigo usando a regex
+        match = regex.match(line)
+        if match:
+            articles.append('\n'.join(content_current))
+            content_current = []
+            content_current.append(line)
+        else: 
+            content_current.append(line)
+
     return articles
 
 

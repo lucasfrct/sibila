@@ -6,6 +6,7 @@ import logging
 import uuid
 import os
 
+from src.modules.document import document_info_repository as DocInfoRepository
 from src.modules.document.paragraph_metadata import ParagraphMetadata
 from src.modules.document.phrase_metadata import PharseMetadata
 from src.modules.document.document_info import DocumentInfo
@@ -16,6 +17,18 @@ from src.utils import string as String
 
 
 def read(path: str = "") -> List[str]:
+    """
+    Lê os caminhos dos arquivos em um diretório especificado.
+
+    Args:
+        path (str): O caminho do diretório a ser lido. Se não for especificado, será utilizado um caminho padrão.
+
+    Returns:
+        List[str]: Uma lista de caminhos de arquivos normalizados. Se ocorrer um erro, retorna uma lista vazia.
+
+    Exceções:
+        Registra qualquer exceção que ocorra durante a leitura dos caminhos dos arquivos.
+    """
     try:
         paths = []
         paths_raw = Archive.paths(path)
@@ -30,6 +43,15 @@ def read(path: str = "") -> List[str]:
 
 
 def build(paths=[]) -> List[object]:
+    """
+    Constrói uma lista de documentos a partir de uma lista de caminhos fornecidos.
+    Args:
+        paths (list): Lista de caminhos de arquivos para construir os documentos.
+    Returns:
+        List[object]: Lista de documentos construídos. Retorna uma lista vazia em caso de erro.
+    Exceções:
+        Loga qualquer exceção que ocorra durante a construção dos documentos.
+    """
     try:
         documents = []
 
@@ -50,12 +72,32 @@ def build(paths=[]) -> List[object]:
 
 
 def builder(path: str = ""):
-    """faz leitura de um documento PDF"""
+    """
+    Faz a leitura de um documento PDF.
+
+    Args:
+        path (str): O caminho para o arquivo PDF. Padrão é uma string vazia.
+
+    Returns:
+        O resultado da função reader aplicada ao caminho fornecido.
+    """
     return reader(path)
 
 
 def info(path: str) -> Optional[DocumentInfo]:
-    """extra informaçoes de um PDF"""
+    """
+    Extraí informações de um arquivo.
+
+    Args:
+        path (str): O caminho para o arquivo.
+
+    Returns:
+        Optional[DocumentInfo]: Um objeto DocumentInfo contendo as informações extraídas do documento,
+        ou None se ocorrer um erro durante a extração.
+
+    Exceções:
+        Gera um log de erro se ocorrer uma exceção durante a extração das informações do documento.
+    """
     try:
         doc = DocumentInfo()
         doc.extract(path)
@@ -65,8 +107,38 @@ def info(path: str) -> Optional[DocumentInfo]:
         return None
 
 
+def info_save(document: DocumentInfo):
+    """
+    Salva as informações de um documento.
+
+    Args:
+        document (DocumentInfo): Objeto contendo as informações do documento a ser salvo.
+
+    Returns:
+        O resultado da operação de salvamento realizado pelo repositório DocInfoRepository.
+    """
+    return DocInfoRepository.save(document)
+
+
 def read_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PageMetadata]:
-    """ faz a lietura das páginas em pdf extraindo os metadados"""
+    """
+    Lê as páginas de um arquivo PDF e extrai os metadados.
+    Args:
+        path (str): Caminho para o arquivo PDF.
+        init (int): Número da página inicial (1-indexado). Padrão é 1.
+        final (int): Número da página final (1-indexado). Padrão é 0, que indica a última página.
+    Returns:
+        List[PageMetadata]: Lista de objetos PageMetadata contendo os metadados das páginas lidas.
+    Raises:
+        ValueError: Se o caminho do arquivo for inválido ou se não for possível ler o arquivo PDF.
+        Exception: Para outros erros durante a leitura e extração dos metadados.
+    Nota:
+        - Se o número da página inicial for maior ou igual ao total de páginas, ele será ajustado para a última página.
+        - Se o número da página inicial for menor ou igual a 0, ele será ajustado para 1.
+        - Se o número da página final for maior que o total de páginas, ele será ajustado para o total de páginas.
+        - Se o número da página final for menor ou igual a 0, ele será ajustado para o total de páginas.
+        - Se o número da página final for menor que o número da página inicial, ele será ajustado para o número da página inicial.
+    """
     try:
         if not Archive.exists(path):
             raise ValueError("O path está inválido.")
@@ -133,7 +205,15 @@ def read_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> Li
 
 
 def read_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ParagraphMetadata]:
-    """extrai os paragrafos com os detlhes do doumento"""
+    """
+    Extrai os parágrafos com os detalhes do documento.
+    Args:
+        path (str): Caminho para o arquivo do documento. Padrão é uma string vazia.
+        init (int): Número da página inicial para leitura. Padrão é 1.
+        final (int): Número da página final para leitura. Padrão é 0, que indica leitura até o final do documento.
+    Returns:
+        List[ParagraphMetadata]: Lista de objetos ParagraphMetadata contendo os detalhes dos parágrafos extraídos.
+    """
     try:
 
         pages = read_pages_with_details(path, init, final)
@@ -169,7 +249,15 @@ def read_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) 
 
 
 def read_phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PharseMetadata]:
-    """extrai as frases com os detalhes dos docuemnto"""
+    """
+    Extrai as frases com os detalhes dos documentos.
+    Args:
+        path (str): O caminho para o arquivo de entrada. Padrão é uma string vazia.
+        init (int): O número inicial da página para leitura. Padrão é 1.
+        final (int): O número final da página para leitura. Padrão é 0, que indica leitura até o final.
+    Returns:
+        List[PharseMetadata]: Uma lista de objetos PharseMetadata contendo os detalhes das frases extraídas.
+    """
     try:
 
         paragraphs = read_paragraphs_with_details(path, init, final)
@@ -203,6 +291,33 @@ def read_phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> 
 
 
 def read_lines_with_details(path: str = "", init: int = 1, final: int = 0) -> List[object]:
+    """
+    Lê linhas de um documento com detalhes adicionais.
+
+    Args:
+        path (str): Caminho para o arquivo do documento. Padrão é uma string vazia.
+        init (int): Número da linha inicial para leitura. Padrão é 1.
+        final (int): Número da linha final para leitura. Padrão é 0, que indica leitura até o final do documento.
+
+    Returns:
+        List[object]: Uma lista de dicionários, onde cada dicionário contém detalhes sobre uma linha do documento, incluindo:
+            - path (str): Caminho do parágrafo.
+            - page (int): Número da página do parágrafo.
+            - content (str): Conteúdo da linha.
+            - name (str): Nome do parágrafo.
+            - letters (int): Número de letras na linha.
+            - uuid (str): UUID único para a linha.
+            - source (str): Fonte da linha no formato "nome, pg. página, ln linha".
+            - num (int): Número da linha dentro do parágrafo.
+            - chunk (List[str]): Lista de pedaços da linha.
+            - lines (int): Número total de linhas no parágrafo.
+            - chunks (int): Número total de pedaços na linha.
+            - size (int): Tamanho do parágrafo.
+            - mimetype (str): Tipo MIME do parágrafo.
+
+    Raises:
+        Exception: Em caso de erro, registra o erro no log e retorna uma lista vazia.
+    """
     try:
         paragraphs = read_paragraphs_with_details(path, init, final)
         lines = []
@@ -233,7 +348,14 @@ def read_lines_with_details(path: str = "", init: int = 1, final: int = 0) -> Li
 
 
 def to_pdf(path: str = "", path_out: str = ""):
-    """transform um texto em um documento pdf"""
+    """
+    Converte um arquivo de texto em um documento PDF.
+    Args:
+        path (str): Caminho para o arquivo de texto de entrada.
+        path_out (str): Caminho para salvar o arquivo PDF gerado.
+    Returns:
+        str: Caminho do arquivo PDF gerado.
+    """
 
     # Criar instância da classe FPDF que é a base para a criação do documento
     pdf = FPDF()
@@ -254,3 +376,54 @@ def to_pdf(path: str = "", path_out: str = ""):
     pdf.output(path_out)
 
     return path_out
+
+
+def pdf_to_txt(path: str, path_out: str):
+    """
+    Converte um arquivo PDF em texto e salva o conteúdo em um arquivo de saída.
+    Args:
+        path (str): O caminho do arquivo PDF de entrada.
+        path_out (str): O caminho do arquivo de saída onde o texto extraído será salvo.
+    Raises:
+        ValueError: Se o caminho do arquivo PDF de entrada for inválido.
+        Exception: Para qualquer outra exceção que ocorra durante o processamento.
+    Retorna:
+        None: Em caso de erro durante a conversão.
+    """
+    try:
+        if not Archive.exists(path):
+            raise ValueError("O path está inválido.")
+        pdf = builder(path)
+
+        for page in pdf.pages:
+            content = page.extract_text()
+            with open(path_out, "a", encoding="utf-8") as file:
+                file.write(content)
+                file.write("\n")
+        pdf.close()
+
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return None
+
+
+def open_txt(path: str)-> str | None:
+    """
+    Abre um arquivo de texto no caminho especificado e retorna seu conteúdo.
+    Args:
+        path (str): O caminho do arquivo de texto a ser aberto.
+    Returns:
+        str: O conteúdo do arquivo de texto.
+        None: Se ocorrer um erro ao abrir ou ler o arquivo.
+    Raises:
+        ValueError: Se o caminho do arquivo for inválido.
+    """
+    try:
+        if not Archive.exists(path):
+            raise ValueError("O path )"+ path + ") está inválido.")
+        with open(path, "r", encoding="utf-8") as file:
+            return file.read()
+        
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return None

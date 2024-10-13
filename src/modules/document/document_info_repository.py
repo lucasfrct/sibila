@@ -14,6 +14,21 @@ from src.modules.document.document_info import DocumentInfo
 
 
 def table_documents_info() -> bool:
+    """
+    Cria a tabela de informações do documento.
+
+    Esta função cria uma tabela chamada 'documents_info' no banco de dados SQLite,
+    se ela não existir. A tabela contém as seguintes colunas:
+    - id: Identificador único do documento (chave primária, autoincremento).
+    - path: Caminho do documento.
+    - name: Nome do documento.
+    - size: Tamanho do documento em bytes.
+    - pages: Número de páginas do documento.
+    - mimetype: Tipo MIME do documento.
+
+    Returns:
+        bool: Retorna True se a tabela for criada com sucesso, caso contrário, False.
+    """
     """cria a tabela de iformaçoes do documento"""
     try:
         conn = sqlitedb.client()
@@ -34,7 +49,15 @@ def table_documents_info() -> bool:
 
 
 def save(document: DocumentInfo) -> bool:
-    """salva informaçoa do documento na tabela"""
+    """
+    Salva informações do documento na tabela.
+    Args:
+        document (DocumentInfo): Objeto contendo as informações do documento a ser salvo.
+    Returns:
+        bool: Retorna True se o documento foi salvo com sucesso, caso contrário, retorna False.
+    Raises:
+        Exception: Loga qualquer exceção que ocorra durante a execução.
+    """
     try:
         if document is None:
             return False
