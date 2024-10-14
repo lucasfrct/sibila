@@ -9,8 +9,8 @@ import os
 from src.modules.document import document_info_repository as DocInfoRepository
 from src.modules.document.paragraph_metadata import ParagraphMetadata
 from src.modules.document.phrase_metadata import PharseMetadata
-from src.modules.document.document_info import DocumentInfo
 from src.modules.document.page_metadata import PageMetadata
+from src.modules.document.document_info import DocumentInfo
 from src.modules.document.reader import reader
 from src.utils import archive as Archive
 from src.utils import string as String
