@@ -1,3 +1,13 @@
+# Dockerfile para configurar um container com Ollama
+# 
+# Baseado na imagem ollama/ollama:0.3.12
+# Configura o diretório de trabalho para /app
+# Copia os arquivos de configuração do Ollama para o container
+# Define permissões de execução para o arquivo Modelfile
+# Exponha a porta 11434 utilizada pelo Ollama
+# Define um volume para persistir os dados do Ollama em /root/.ollama/
+# Comando padrão para iniciar o Ollama quando o container for executado: serve
+
 FROM ollama/ollama:0.3.12 AS llm
 
 WORKDIR /app
@@ -7,11 +17,6 @@ WORKDIR /app
 COPY ./.config/ollama ./
 
 RUN chmod +x ./Modelfile
-
-# faz pull do model e executa o modelo
-# RUN ollama pull llama3.2
-# RUN ollama run llama3.2
-# RUN ollama create sibila -f /app/Modelfile
 
 # Exponha a porta que o Ollama utiliza
 EXPOSE 11434
