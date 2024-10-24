@@ -7,9 +7,11 @@ from typing import List
 from src.utils import archive as Archive
 from src.modules.document import service as DocService
 from src.modules.document.document_info import DocumentInfo
-from src.modules.legislation import legislation as Legislation
-from src.modules.librarian import catalog_retrieval as CatalogRetrieval
+from src.modules.analysis import legislation as Legislation
+from src.modules.catalog import catalog_retrieval as CatalogRetrieval
 
+
+""" Deve catalogar todo o conteúdo dentro do corpus de documentos. """
 
 def names(path: str = "") -> List[str]:
     """

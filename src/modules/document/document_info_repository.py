@@ -29,7 +29,6 @@ def table_documents_info() -> bool:
     Returns:
         bool: Retorna True se a tabela for criada com sucesso, caso contrário, False.
     """
-    """cria a tabela de iformaçoes do documento"""
     try:
         conn = sqlitedb.client()
         conn.execute("""

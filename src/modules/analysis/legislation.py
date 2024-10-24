@@ -39,7 +39,7 @@
     #   2.32 Salva o artigos no banco de dados vetorial com os artigos relacionados no metadados
     
     
-from src.modules.legislation import federal_constitution_retrieval as FederalConstitutionRetrieval
+from src.modules.analysis import federal_constitution_retrieval as FederalConstitutionRetrieval
 import re
 
 def federal_constitution():
@@ -67,22 +67,6 @@ def split_into_articles(text: str):
 
     return articles
 
-
-def dnpdc_proposition():
-    """ proposiçoes do DNPDC """
-    return FederalConstitutionRetrieval
-
-def procon_proposition():
-    """ proposiçoes do PROCON """
-    return FederalConstitutionRetrieval
-
-def sne_proposition():
-    """ proposiçoes do SNE """
-    return FederalConstitutionRetrieval
-
-def inspection_based_revision_model():
-    """ modelo revisional baseado em inspação """
-    return FederalConstitutionRetrieval
 
 
 

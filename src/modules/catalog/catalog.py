@@ -9,18 +9,21 @@ from src.modules.document.reader import reader
 from src.utils import archive as Archive
 
 @dataclass
-class DocumentInfo:
-    def __init__(self, id: int = 0 , path: str = "", name: str = "", size: int = 0, pages: int = 1, mimetype: str = ""):
+class Catalog:
+    def __init__(
+        self, 
+        id: int = 0 , 
+        path: str = "", 
+        name: str = "", 
+        size: int = 0, 
+        pages: int = 1, 
+        mimetype: str = "", 
+        title: str = "", 
+        resume: str = "", 
+        categories: str = "", 
+    ):
         """
         Inicializa uma nova instância da classe.
-
-        Parâmetros:
-            id (int): Identificador único do documento. Valor padrão é 0.
-            path (str): Caminho do arquivo do documento. Valor padrão é uma string vazia.
-            name (str): Nome do documento. Valor padrão é uma string vazia.
-            size (int): Tamanho do documento em bytes. Valor padrão é 0.
-            pages (int): Número de páginas do documento. Valor padrão é 1.
-            mimetype (str): Tipo MIME do documento. Valor padrão é uma string vazia.
         """
         self.id: int = id
         self.path: str = os.path.normpath(path)
@@ -28,6 +31,9 @@ class DocumentInfo:
         self.size: int = size
         self.pages: int = pages
         self.mimetype: str = mimetype
+        self.title: str = title
+        self.resume: str = resume
+        self.categories: str = categories
 
     def dict(self):
         """
@@ -61,7 +67,6 @@ class DocumentInfo:
         
         return self
 
-    def extract(self, path):
         """
         Extrai informações de um documento no caminho especificado.
         Args:

@@ -15,6 +15,7 @@ WORKDIR /app
 # carrega o volume
 # COPY ./.ollama/ /root/.ollama/
 COPY ./.config/ollama ./
+COPY ./dataset/train/model.ollama.jsonl ./train.jsonl
 
 RUN chmod +x ./Modelfile
 
