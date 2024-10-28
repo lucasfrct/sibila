@@ -14,7 +14,7 @@ from src.modules.document.paragraph_metadata import ParagraphMetadata
 from src.modules.document.phrase_metadata import PharseMetadata
 from src.modules.document.page_metadata import PageMetadata
 from src.modules.document.document_info import DocumentInfo
-from src.modules.document.reader import reader as PDFReader
+from src.modules.document.reader import page_limit_mechanics, reader as PDFReader, reader_content, writer_dictionaries_to_csv
 from src.utils import archive as Archive
 from src.utils import string as String
 
@@ -123,6 +123,19 @@ def pdf_reader(path: str = "") -> (pdfplumber.PDF | None):
     return PDFReader(path)
 
 
+def pdf_content(path: str, init: int = 1, final: int = -1) -> str:
+    """
+    Lê um arquivo PDF e extrai o texto de suas páginas numa variável só.
+    Args:
+        path (str): O caminho para o arquivo PDF.
+        max_pages (int, opcional): O número máximo de páginas a serem lidas. 
+    Returns:
+        str: O conteúdo extraído do PDF como uma string. 
+    """
+    return  reader_content(path, init, final)
+
+
+
 def pdf_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PageMetadata]:
     """
     Lê as páginas de um arquivo PDF e extrai os metadados.
@@ -156,20 +169,7 @@ def pdf_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> Lis
 
         total = inf.pages
 
-        if init >= total:
-            init = total - 1
-
-        if init <= 0:
-            init = 1
-
-        if final > total:
-            final = total
-
-        if final <= 0:
-            final = total
-
-        if (final < init):
-            final = init
+        init, final = page_limit_mechanics(init, final, total)
 
         # Carrega apenas as páginas especificadas na memória
         pages: List[PageMetadata] = []
@@ -430,3 +430,13 @@ def open_txt(path: str) -> str | None:
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return None
+
+
+def save_csv(path: str, dictionaties: List[dict], mode: str = 'w') -> bool:
+    try:
+        return writer_dictionaries_to_csv(path, dictionaties, mode)
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return False
+
+

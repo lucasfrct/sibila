@@ -1,9 +1,9 @@
 
 
 from src.modules.response.response import Response
-from src.modules.catalog import handles as Catolog
+from src.modules.corpus import corpus as Corpus
 
 
-def corpus_generate(directory: str = 'dataset/library'):
-    regitreds = Catolog.register_content_in_bath(directory)
+def corpus_generate(directory: str = 'dataset/sources'):
+    regitreds = Corpus.generate_anotations(directory)
     return Response.success(200, regitreds).result()
