@@ -81,14 +81,16 @@ def split_into_articles(text: str) -> List[str]:
 
 def set_a_title(text: str) -> str:
     llm = ModelOllama()
-    llm.out_reduction_rate = 5.0
+    llm.out_reduction_rate = 100.0
+    llm.penalty_rate = 10.0
+    llm.max_tokens = 100
     prompt = """
         /clear
-        Elimine o titulo que não se encaixa com o texto.
         Deve retornar somente o titulo escolhido.
         Não comentar sobre o texto.
         Não responda com a palavra título.
         Não deve comecar com o artigo ou o numero.
+        Elimine o titulo que não se encaixa com o texto.
     """
     question = f"""
         De forma objetiva, qual o título para o artigo: {text[0:512]}.
@@ -102,6 +104,9 @@ def set_a_title(text: str) -> str:
 
 def define_categories(text: str) -> str:
     llm = ModelOllama()
+    llm.max_tokens = 100
+    llm.out_focus = 10.0
+    llm.penalty_rate = 2.0
     prompt = f"""
         /clear
         Responda com objetividade somente categorias informadas.
@@ -123,8 +128,10 @@ def define_categories(text: str) -> str:
 
 def define_the_normative_type(text: str):
     llm = ModelOllama()
+    llm.max_tokens = 200
+    llm.out_focus = 10.0
+    llm.penalty_rate = 2.0
 
-    # - exemplo: (EC no 19/98)
     prompt = f"""
         /clear
         Lista de tipos de normativos:
@@ -132,6 +139,7 @@ def define_the_normative_type(text: str):
         Não inventar tipo normativo quando não conseguir relacionar.
         Elimine o normativo que não se encaixa.
         Não deve explicar o que é um normativo.
+        A sigla EC siginifica emenda constitucional.
     """
 
     question = f"""
@@ -146,6 +154,9 @@ def define_the_normative_type(text: str):
 
 def extract_entities(text: str):
     llm = ModelOllama()
+    llm.max_tokens = 200
+    llm.out_focus = 10.0
+    llm.penalty_rate = 2.0
     prompt = """
         /clear
         Extraia do texto somente as entidades presentes.
@@ -162,6 +173,9 @@ def extract_entities(text: str):
 
 def extract_the_penalties(text: str):
     llm = ModelOllama()
+    llm.max_tokens = 200
+    llm.out_focus = 10.0
+    llm.penalty_rate = 2.0
     prompt = """
         /clear
         Extraia do texto somente as penalidades presentes.
@@ -178,6 +192,9 @@ def extract_the_penalties(text: str):
 
 def define_the_legal_terms(text: str):
     llm = ModelOllama()
+    llm.max_tokens = 1000
+    llm.out_focus = 8.0
+    llm.penalty_rate = 1.5
     prompt = """
         /clear
         Extraia do texto somente os termos jurídicos incomuns.
@@ -200,6 +217,9 @@ def define_the_legal_terms(text: str):
 
 def extract_legal_dates_and_deadlines(text: str):
     llm = ModelOllama()
+    llm.max_tokens = 200
+    llm.out_focus = 10.0
+    llm.penalty_rate = 2.0
     prompt = """
         /clear
         Encontre as datas ou prazos no texto.    
@@ -223,6 +243,8 @@ def extract_legal_dates_and_deadlines(text: str):
 
 def summarize(text: str):
     llm = ModelOllama()
+    llm.max_tokens = 300
+    llm.diversification_rate = 0.9
     prompt = """
         /clear
         Um resumo deve conter menos de 20 por cento do texto original.

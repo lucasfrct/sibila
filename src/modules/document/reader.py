@@ -112,11 +112,26 @@ def reader_content(path: str, init: int = 1, final: int = -1) -> str:
 def writer_dictionaries_to_csv(path: str, dictionaries: List[dict], mode: str = 'w') -> bool:
     try:
 
+        if len(dictionaries) == 0:
+            return False
+        
+        new_fieldnames = dictionaries[0].keys()
         file_exists = os.path.exists(path)
-        with open(path, mode=mode, newline='', encoding='utf-8') as file:
-            writer = csv.DictWriter(file, fieldnames=dictionaries[0].keys())
+        
+        header_needs_update = False
+        
+        if file_exists:
+            with open(path, 'r', encoding='utf-8') as file:
+                reader = csv.reader(file)
+                current_header = next(reader, None)
+                header_needs_update = current_header != list(new_fieldnames)
+                
+        write_mode = 'w' if not file_exists or header_needs_update else mode
+        
+        with open(path, mode=write_mode, newline='', encoding='utf-8') as file:
+            writer = csv.DictWriter(file, fieldnames=new_fieldnames)
 
-            if not file_exists:
+            if not file_exists or header_needs_update:
                 writer.writeheader()
 
             writer.writerows(dictionaries)
