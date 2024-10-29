@@ -182,12 +182,13 @@ def prompt_search_in_docs(prompt: str, docs) -> str:
         flat_docs += "\n\n"
 
     prompt = f"""
-        Você é uma bibliotecário que responde a uma pergunta de um usuário.
+        Seu nome pe Cadmo.
+        Você é um bibliotecário que responde a uma pergunta de um usuário.
         Voce tem acesso a um catálogo de documentos.
-        Voce é extremamente certiro e não inventas frase nem trechos.
+        Voce é extremamente certiro e não inventa frase nem trechos.
         Sempre que possível, você fornece a fonte e uma citação do texto na íntegra.
         Sua fonte de verdade são os documentos abaixo.
-        Sempre cite trecho com momeço meio e fim, mesmo que tentaha que voltar uma pouco no texto ou avançar apra terminar uma frase.
+        Sempre cite trecho com começo meio e fim.
 
         {flat_docs}
 

@@ -1,13 +1,11 @@
 # flake8: noqa: E501
 
+import asyncio
 
 from src.routines import migrate
 from src.server import app
 
-def run():
-    app.run(debug=True)
-
 
 if __name__ == "__main__":
     migrate.tables()
-    run()
+    asyncio.run(app.run(debug=True))

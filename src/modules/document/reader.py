@@ -106,7 +106,7 @@ def reader_content(path: str, init: int = 1, final: int = -1) -> str:
     content = ""
     init, final = page_limit_mechanics(init, final, len(pdf.pages))
     for num in range(init - 1, final):
-        content += pdf.pages[num].extract_text()
+        content += pdf.pages[num].extract_text().strip() + "\n"
     return content
 
 def writer_dictionaries_to_csv(path: str, dictionaries: List[dict], mode: str = 'w') -> bool:

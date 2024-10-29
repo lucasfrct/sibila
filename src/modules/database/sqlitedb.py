@@ -4,7 +4,7 @@ import sqlite3
 import os
 
 
-def client(path: str = "./data/sqlite") -> object:
+def client(path: str = "./data/.sqlite") -> object:
     try:
         if not os.path.exists(path):
             os.makedirs(path)

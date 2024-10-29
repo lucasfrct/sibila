@@ -24,8 +24,19 @@ class ModelOllama:
         self.embeddings = []
         self.model = model
         self.chunks = []
-        self.temperature = 0.5
         self.history_size = 5
+        
+        
+        self.diffusion_of_hallucination = 0.8   # difusão da alucinação, maior valor, mais difusão
+        self.diversification_rate = 0.0         # taxa de diversificação, maior valor, mais diversificação
+        self.out_reduction_rate = 2.0           # taxa de redução de saída de tokens, maior mais redução
+        self.hallucination_rate = 20            # taxa de alucinçao, quanto maior valor, mais alucinação
+        self.penalty_rate = 1.1                 # taxa de penalização, maior valor, mais penalização
+        self.temperature = 0.5                  # maior temperatura, mais aleatório, menor temperatura, mais deterministico
+        self.max_tokens = 4096                  # máximo de tokens para geração de texto
+        self.out_focus = 5.0                    # saída mais focada - menor valor mais focado
+        self.context = 2048                     # janela de contexto para os proximos tokens
+        
 
     def set_chunks(self, chunks=None):
         """
@@ -120,7 +131,18 @@ class ModelOllama:
                 {"role": "system", "content": f"{prompt}"},
                 {"role": "user", "content": f"{question}"}
             ],
-            options={"temperature": self.temperature},
+            options={
+                "top_p": self.diffusion_of_hallucination,
+                "presence_penalty": self.penalty_rate,
+                "min_p": self.diversification_rate,
+                "top_k": self.hallucination_rate,
+                "tfs_z": self.out_reduction_rate,
+                "temperature": self.temperature,
+                "mirostat_tau": self.out_focus,
+                "max_tokens": self.max_tokens,
+                "num_ctx": self.context,
+                "stop": ['\n'],
+            },
         )
 
     @staticmethod

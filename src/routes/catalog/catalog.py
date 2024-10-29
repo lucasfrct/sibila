@@ -11,7 +11,7 @@ def catalog_list(directory: str = 'dataset/library'):
     return Response.success(200, catalog_list).result()
 
 
-def catalog_indexer(directory: str = 'dataset/library'):
+def catalog_indexer(directory: str = 'dataset/library/sources'):
     regitreds = Catolog.register_content_in_bath(directory)
     return Response.success(200, regitreds).result()
 

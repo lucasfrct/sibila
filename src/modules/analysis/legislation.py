@@ -33,7 +33,7 @@ normative_types = [
     "Lei Complementar",
     "Medida Provisória",
     "Instrução Normativa",
-    "Emenda Constitucional",
+    "Emenda Constitucional: sigla EC",
 ]
 
 nomatives = [
@@ -43,7 +43,7 @@ nomatives = [
 ]
 
 
-def split_into_articles(text: str)-> List[str]:
+def split_into_articles(text: str) -> List[str]:
     """
     Divide o texto em artigos com base em uma expressão regular que identifica 
     linhas que começam com "Art." seguido de um número.
@@ -75,15 +75,15 @@ def split_into_articles(text: str)-> List[str]:
     for article in articles_raw:
         if article.strip().lower().startswith('art'):
             articles.append(article)
-            
+
     return articles
 
 
 def set_a_title(text: str) -> str:
     llm = ModelOllama()
+    llm.out_reduction_rate = 5.0
     prompt = """
         /clear
-        O título de conter no máximo 8 palavras
         Elimine o titulo que não se encaixa com o texto.
         Deve retornar somente o titulo escolhido.
         Não comentar sobre o texto.
@@ -92,6 +92,7 @@ def set_a_title(text: str) -> str:
     """
     question = f"""
         De forma objetiva, qual o título para o artigo: {text[0:512]}.
+        O título de conter no máximo 8 palavras
         Responseda somente título escolhido.
         Remova o texto de saudação ou despedida ou descriçao.
     """
@@ -122,11 +123,11 @@ def define_categories(text: str) -> str:
 
 def define_the_normative_type(text: str):
     llm = ModelOllama()
-    
+
     # - exemplo: (EC no 19/98)
     prompt = f"""
         /clear
-        Lista de tipos de normativos: 
+        Lista de tipos de normativos:
         {"\n ".join(normative_types)}
         Não inventar tipo normativo quando não conseguir relacionar.
         Elimine o normativo que não se encaixa.
@@ -137,7 +138,7 @@ def define_the_normative_type(text: str):
         Classifique um tipo normativo para o seguinte texto: '{text}'.
         Retorne somente um do normativo.
         Remova o texto de saudação ou despedida.
-        Se não hover categoria retorne: '-'
+        Se não hover normativo, retorne: Lei
     """
     response = llm.question(prompt=prompt, question=question)
     return re.sub(r'[\n;.-]', '', response).strip()
@@ -173,6 +174,7 @@ def extract_the_penalties(text: str):
         Se não houver penalidade retorne: '-'
     """
     return llm.question(prompt=prompt, question=question).replace('\n', '').strip()
+
 
 def define_the_legal_terms(text: str):
     llm = ModelOllama()
@@ -214,7 +216,8 @@ def extract_legal_dates_and_deadlines(text: str):
         Não invente datas ou prazos.
         Se não houver data ou prazo retorne: '-'
     """
-    response = llm.question(prompt=prompt, question=question).replace('\n', '').strip()
+    response = llm.question(
+        prompt=prompt, question=question).replace('\n', '').strip()
     return re.sub(r'[\n;.-]', '', response).strip()
 
 

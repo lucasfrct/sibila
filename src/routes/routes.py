@@ -1,12 +1,8 @@
 # flake8: noqa: E501
 
 from flask import Blueprint
-from flask import request
 
 
-from src.models.ollama import ModelOllama
-from src.modules.response.response import Response
-from src.modules.catalog import handles as Catolog
 from src.routes.catalog.catalog import catalog_indexer, catalog_list, catalog_search
 from src.routes.completions.completions import completions, completions_history
 from src.routes.corpus.corpus import corpus_generate

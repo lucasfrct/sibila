@@ -8,7 +8,7 @@ services:
     container_name: ollama-model
     build:
       context: ./
-      dockerfile: ./deploy/Dockerfile.ollama
+      dockerfile: ./.deploy/Dockerfile.ollama
     environment:
       - ENVIRONMENT=development
     volumes:

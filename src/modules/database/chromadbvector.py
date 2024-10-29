@@ -8,7 +8,7 @@ from typing import List
 from src.modules.nlp.bow import relevant_words
 
 
-def client(path: str = "./data/chromadb") -> chromadb.ClientAPI:
+def client(path: str = "./data/.chromadb") -> chromadb.ClientAPI:
     """ 
     Cliente para ChromaDB 
     

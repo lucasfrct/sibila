@@ -12,11 +12,8 @@ def completions():
         return Response.error(400, "COM000", "Campo 'question' é obrigatório").result()
 
     dados = request.get_json()
-    question = dados.get('question')
-    prompt = dados.get('prompt')
-
-    if not prompt:
-        return Response.error(400, "COM001", "Campo 'prompt' é obrigatório").result()
+    question = dados.get('question') or ""
+    prompt = dados.get('prompt') or ""
 
     if not question:
         return Response.error(400, "COM002", "Campo 'question' é obrigatório").result()

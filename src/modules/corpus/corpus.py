@@ -1,16 +1,20 @@
 # flake8: noqa: E501
 
-from src.modules.analysis import legislation as Legislation
-from src.modules.document import service as DocService
 from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import Value
 from datetime import datetime
+from typing import Callable
+from typing import List
+from time import sleep
 import asyncio
 
+from src.modules.analysis import legislation as Legislation
+from src.modules.document import service as DocService
 from src.utils.clock import delta_time
 from src.utils.log import log_info
 
-global count
-count = 0
+global counter
+counter = Value('i', 0)
 
 
 def sources(directory: str = 'dataset/sources'):
@@ -60,11 +64,13 @@ def docs_with_articles(directory: str = 'dataset/sources', init: int = 1, final:
     return docs
 
 
-def generate_anotation_by_aticle(iteration_order: int, index_position: int, text: str):
+def generate_anotation_by_aticle(index_position: int, text: str):
+    global counter
+
     time_article_init = datetime.now()
     article = {
-        "text": text[0:64],
-        # "subject": Legislation.set_a_title(text),
+        "text": text,
+        "subject": Legislation.set_a_title(text),
         # "sumamry": Legislation.summarize(text),
         # "entities": Legislation.extract_entities(text),
         # "categories": Legislation.define_categories(text),
@@ -75,19 +81,32 @@ def generate_anotation_by_aticle(iteration_order: int, index_position: int, text
     }
     path = "dataset/corpus/contituicao_federal.csv"
     DocService.save_csv(path, [article], 'a')
-    
-    i = f"{iteration_order:04}"
+
+    with counter.get_lock():
+        counter.value += 1
+
+    i = f"{counter.value:04}"
     p = f"{index_position:04}"
+
     log_info(f"{i}", f"{p} {text[0:48]}...", delta_time(time_article_init))
-    
+    sleep(0.001 * (index_position % 10))
+
     return article
 
 
-async def generate_anotations_async(directory: str = 'dataset/sources', max_concurrent_tasks: int = 100):
+async def process_task(executor, articles: List[str], task: Callable[[int, str], dict], index_position: int, text: str):
+    loop = asyncio.get_event_loop()
+    article = await loop.run_in_executor(executor, task, index_position, text)
+    print("------ article: ", article['text'][0:64], " ----------- ")
+    articles[index_position] = article
+
+
+async def process_anotations(directory: str = 'dataset/sources', max_concurrent_tasks: int = 100) -> List[str]:
+    global counter
 
     page_init = 1
     page_final = 12
-    
+
     print("*****************************************************************************")
 
     time_init = datetime.now()
@@ -96,33 +115,24 @@ async def generate_anotations_async(directory: str = 'dataset/sources', max_conc
     docs = docs_with_articles(directory, page_init, page_final)
     log_info("", "Documentos carregados", delta_time(time_init))
 
-    arts = [None] * sum(len(doc['articles']) for doc in docs)
-
-    async def process_article(i, text, executor, index):
-        global count
-        
-        loop = asyncio.get_event_loop()
-        article = await loop.run_in_executor(executor, generate_anotation_by_aticle, count, i, text)
-        arts[index] = article
-        count += 1
+    articles = [None] * sum(len(doc['articles']) for doc in docs)
 
     tasks = []
     executor = ThreadPoolExecutor(max_workers=max_concurrent_tasks)
     time_init = datetime.now()
 
+    counter.value = 0
     for doc in docs:
         log_info("", "Anotação iniciada", delta_time(time_init))
-        global count
-        count = 1
         for i, text in enumerate(doc['articles']):
-            tasks.append(process_article(i+1, text, executor, i))
+            tasks.append(process_task(executor, articles, generate_anotation_by_aticle, i, text))
 
     await asyncio.gather(*tasks)
 
-    log_info("", "Anotação finalizada", delta_time(time_init))
+    log_info("", "Anotação finalizada ......................................................", delta_time(time_init))
     print("*****************************************************************************")
-    return arts
+    return articles
 
 
 def generate_anotations(directory: str = 'dataset/sources'):
-    return asyncio.run(generate_anotations_async(directory, 10))
+    return asyncio.run(process_anotations(directory, 10))
