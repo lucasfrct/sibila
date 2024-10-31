@@ -2,12 +2,13 @@
 
 from flask import request
 
+
 from src.models.ollama import ModelOllama
 from src.modules.response.response import Response
 from src.modules.catalog import handles as Catolog
 
 
-def completions():
+async def completions():
     if not request.is_json:
         return Response.error(400, "COM000", "Campo 'question' é obrigatório").result()
 
@@ -30,6 +31,6 @@ def completions():
     return Response.success(200, f"{response}").result()
 
 
-def completions_history():
+async def completions_history():
     history = ModelOllama.history()
     return Response.success(200, {"history": history}).result()

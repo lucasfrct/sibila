@@ -1,6 +1,0 @@
-{
-	"instruction": "Texo de instruçao do usuário para o modelo",
-	"input": "Texto de entrada - texto auxiliar para ajudar na elaboraçao da resposta",
-	"output": "Texto de saída - resposta do modelo",
-	"text": "Texto montado moco deveria ser o texto de saída"
-}
