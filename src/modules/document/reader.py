@@ -6,6 +6,7 @@ Funções:
     - reader(path: str = "") -> pdfplumber.PDF: Faz a leitura de um documento PDF e retorna o objeto PDF.
     - reader_pages(path: str = "", init: int = 1, final: int = 0) -> List[str]: Faz a leitura de um trecho de um arquivo PDF e retorna as páginas em texto puro.
 """
+
 from typing import List
 import traceback
 import logging
@@ -90,6 +91,7 @@ def reader_pages(path: str = "", init: int = 1, final: int = -1) -> List[str]:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
 
+
 def reader_content(path: str, init: int = 1, final: int = -1) -> str:
     """
     Lê um arquivo PDF e extrai o texto de suas páginas numa variável só.
@@ -109,25 +111,26 @@ def reader_content(path: str, init: int = 1, final: int = -1) -> str:
         content += pdf.pages[num].extract_text().strip() + "\n"
     return content
 
+
 def writer_dictionaries_to_csv(path: str, dictionaries: List[dict], mode: str = 'w') -> bool:
     try:
 
         if len(dictionaries) == 0:
             return False
-        
+
         new_fieldnames = dictionaries[0].keys()
         file_exists = os.path.exists(path)
-        
+
         header_needs_update = False
-        
+
         if file_exists:
             with open(path, 'r', encoding='utf-8') as file:
                 reader = csv.reader(file)
                 current_header = next(reader, None)
                 header_needs_update = current_header != list(new_fieldnames)
-                
+
         write_mode = 'w' if not file_exists or header_needs_update else mode
-        
+
         with open(path, mode=write_mode, newline='', encoding='utf-8') as file:
             writer = csv.DictWriter(file, fieldnames=new_fieldnames)
 
@@ -136,6 +139,20 @@ def writer_dictionaries_to_csv(path: str, dictionaries: List[dict], mode: str = 
 
             writer.writerows(dictionaries)
         return True
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return False
+
+
+def read_csv_to_dictionaries(path: str):
+    try:
+        with open(path, mode='r', encoding='utf-8') as file_csv:
+            _reader = csv.DictReader(file_csv)
+            data = {col: [] for col in _reader.fieldnames}
+            for line in _reader:
+                for key, val in line.items():
+                    data[key].append(val)
+        return data
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return False

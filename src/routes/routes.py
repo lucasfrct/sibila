@@ -13,35 +13,35 @@ app = Blueprint('app', __name__)
 
 
 @app.route('/api/v1/health', methods=['GET'])
-def api_v1_health():
-    return health()
+async def api_v1_health():
+    return await health()
 
 
 @app.route('/api/v1/completions', methods=['POST'])
-def api_v1_completions():
-    return completions()
+async def api_v1_completions():
+    return await completions()
 
 
 @app.route('/api/v1/completions/history', methods=['GET'])
-def api_v1_completions_history():
-    return completions_history()
+async def api_v1_completions_history():
+    return await completions_history()
 
 
 @app.route('/api/v1/catalog/search', methods=['GET'])
-def api_v1_catalog_search():
-    return catalog_search()
+async def api_v1_catalog_search():
+    return await catalog_search()
 
 
 @app.route('/api/v1/catalog', methods=['GET'])
-def pai_v1_catalog():
-    return catalog_list()
+async def pai_v1_catalog():
+    return await catalog_list()
 
 
 @app.route('/api/v1/catalog/indexer', methods=['POST'])
-def api_v1_catalog_indexer():
-    return catalog_indexer()
+async def api_v1_catalog_indexer():
+    return await catalog_indexer()
 
 
 @app.route('/api/v1/corpus/generate', methods=['POST'])
-def api_v1_corpus_generate():
-    return corpus_generate()
+async def api_v1_corpus_generate():
+    return await corpus_generate()

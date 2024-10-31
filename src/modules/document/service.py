@@ -14,7 +14,7 @@ from src.modules.document.paragraph_metadata import ParagraphMetadata
 from src.modules.document.phrase_metadata import PharseMetadata
 from src.modules.document.page_metadata import PageMetadata
 from src.modules.document.document_info import DocumentInfo
-from src.modules.document.reader import page_limit_mechanics, reader as PDFReader, reader_content, writer_dictionaries_to_csv
+from src.modules.document.reader import page_limit_mechanics, read_csv_to_dictionaries, reader as PDFReader, reader_content, writer_dictionaries_to_csv
 from src.utils import archive as Archive
 from src.utils import string as String
 
@@ -132,8 +132,7 @@ def pdf_content(path: str, init: int = 1, final: int = -1) -> str:
     Returns:
         str: O conteúdo extraído do PDF como uma string. 
     """
-    return  reader_content(path, init, final)
-
+    return reader_content(path, init, final)
 
 
 def pdf_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PageMetadata]:
@@ -440,3 +439,9 @@ def save_csv(path: str, dictionaties: List[dict], mode: str = 'w') -> bool:
         return False
 
 
+def read_csv(path: str):
+    try:
+        return read_csv_to_dictionaries(path)
+    except Exception as e:
+        logging.error(f"{e}\n%s", traceback.format_exc())
+        return False

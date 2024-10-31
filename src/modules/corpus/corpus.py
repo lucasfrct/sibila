@@ -8,6 +8,7 @@ from typing import List
 from time import sleep
 import asyncio
 
+
 from src.modules.analysis import legislation as Legislation
 from src.modules.document import service as DocService
 from src.utils.array import ArrayControl
