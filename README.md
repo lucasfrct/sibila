@@ -4,7 +4,7 @@ As sibilas eram figuras da mitologia inspiradas pelos deuses para profetizar.
 
 Esse repositório é um exemplo de aplicação capaz de responder perguntas baseadas em documentos fornecidos pelo usuário.
 
-### Estrutura de containers
+## Estrutura de containers
 
 - `ollama`: A LLM pode ser acessada em <http://localhost:11434>
 
