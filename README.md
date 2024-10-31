@@ -32,9 +32,13 @@ Para rodar a aplicação sem hot reload, basta rodar o comando abaixo
 ### LLM Llma 3
 
 O Meta treinou o Llama 3 com uma contagem de tokens de mais de 15 trilhões de tokens.
+
 O modelo 8B tem um limite de conhecimento de março de 2023.
+
 O modelo 70B tem tem um limite de conhecimento de dezembro de 2023.
+
 Os modelos usam Grouped-Query Attention (GQA).
+
 SFT é uma técnica de treinamento que permite que o modelo seja treinado em um conjunto de dados de treinamento muito maior do que o que pode ser armazenado na memória de uma única GPU.
 
 ### Anotações
