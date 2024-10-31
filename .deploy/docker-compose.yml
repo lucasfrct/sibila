@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+
+  ollama:
+    image: ollama-model
+    hostname: ollama-model
+    container_name: ollama-model
+    build:
+      context: ../
+      dockerfile: ./.deploy/Dockerfile.ollama
+    environment:
+      - ENVIRONMENT=development
+    volumes:
+      - ../data/.ollama:/root/.ollama
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - 11434:11434
+  
+  chatbot:
+    image: lobehub/lobe-chat
+    hostname: chatbot
+    container_name: chatbot
+    volumes:
+      - ./data/.ollama:/root/.ollama
+    environment:
+      - OLLAMA_PROXY_URL=http://host.docker.internal:11434/v1
+    restart: always
+    ports:
+      - 3210:3210
+

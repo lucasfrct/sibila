@@ -1,4 +1,6 @@
 import sys
+import time
+
 
 def spinner():
     spinner = ['|', '/', '-', '\\']
