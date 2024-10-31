@@ -1,6 +1,6 @@
-# Sibila Sínica (Profetisa)
+# Sibila Sínica
 
-As sibilas eram figuras da mitologia que ram inspiradas peloas deuses para profecias.
+As sibilas eram figuras da mitologia inspiradas peloas deuses para profetizar.
 Esse repositório é um exemplo de aplicação capaz de responder perguntas baseadas em documentos fornecidos pelo usuário.
 
 ## Estrutura de containers
@@ -10,14 +10,17 @@ Esse repositório é um exemplo de aplicação capaz de responder perguntas base
 ## Para Executar a aplicação
 
 Tudo está sendo construido em docker, e `docker-compose` é o gerenciador para rodar tudo em desenvolvimento
+
 ```docker-compse up -d```
 
 ## Ambiente de desnvolvimento
 
 Para rodar a aplicação em desenvolvimento, basta rodar o comando abaixo
+
 ``` python ./main.py ```
 
 Para rodar a aplicação sem hot reload, basta rodar o comando abaixo
+
 ``` python ./main.py --no-reload ```
 
 ## Estrutura de diretórios
