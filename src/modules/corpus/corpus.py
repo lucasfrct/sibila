@@ -75,12 +75,12 @@ def generate_anotation_by_aticle(index_position: int, text: str):
         "text": text,
         "subject": Legislation.set_a_title(text),
         "sumamry": Legislation.summarize(text),
-        "entities": Legislation.extract_entities(text),
-        "categories": Legislation.define_categories(text),
-        "penalties": Legislation.extract_the_penalties(text),
-        "definition": Legislation.define_the_legal_terms(text),
+        # "entities": Legislation.extract_entities(text),
+        # "categories": Legislation.define_categories(text),
+        # "penalties": Legislation.extract_the_penalties(text),
+        # "definition": Legislation.define_the_legal_terms(text),
         "dates": Legislation.extract_legal_dates_and_deadlines(text),
-        "normativeTipe": Legislation.define_the_normative_type(text),
+        # "normativeTipe": Legislation.define_the_normative_type(text),
     }
   
     with counter.get_lock():
@@ -103,7 +103,7 @@ async def process_task(executor, articles: List[dict], doc_articles: List[dict],
     doc_articles[index_position] = article
     
     items = arr_control.fetch_contiguous_items(doc_articles)
-    path = "dataset/corpus/contituicao_federal.csv"
+    path = "dataset/corpus/contituicao_federativa_do_brasil_comentada.csv"
     DocService.save_csv(path, items, 'a')
     
     for item in items:

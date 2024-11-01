@@ -43,5 +43,5 @@ async def api_v1_catalog_indexer():
 
 
 @app.route('/api/v1/corpus/generate', methods=['POST'])
-async def api_v1_corpus_generate():
-    return await corpus_generate()
+def api_v1_corpus_generate():
+    return  corpus_generate()
