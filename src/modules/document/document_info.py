@@ -7,6 +7,7 @@ import os
 
 from src.modules.document.reader import reader
 from src.utils import archive as Archive
+from src.utils import string as String
 
 @dataclass
 class DocumentInfo:
@@ -28,6 +29,7 @@ class DocumentInfo:
         self.size: int = size
         self.pages: int = pages
         self.mimetype: str = mimetype
+        self.sizeLabel: str = String.size_to_label(size)
 
     def dict(self):
         """
@@ -79,6 +81,7 @@ class DocumentInfo:
             self.path = os.path.normpath(path)
             self.name = os.path.basename(path)
             self.size = os.path.getsize(path)
+            self.sizeLabel: str = String.size_to_label(self.size)
             
             _, ext = os.path.splitext(path)
             self.mimetype = ext.replace(".", "")
