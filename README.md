@@ -47,3 +47,16 @@ SFT é uma técnica de treinamento que permite que o modelo seja treinado em um 
 - LM Studio = interface web para conversar com  o LLM
 - huging face: Tom jobbins
 - repositório de livros de tecnologia: <https://github.com/free-educa/books/blob/main/books/Design_Patterns.pdf>
+## Principais Funcionalidades
+
+A aplicação foi organizada em vários módulos dentro da pasta `src`. A seguir estão alguns dos recursos presentes no código:
+
+- **Processamento de documentos** (`src/modules/document`): lê arquivos PDF, gera metadados de página, parágrafo e frase e oferece funções para converter PDF em texto.
+- **Geração de corpus** (`src/modules/corpus`): extrai artigos de documentos jurídicos e cria anotações automáticas utilizando o módulo de legislação.
+- **Análise de legislação** (`src/modules/analysis`): define títulos de artigos, categorias, entidades, penalidades e cria resumos com apoio de um LLM.
+- **Modelos de linguagem** (`src/models`): integrações com Ollama ou OpenAI para gerar embeddings e respostas.
+- **Banco vetorial** (`src/modules/database/chromadbvector.py`): armazena documentos e permite consultas de similaridade via ChromaDB.
+- **Catálogo e busca** (`src/modules/catalog`): indexa documentos e monta prompts de busca para o LLM responder com citações.
+- **API Flask** (`src/routes`): expõe rotas como `/api/v1/corpus`, `/api/v1/dataset` e `/api/v1/health`.
+
+Para inicializar o servidor em modo de desenvolvimento basta executar `python main.py`. Opcionalmente utilize `python main.py --no-reload` para desativar o hot reload.
