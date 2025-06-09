@@ -77,11 +77,11 @@ class PageMetadata:
         self.content = model['content']
         self.distance = 0.0
 
-        self.line = self.split_to_line(self.content)
+        self.line = String.split_to_lines(self.content)
         self.size = int(model['size'])
         self.lines = len(self.line)
         self.pages = int(model['pages'])
-        self.chunk = self.split_to_chunk(self.content)
+        self.chunk = String.split_to_chunks(self.content, 2000)
         self.chunks = int(model['chunks'])
         self.mimetype = model['mimetype']
         self.phrase = self.split_to_phrase(self.content)
@@ -139,11 +139,11 @@ class PageMetadata:
         self.content = content
         self.distance = 0.0
 
-        self.line = self.split_to_line(self.content)
+        self.line = String.split_to_lines(self.content)
         self.size = size
         self.lines = lines
         self.pages = pages
-        self.chunk = self.self.split_to_chunk(self.content)(self.content)
+        self.chunk = String.split_to_chunks(self.content, 2000)
         self.chunks = chunks
         self.mimetype = mimetype
         self.phrase = self.split_to_phrase(self.content)
