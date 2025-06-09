@@ -103,7 +103,7 @@ async def process_task(executor, articles: List[dict], doc_articles: List[dict],
     doc_articles[index_position] = article
     
     items = arr_control.fetch_contiguous_items(doc_articles)
-    path = "dataset/corpus/contituicao_federal.csv"
+    path = "dataset/corpus/constituicao_federal.csv"
     DocService.save_csv(path, items, 'a')
     
     for item in items:
