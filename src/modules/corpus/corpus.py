@@ -1,12 +1,7 @@
 # flake8: noqa: E501
 
-from concurrent.futures import ThreadPoolExecutor
-from multiprocessing import Value
 from datetime import datetime
-from typing import Any, Callable
 from typing import List
-from time import sleep
-import asyncio
 
 
 from src.modules.analysis import legislation as Legislation
@@ -14,9 +9,6 @@ from src.modules.document import service as DocService
 from src.utils.array import ArrayControl
 from src.utils.clock import delta_time
 from src.utils.log import log_info
-
-global counter
-counter = Value('i', 0)
 
 arr_control = ArrayControl()
 

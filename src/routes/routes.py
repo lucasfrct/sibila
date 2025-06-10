@@ -3,7 +3,6 @@
 from flask import Blueprint
 
 
-from src.routes.catalog.catalog import  catalog_list
 from src.routes.corpus.corpus import corpus_generate, corpus_list
 from src.routes.dataset.dataset import dataset_dir_list
 from src.routes.health import health

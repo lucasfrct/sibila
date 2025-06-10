@@ -1,6 +1,6 @@
 # flake8: noqa: E501
 
-from typing import Dict, List, Mapping
+from typing import List, Mapping
 from dataclasses import dataclass
 import json
 import uuid

@@ -5,7 +5,6 @@ import logging
 import chromadb
 import traceback
 from typing import List
-from src.modules.nlp.bow import relevant_words
 
 
 def client(path: str = "./data/.chromadb") -> chromadb.ClientAPI:

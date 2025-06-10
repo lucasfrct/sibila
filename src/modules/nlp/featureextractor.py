@@ -3,11 +3,8 @@
 from collections import defaultdict, Counter
 from typing import List
 
-import nltk
 from nltk.tag import pos_tag
 from nltk.chunk import ne_chunk
-
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 from src.modules.nlp.preprocessor import PreProcessor
 from src.modules.nlp.bow import generate_bow

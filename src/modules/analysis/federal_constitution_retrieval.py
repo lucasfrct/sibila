@@ -1,6 +1,5 @@
 # flake8: noqa: E501
 
-import uuid
 import logging
 import traceback
 from typing import List
