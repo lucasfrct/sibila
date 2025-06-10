@@ -84,9 +84,9 @@ class PageMetadata:
         self.chunk = String.split_to_chunks(self.content, 2000)
         self.chunks = int(model['chunks'])
         self.mimetype = model['mimetype']
-        self.phrase = self.split_to_phrase(self.content)
+        self.phrase = String.split_to_phrases(self.content)
         self.phrases = int(model['phrases'])
-        self.paragraph = self.split_to_pargraph(self.content)
+        self.paragraph = String.split_to_pargraphs(self.content)
         self.paragraphs = int(model['paragraphs'])
 
     def to_tuple(self):
@@ -146,9 +146,9 @@ class PageMetadata:
         self.chunk = String.split_to_chunks(self.content, 2000)
         self.chunks = chunks
         self.mimetype = mimetype
-        self.phrase = self.split_to_phrase(self.content)
+        self.phrase = String.split_to_phrases(self.content)
         self.phrases = phrases
-        self.paragraph = self.split_to_pargraph(self.content)
+        self.paragraph = String.split_to_pargraphs(self.content)
         self.paragraphs = paragraphs
 
         return self

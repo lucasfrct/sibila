@@ -6,6 +6,7 @@ from flask import Blueprint
 from src.routes.catalog.catalog import catalog_indexer, catalog_list, catalog_search
 from src.routes.completions.completions import completions, completions_history
 from src.routes.corpus.corpus import corpus_generate
+from src.routes.document.document import document_pages_details
 from src.routes.health import health
 
 
@@ -45,3 +46,8 @@ async def api_v1_catalog_indexer():
 @app.route('/api/v1/corpus/generate', methods=['POST'])
 async def api_v1_corpus_generate():
     return await corpus_generate()
+
+
+@app.route('/api/v1/document/pages', methods=['GET'])
+async def api_v1_document_pages_details():
+    return await document_pages_details()
