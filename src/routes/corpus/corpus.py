@@ -1,7 +1,6 @@
 # flake8: noqa: E501
 
 from datetime import datetime
-from time import sleep
 from flask import request
 import os
 
