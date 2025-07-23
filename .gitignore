@@ -308,3 +308,8 @@ data
 # Temporary files created during setup
 requirements_utf8.txt
 requirements-minimal.txt
+# Codex Pipeline artifacts
+artifacts/
+.codex_cache/
+*.codex.log
+
