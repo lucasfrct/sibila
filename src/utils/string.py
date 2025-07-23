@@ -6,7 +6,15 @@ import string
 import hashlib
 import unicodedata
 from typing import List
-from nltk.tokenize import word_tokenize
+
+try:
+    from nltk.tokenize import word_tokenize
+    NLTK_AVAILABLE = True
+except ImportError:
+    NLTK_AVAILABLE = False
+    def word_tokenize(text):
+        # Simple fallback tokenization
+        return text.split()
 
 from src.utils.stop_words import stopwords_pt
 

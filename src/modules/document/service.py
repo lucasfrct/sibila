@@ -14,10 +14,22 @@ try:
 except ImportError:
     # Fallback para PDF se Docling não estiver disponível
     DOCLING_AVAILABLE = False
-    import pdfplumber
-    from src.modules.document.reader import page_limit_mechanics, read_csv_to_dictionaries, reader as PDFReader, reader_content, writer_dictionaries_to_csv
+    try:
+        import pdfplumber
+        from src.modules.document.reader import page_limit_mechanics, read_csv_to_dictionaries, reader as PDFReader, reader_content, writer_dictionaries_to_csv
+    except ImportError:
+        # Handle missing PDF dependencies too
+        pdfplumber = None
+        page_limit_mechanics = None
+        read_csv_to_dictionaries = None
+        PDFReader = None
+        reader_content = None
+        writer_dictionaries_to_csv = None
 
-from fpdf import FPDF
+try:
+    from fpdf import FPDF
+except ImportError:
+    FPDF = None
 
 from src.modules.document import document_info_repository as DocInfoRepository
 from src.modules.document.paragraph_metadata import ParagraphMetadata
@@ -144,9 +156,12 @@ def document_reader(path: str = ""):
     """
     if DOCLING_AVAILABLE:
         return DoclingReader.reader(path)
-    else:
+    elif PDFReader is not None:
         # Fallback para PDF
         return PDFReader(path)
+    else:
+        logging.error("Nenhuma biblioteca de processamento de documentos disponível.")
+        return None
 
 
 def document_content(path: str, init: int = 1, final: int = -1) -> str:
@@ -161,12 +176,14 @@ def document_content(path: str, init: int = 1, final: int = -1) -> str:
     """
     if DOCLING_AVAILABLE:
         return DoclingReader.reader_content(path, init, final)
-    else:
+    elif reader_content is not None:
         # Fallback para PDF
         return reader_content(path, init, final)
+    else:
+        logging.error("Nenhuma biblioteca de processamento de documentos disponível.")
+        return ""
 
 
-def document_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PageMetadata]:
 def document_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PageMetadata]:
     """
     Lê as páginas de um arquivo e extrai os metadados usando Docling ou PDF como fallback.
@@ -204,17 +221,24 @@ def document_pages_with_details(path: str = "", init: int = 1, final: int = 0) -
 
             total = max(pages_content.keys()) if pages_content else inf.pages
             
-        else:
+        elif PDFReader is not None:
             # Fallback para PDF
             pdf = PDFReader(path)
             if pdf is None:
                 raise ValueError("Não foi possível ler o arquivo pdf.")
             total = inf.pages
+        else:
+            # Nenhuma biblioteca disponível
+            logging.error("Nenhuma biblioteca de processamento de documentos disponível.")
+            return []
 
         if DOCLING_AVAILABLE:
             init, final = DoclingReader.page_limit_mechanics(init, final, total)
-        else:
+        elif page_limit_mechanics is not None:
             init, final = page_limit_mechanics(init, final, total)
+        else:
+            init = max(1, init)
+            final = max(init, final if final > 0 else total)
 
         # Carrega apenas as páginas especificadas na memória
         pages: List[PageMetadata] = []
@@ -223,7 +247,7 @@ def document_pages_with_details(path: str = "", init: int = 1, final: int = 0) -
             
             if DOCLING_AVAILABLE and page_num in pages_content:
                 content = "\n".join(pages_content[page_num])
-            elif not DOCLING_AVAILABLE:
+            elif not DOCLING_AVAILABLE and PDFReader is not None and 'pdf' in locals():
                 page_raw = pdf.pages[num]
                 content = page_raw.extract_text()
             else:
@@ -251,7 +275,7 @@ def document_pages_with_details(path: str = "", init: int = 1, final: int = 0) -
 
             pages.append(page)
 
-        if not DOCLING_AVAILABLE and 'pdf' in locals():
+        if not DOCLING_AVAILABLE and PDFReader is not None and 'pdf' in locals():
             pdf.close()
             
         return pages
@@ -260,7 +284,6 @@ def document_pages_with_details(path: str = "", init: int = 1, final: int = 0) -
         return []
 
 
-def document_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ParagraphMetadata]:
 def document_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ParagraphMetadata]:
     """
     Extrai os parágrafos com os detalhes do documento usando Docling ou PDF.
@@ -305,7 +328,6 @@ def document_paragraphs_with_details(path: str = "", init: int = 1, final: int =
         return []
 
 
-def document_phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PharseMetadata]:
 def document_phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PharseMetadata]:
     """
     Extrai as frases com os detalhes dos documentos usando Docling ou PDF.
@@ -398,6 +420,10 @@ def convert_to_pdf(path: str = "", path_out: str = ""):
     Returns:
         str: Caminho do arquivo PDF gerado.
     """
+    
+    if FPDF is None:
+        logging.error("FPDF não disponível. Não é possível converter para PDF.")
+        return None
 
     # Criar instância da classe FPDF que é a base para a criação do documento
     pdf = FPDF()

@@ -22,11 +22,19 @@ try:
     from docling.datamodel.pipeline_options import PdfPipelineOptions
     from docling.datamodel.document import ConversionResult
     from docling_core.types.doc import DoclingDocument, TableItem, TextItem
+    DOCLING_AVAILABLE = True
 except ImportError:
     # Fallback para quando o Docling não estiver disponível
     logging.warning("Docling não disponível. Funcionalidade limitada.")
     DocumentConverter = None
     DoclingDocument = None
+    ConversionResult = None
+    TableItem = None
+    TextItem = None
+    InputFormat = None
+    PdfFormatOption = None
+    PdfPipelineOptions = None
+    DOCLING_AVAILABLE = False
 
 from src.utils import archive as Archive
 
@@ -53,13 +61,13 @@ def page_limit_mechanics(init: int = 1, final: int = -1, total: int = 1):
     return init, final
 
 
-def reader(path: str = "") -> Optional[ConversionResult]:
+def reader(path: str = "") -> Optional[object]:
     """
     Faz a leitura de um documento usando Docling.
     Args:
         path (str): O caminho para o arquivo do documento.
     Returns:
-        ConversionResult: Resultado da conversão do Docling se a leitura for bem-sucedida, caso contrário, retorna None.
+        object: Resultado da conversão do Docling se a leitura for bem-sucedida, caso contrário, retorna None.
     Raises:
         ValueError: Se o caminho fornecido for inválido.
     """
@@ -68,7 +76,8 @@ def reader(path: str = "") -> Optional[ConversionResult]:
             raise ValueError("O path está inválido.")
 
         if DocumentConverter is None:
-            raise ImportError("Docling não está disponível.")
+            logging.warning("Docling não está disponível.")
+            return None
 
         # Configurar o conversor com opções específicas para análise jurídica
         pipeline_options = PdfPipelineOptions()
@@ -104,6 +113,10 @@ def reader_pages(path: str = "", init: int = 1, final: int = -1) -> List[str]:
     try:
         if not Archive.exists(path):
             raise ValueError("O path está inválido.")
+
+        if not DOCLING_AVAILABLE:
+            logging.warning("Docling não disponível. Retornando lista vazia.")
+            return []
 
         result = reader(path)
         if result is None:
@@ -151,6 +164,10 @@ def reader_content(path: str, init: int = 1, final: int = -1) -> str:
         str: O conteúdo extraído do documento como uma string. 
     """
     try:
+        if not DOCLING_AVAILABLE:
+            logging.warning("Docling não disponível. Retornando string vazia.")
+            return ""
+            
         result = reader(path)
         if result is None:
             return ""
@@ -180,6 +197,10 @@ def extract_structured_content(path: str) -> dict:
         dict: Dicionário contendo textos, tabelas, títulos e outros elementos estruturados.
     """
     try:
+        if not DOCLING_AVAILABLE:
+            logging.warning("Docling não disponível. Retornando dicionário vazio.")
+            return {}
+            
         result = reader(path)
         if result is None:
             return {}
@@ -254,6 +275,10 @@ def get_document_info(path: str) -> dict:
         dict: Informações do documento incluindo número de páginas, tipo, etc.
     """
     try:
+        if not DOCLING_AVAILABLE:
+            logging.warning("Docling não disponível. Retornando dicionário vazio.")
+            return {}
+            
         result = reader(path)
         if result is None:
             return {}

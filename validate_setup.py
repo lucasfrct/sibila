@@ -23,6 +23,7 @@ def check_dependencies():
         ('Flask', 'flask'),
         ('Python-dotenv', 'dotenv'),
         ('SQLite3', 'sqlite3'),
+        ('Docling', 'docling'),
         ('PDFPlumber', 'pdfplumber'),
         ('Ollama', 'ollama'),
         ('OpenAI', 'openai'),
@@ -36,8 +37,12 @@ def check_dependencies():
             print(f"✅ {name}: OK")
             results[name] = True
         except ImportError:
-            print(f"❌ {name}: Missing")
-            results[name] = False
+            if name == 'Docling':
+                print(f"⚠ {name}: Missing (will use PDF fallback)")
+                results[name] = True  # Não falha se Docling não estiver disponível
+            else:
+                print(f"❌ {name}: Missing")
+                results[name] = False
     
     return results
 
