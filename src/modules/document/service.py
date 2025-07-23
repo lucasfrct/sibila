@@ -19,6 +19,19 @@ from src.utils import archive as Archive
 from src.utils import string as String
 
 
+def is_file(path: str):
+    """
+    Verifica se um arquivo existe no caminho especificado.
+
+    Args:
+        path (str): O caminho do arquivo a ser verificado.
+
+    Returns:
+        bool: True se o arquivo existir, False caso contrário.
+    """
+    return Archive.exists(path)
+
+
 def dir(path: str = "") -> List[str]:
     """
     Lê os caminhos dos arquivos em um diretório especificado.

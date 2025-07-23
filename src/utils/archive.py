@@ -38,7 +38,18 @@ def reader(path: str = "") -> Optional[BufferedReader]:
 
 
 def exists(path: str = "") -> bool:
-    """verifica o path"""
+    """
+    Verifica se o caminho especificado existe.
+
+    Args:
+        path (str): O caminho a ser verificado.
+
+    Returns:
+        bool: Retorna True se o caminho existir, caso contrário, False.
+
+    Raises:
+        ValueError: Se o caminho não existir.
+    """
     try:
         if not os.path.exists(path):
             raise ValueError("O path está inválido.")

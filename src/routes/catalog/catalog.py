@@ -6,9 +6,9 @@ from src.modules.response.response import Response
 from src.modules.catalog import handles as Catolog
 
 
-async def catalog_list(directory: str = 'dataset/library'):
+def catalog_list(directory: str = 'dataset/library'):
     catalog_list = Catolog.list(directory)
-    return Response.success(200, catalog_list).result()
+    return Response.success(200, "list").result()
 
 
 async def catalog_indexer(directory: str = 'dataset/library/sources'):
