@@ -77,16 +77,16 @@ class PageMetadata:
         self.content = model['content']
         self.distance = 0.0
 
-        self.line = String.split_to_lines(self.content)
+        self.line = self.split_to_line(self.content)
         self.size = int(model['size'])
         self.lines = len(self.line)
         self.pages = int(model['pages'])
-        self.chunk = String.split_to_chunks(self.content, 2000)
+        self.chunk = self.split_to_chunk(self.content)
         self.chunks = int(model['chunks'])
         self.mimetype = model['mimetype']
-        self.phrase = String.split_to_phrases(self.content)
+        self.phrase = self.split_to_phrase(self.content)
         self.phrases = int(model['phrases'])
-        self.paragraph = String.split_to_pargraphs(self.content)
+        self.paragraph = self.split_to_pargraph(self.content)
         self.paragraphs = int(model['paragraphs'])
 
     def to_tuple(self):
@@ -139,16 +139,16 @@ class PageMetadata:
         self.content = content
         self.distance = 0.0
 
-        self.line = String.split_to_lines(self.content)
+        self.line = self.split_to_line(self.content)
         self.size = size
         self.lines = lines
         self.pages = pages
-        self.chunk = String.split_to_chunks(self.content, 2000)
+        self.chunk = self.self.split_to_chunk(self.content)(self.content)
         self.chunks = chunks
         self.mimetype = mimetype
-        self.phrase = String.split_to_phrases(self.content)
+        self.phrase = self.split_to_phrase(self.content)
         self.phrases = phrases
-        self.paragraph = String.split_to_pargraphs(self.content)
+        self.paragraph = self.split_to_pargraph(self.content)
         self.paragraphs = paragraphs
 
         return self
