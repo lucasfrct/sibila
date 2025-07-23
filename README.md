@@ -4,6 +4,48 @@ As sibilas eram figuras da mitologia inspiradas pelos deuses para profetizar.
 
 Esse repositório é um exemplo de aplicação capaz de responder perguntas baseadas em documentos fornecidos pelo usuário.
 
+## 🚀 Como Executar Localmente
+
+### Configuração Rápida
+
+1. **Clone o repositório**
+```bash
+git clone https://github.com/lucasfrct/sibila.git
+cd sibila
+```
+
+2. **Configure o ambiente**
+```bash
+cp .env.example .env
+```
+
+3. **Instale as dependências**
+```bash
+pip install -r requirements.txt
+```
+
+4. **Instale e configure o Ollama**
+```bash
+# Instalar Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Iniciar o servidor Ollama
+ollama serve
+
+# Em outro terminal, baixar o modelo
+ollama pull llama3
+```
+
+5. **Execute a aplicação**
+```bash
+python main.py
+```
+
+A aplicação estará disponível em `http://localhost:5000`
+
+### 📖 Guia Completo
+Para instruções detalhadas, consulte: **[SETUP_LOCAL.md](./SETUP_LOCAL.md)**
+
 ## Estrutura de containers
 
 - `ollama`: A LLM pode ser acessada em <http://localhost:11434>
