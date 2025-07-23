@@ -93,7 +93,7 @@ def register_info_in_bath(directory: str = "") -> List[DocumentInfo]:
         docs = []
 
         # lista dos paths no diretório
-        for path in DocService.read(directory):
+        for path in DocService.dir(directory):
 
             # registra o documento para indexado, caso der um erro pula pra o proxímo
             doc = register_info_by_path(path)
@@ -139,7 +139,7 @@ def register_legislation_in_bath(directory: str):
         
         # d = dc.dict()
         # path_txt = d["path"] + ".txt"
-        # DocService.pdf_to_txt(d["path"], path_txt)
+        # DocService.convert_document_to_txt(d["path"], path_txt)
         
         content = DocService.open_txt(dc)
         if content is None:

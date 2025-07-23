@@ -12,6 +12,6 @@ async def document_pages_details():
     if not path:
         return Response.error(400, "DOC001", "Parâmetro 'path' é obrigatório").result()
 
-    pages = DocService.pdf_pages_with_details(path, init, final)
+    pages = DocService.document_pages_with_details(path, init, final)
     pages_data = [page.dict() for page in pages]
     return Response.success(200, pages_data).result()
