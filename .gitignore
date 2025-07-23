@@ -304,3 +304,7 @@ ollama
 .ollama
 data
 .vs
+
+# Temporary files created during setup
+requirements_utf8.txt
+requirements-minimal.txt
