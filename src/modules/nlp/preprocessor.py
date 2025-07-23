@@ -1,7 +1,5 @@
 # flake8: noqa: E501
 
-import re
-
 from typing import List
 
 import spacy

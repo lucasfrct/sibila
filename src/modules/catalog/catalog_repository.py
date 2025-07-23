@@ -75,8 +75,7 @@ def save(catalog: Catalog) -> bool:
         _, *info = catalog.tuple()
         conn = sqlitedb.client()
         conn.execute(
-            f"insert into {
-                TABLE} (path, name, size, pages, mimetype, title, resume. categories) values (?, ?, ?, ?, ?, ?, ?, ?)",
+            f"insert into {TABLE} (path, name, size, pages, mimetype, title, resume, categories) values (?, ?, ?, ?, ?, ?, ?, ?)",
             info
         )
         conn.commit()
