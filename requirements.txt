@@ -29,7 +29,6 @@ catalogue==2.0.10
 certifi==2024.2.2
 cffi==1.16.0
 charset-normalizer==3.3.2
-
 click==8.1.7
 cloudpathlib==0.18.1
 colorama==0.4.6
@@ -46,7 +45,6 @@ executing==2.1.0
 fastapi==0.110.0
 fastjsonschema==2.20.0
 filelock==3.13.1
-
 flatbuffers==24.3.7
 fpdf==1.7.2
 fsspec==2024.2.0
@@ -94,10 +92,8 @@ numpy==1.26.4
 textblob==0.17.1
 vaderSentiment==3.3.2
 oauthlib==3.2.2
-
 onnxruntime==1.18.1
 onnxruntime-gpu==1.18.1
-
 opentelemetry-api==1.23.0
 opentelemetry-exporter-otlp-proto-common==1.23.0
 opentelemetry-exporter-otlp-proto-grpc==1.23.0
@@ -114,7 +110,6 @@ packaging==24.0
 pandocfilters==1.5.1
 parso==0.8.4
 pdfminer.six==20231228
-
 pickleshare==0.7.5
 pillow==10.3.0
 pipreqs==0.5.0
@@ -137,14 +132,12 @@ PyPika==0.48.9
 pyproject_hooks==1.0.0
 pyreadline3==3.4.1
 python-dateutil==2.9.0.post0
-
 pyvis==0.3.2
 pywin32==307
 PyYAML==6.0.1
 pyzmq==26.2.0
 referencing==0.35.1
 regex==2024.5.15
-
 requests-oauthlib==1.4.0
 rpds-py==0.20.0
 rsa==4.9
@@ -184,9 +177,11 @@ weasel==0.4.1
 webencodings==0.5.1
 websocket-client==1.7.0
 websockets==12.0
-
 wrapt==1.16.0
 yarg==0.1.9
+zipp==3.18.0
+crewai==0.150.0
+crewai-tools==0.58.0
 zipp==3.18.0
 crewai==0.86.0
 crewai-tools==0.17.0
