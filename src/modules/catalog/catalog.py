@@ -5,7 +5,7 @@ import traceback
 import logging
 import os
 
-from src.modules.document.reader import reader
+from src.modules.document import service as DocService
 from src.utils import archive as Archive
 
 @dataclass
@@ -89,12 +89,12 @@ class Catalog:
             self.mimetype = ext.replace(".", "")
 
             if "pdf" in self.mimetype.lower():
-                # Obter número de páginas do PDF
-                pdf = reader(path)
-                if pdf is None:
+                # Obter número de páginas do PDF usando document service
+                doc_info = DocService.info(path)
+                if doc_info is None:
                     return None
 
-                self.pages = int(len(pdf.pages))
+                self.pages = doc_info.pages
                 
             # Retorna um dicionário com as informações extraídas
             return self.dict()

@@ -116,9 +116,10 @@ def register_content_in_bath(directory: str):
     saveds = []
     for dc in docs:
         d = dc.dict()
-        content_file = open(d["path"], "r", encoding="utf-8")
-        content = content_file.read()
-        content_file.close()
+        # Use document service to read content instead of direct file reading
+        content = DocService.document_content(d["path"])
+        if not content:
+            continue
         if CatalogRetrieval.save(d["path"], d["name"], d["pages"], content) is None:
             continue
         saveds.append(d["name"])
