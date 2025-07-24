@@ -1,8 +1,9 @@
 """
-Módulo de análise de sentimento utilizando TextBlob.
+Módulo de análise de sentimento em português.
 
-Este módulo fornece funcionalidades básicas para análise de sentimento
-e processamento de texto natural.
+Este módulo fornece funcionalidades para análise de sentimento de textos em português,
+incluindo classificação de polaridade, extração de tags, frases nominais, sentenças,
+palavras e operações de lematização.
 """
 
 from textblob import TextBlob
@@ -11,15 +12,20 @@ from textblob import Word
 
 def sentiment_analysis(text: str = "") -> str:
     """
-    Analisa o sentimento de um texto.
+    Analisa o sentimento de um texto e retorna a classificação em português.
     
     Args:
-        text (str): O texto para análise de sentimento.
+        text (str): O texto para análise de sentimento. Padrão é string vazia.
         
     Returns:
         str: Classificação do sentimento ("Positivo", "Negativo", "Neutro") ou None se texto vazio.
+        
+    Example:
+        >>> sentiment_analysis("Eu amo este produto!")
+        "Positivo"
+        >>> sentiment_analysis("Este produto é terrível")
+        "Negativo"
     """
-
     if text == "":
         return None
 
@@ -40,12 +46,11 @@ def sentiment_tags(text: str = ""):
     Extrai as tags de partes do discurso de um texto.
     
     Args:
-        text (str): O texto para análise.
+        text (str): O texto para extração de tags. Padrão é string vazia.
         
     Returns:
-        list: Lista de tags ou None se texto vazio.
+        list: Lista de tags de partes do discurso ou None se texto vazio.
     """
-
     if text == "":
         return None
 
@@ -58,12 +63,11 @@ def sentiment_noun_phrases(text: str = ""):
     Extrai as frases nominais de um texto.
     
     Args:
-        text (str): O texto para análise.
+        text (str): O texto para extração de frases nominais. Padrão é string vazia.
         
     Returns:
         list: Lista de frases nominais ou None se texto vazio.
     """
-
     if text == "":
         return None
 
@@ -76,12 +80,11 @@ def sentiment_sentenses(text: str = ""):
     Divide o texto em sentenças.
     
     Args:
-        text (str): O texto para divisão.
+        text (str): O texto para divisão em sentenças. Padrão é string vazia.
         
     Returns:
         list: Lista de sentenças ou None se texto vazio.
     """
-
     if text == "":
         return None
 
@@ -94,12 +97,11 @@ def sentiment_words(text: str = ""):
     Extrai as palavras de um texto.
     
     Args:
-        text (str): O texto para análise.
+        text (str): O texto para extração de palavras. Padrão é string vazia.
         
     Returns:
         list: Lista de palavras ou None se texto vazio.
     """
-
     if text == "":
         return None
 
@@ -112,12 +114,11 @@ def sentiment_words_sigularize(text: str = ""):
     Singulariza todas as palavras de um texto.
     
     Args:
-        text (str): O texto para singularização.
+        text (str): O texto para singularização das palavras. Padrão é string vazia.
         
     Returns:
         list: Lista de palavras singularizadas ou None se texto vazio.
     """
-
     if text == "":
         return None
 
@@ -134,12 +135,11 @@ def sentiment_words_pluralize(text: str = ""):
     Pluraliza todas as palavras de um texto.
     
     Args:
-        text (str): O texto para pluralização.
+        text (str): O texto para pluralização das palavras. Padrão é string vazia.
         
     Returns:
         list: Lista de palavras pluralizadas ou None se texto vazio.
     """
-
     if text == "":
         return None
 
