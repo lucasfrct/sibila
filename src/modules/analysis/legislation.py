@@ -5,6 +5,13 @@ from typing import List
 
 from src.models.ollama import ModelOllama
 
+# Importação condicional do Docling
+try:
+    from src.modules.document.docling_reader import extract_structured_content
+    DOCLING_AVAILABLE = True
+except ImportError:
+    DOCLING_AVAILABLE = False
+
 
 categories = [
     "Direito Constitucional: Leis relacionadas à organização do Estado e aos direitos fundamentais dos cidadãos.",
@@ -45,38 +52,246 @@ nomatives = [
 
 def split_into_articles(text: str) -> List[str]:
     """
-    Divide o texto em artigos com base em uma expressão regular que identifica 
-    linhas que começam com "Art." seguido de um número.
+    Divide o texto em artigos com base em uma expressão regular aprimorada que identifica 
+    linhas que começam com "Art." seguido de um número, capturando o artigo completo
+    incluindo parágrafos, incisos e alíneas até o próximo artigo.
     Args:
         text (str): O texto completo que será dividido em artigos.
     Returns:
-        list: Uma lista de strings, onde cada string representa um artigo separado.
+        list: Uma lista de strings, onde cada string representa um artigo completo com
+              todos os seus componentes (parágrafos, incisos, alíneas).
     """
 
-    # Regex para capturar "Art. 9o" e "Art. 12"
-    regex = re.compile(r'\bArt\.\s*\d+(?:o\b)?', re.IGNORECASE)
+    # Regex aprimorada para capturar "Art. 9º", "Art. 12", "Artigo 9º", etc.
+    regex = re.compile(r'^\s*(?:Art\.?|Artigo)\s*\d+(?:[ºº°]|o)?\b', re.IGNORECASE | re.MULTILINE)
 
     articles_raw: List[str] = []
     content_current: List[str] = []
 
     for line in text.splitlines():
-
+        line_stripped = line.strip()
+        
         # Verifica se a linha é um novo artigo usando a regex
         match = regex.match(line)
         if match:
-            content_art = '\n'.join(content_current).strip()
-            articles_raw.append(content_art)
-            content_current = []
-            content_current.append(line)
+            # Se já temos conteúdo acumulado, adiciona à lista de artigos
+            if content_current:
+                content_art = '\n'.join(content_current).strip()
+                if content_art:  # Só adiciona se não estiver vazio
+                    articles_raw.append(content_art)
+            
+            # Inicia um novo artigo
+            content_current = [line]
         else:
+            # Adiciona linha ao artigo atual
             content_current.append(line)
 
+    # Adiciona o último artigo se existir
+    if content_current:
+        content_art = '\n'.join(content_current).strip()
+        if content_art:
+            articles_raw.append(content_art)
+
+    # Filtra apenas artigos válidos que começam com "Art" ou "Artigo"
     articles: List[str] = []
     for article in articles_raw:
-        if article.strip().lower().startswith('art'):
+        article_clean = article.strip()
+        if article_clean and regex.match(article_clean):
             articles.append(article)
 
+def split_into_articles_enhanced(text: str, document_path: str = None) -> List[str]:
+    """
+    Versão aprimorada que utiliza Docling para melhor extração de artigos quando disponível.
+    Extrai artigos completos com todos os componentes estruturais (parágrafos, incisos, alíneas).
+    
+    Args:
+        text (str): O texto completo que será dividido em artigos.
+        document_path (str, optional): Caminho do documento para análise estruturada com Docling.
+    
+    Returns:
+        list: Uma lista de strings, onde cada string representa um artigo completo.
+    """
+    
+    # Se Docling estiver disponível e tivermos um caminho de arquivo, usar análise estruturada
+    if DOCLING_AVAILABLE and document_path:
+        try:
+            structured_content = extract_structured_content(document_path)
+            return _extract_articles_from_structured_content(structured_content, text)
+        except Exception:
+            # Fallback para método básico se Docling falhar
+            pass
+    
+    # Usar método básico aprimorado
+    return split_into_articles(text)
+
+
+def _extract_articles_from_structured_content(structured_content: dict, fallback_text: str) -> List[str]:
+    """
+    Extrai artigos do conteúdo estruturado fornecido pelo Docling.
+    
+    Args:
+        structured_content (dict): Conteúdo estruturado do Docling.
+        fallback_text (str): Texto para fallback se a extração estruturada falhar.
+    
+    Returns:
+        list: Lista de artigos extraídos.
+    """
+    
+    if not structured_content or 'texts' not in structured_content:
+        return split_into_articles(fallback_text)
+    
+    # Regex aprimorada para identificar artigos
+    article_regex = re.compile(r'^\s*(?:Art\.?|Artigo)\s*\d+(?:[ºº°]|o)?\b', re.IGNORECASE | re.MULTILINE)
+    
+    articles: List[str] = []
+    current_article: List[str] = []
+    
+    # Organizar textos por página para manter ordem
+    texts_by_page = {}
+    for text_item in structured_content['texts']:
+        page = text_item.get('page', 1) or 1
+        if page not in texts_by_page:
+            texts_by_page[page] = []
+        texts_by_page[page].append(text_item['text'])
+    
+    # Processar textos em ordem de página
+    all_texts = []
+    for page in sorted(texts_by_page.keys()):
+        all_texts.extend(texts_by_page[page])
+    
+    for text_block in all_texts:
+        lines = text_block.split('\n')
+        
+        for line in lines:
+            line_stripped = line.strip()
+            
+            # Verificar se é início de um novo artigo
+            if article_regex.match(line_stripped):
+                # Salvar artigo anterior se existir
+                if current_article:
+                    article_content = '\n'.join(current_article).strip()
+                    if article_content:
+                        articles.append(article_content)
+                
+                # Iniciar novo artigo
+                current_article = [line]
+            elif current_article:  # Se estamos dentro de um artigo
+                # Adicionar linha ao artigo atual
+                current_article.append(line)
+    
+    # Adicionar último artigo se existir
+    if current_article:
+        article_content = '\n'.join(current_article).strip()
+        if article_content:
+            articles.append(article_content)
+    
+    # Se não encontramos artigos com método estruturado, usar fallback
+    if not articles:
+        return split_into_articles(fallback_text)
+    
     return articles
+
+
+def extract_article_components(article_text: str) -> dict:
+    """
+    Extrai componentes estruturais de um artigo (caput, parágrafos, incisos, alíneas).
+    
+    Args:
+        article_text (str): Texto do artigo completo.
+    
+    Returns:
+        dict: Dicionário com componentes do artigo organizados.
+    """
+    
+    components = {
+        'caput': '',
+        'paragraphs': [],  # Parágrafos (§)
+        'items': [],       # Incisos (I, II, III)
+        'subitems': [],    # Alíneas (a, b, c)
+        'full_text': article_text
+    }
+    
+    lines = article_text.split('\n')
+    current_section = 'caput'
+    current_content = []
+    
+    # Regex para identificar diferentes componentes
+    paragraph_regex = re.compile(r'^\s*§\s*\d+[ºº°]?', re.IGNORECASE)
+    paragraph_unique_regex = re.compile(r'^\s*Parágrafo\s+único', re.IGNORECASE)
+    item_regex = re.compile(r'^\s*[IVX]+\s*[-–]', re.IGNORECASE)
+    subitem_regex = re.compile(r'^\s*[a-z]\)\s*', re.IGNORECASE)
+    
+    for line in lines:
+        line_stripped = line.strip()
+        
+        if paragraph_regex.match(line_stripped) or paragraph_unique_regex.match(line_stripped):
+            # Salvar seção anterior
+            if current_content:
+                content = '\n'.join(current_content).strip()
+                if current_section == 'caput':
+                    components['caput'] = content
+                elif current_section == 'paragraph':
+                    components['paragraphs'].append(content)
+                elif current_section == 'item':
+                    components['items'].append(content)
+                elif current_section == 'subitem':
+                    components['subitems'].append(content)
+            
+            # Iniciar novo parágrafo
+            current_section = 'paragraph'
+            current_content = [line]
+            
+        elif item_regex.match(line_stripped):
+            # Salvar seção anterior
+            if current_content:
+                content = '\n'.join(current_content).strip()
+                if current_section == 'caput':
+                    components['caput'] = content
+                elif current_section == 'paragraph':
+                    components['paragraphs'].append(content)
+                elif current_section == 'item':
+                    components['items'].append(content)
+                elif current_section == 'subitem':
+                    components['subitems'].append(content)
+            
+            # Iniciar novo inciso
+            current_section = 'item'
+            current_content = [line]
+            
+        elif subitem_regex.match(line_stripped):
+            # Salvar seção anterior
+            if current_content:
+                content = '\n'.join(current_content).strip()
+                if current_section == 'caput':
+                    components['caput'] = content
+                elif current_section == 'paragraph':
+                    components['paragraphs'].append(content)
+                elif current_section == 'item':
+                    components['items'].append(content)
+                elif current_section == 'subitem':
+                    components['subitems'].append(content)
+            
+            # Iniciar nova alínea
+            current_section = 'subitem'
+            current_content = [line]
+            
+        else:
+            # Continuar seção atual
+            current_content.append(line)
+    
+    # Salvar última seção
+    if current_content:
+        content = '\n'.join(current_content).strip()
+        if current_section == 'caput':
+            components['caput'] = content
+        elif current_section == 'paragraph':
+            components['paragraphs'].append(content)
+        elif current_section == 'item':
+            components['items'].append(content)
+        elif current_section == 'subitem':
+            components['subitems'].append(content)
+    
+    return components
 
 
 def set_a_title(text: str) -> str:

@@ -145,7 +145,7 @@ def register_legislation_in_bath(directory: str):
         if content is None:
             continue
         
-        articles = Legislation.split_into_articles(content)
+        articles = Legislation.split_into_articles_enhanced(content, dc) if hasattr(Legislation, 'split_into_articles_enhanced') else Legislation.split_into_articles(content)
         for article in articles:
             print("-=-> ", article[:20], len(article))
 

@@ -14,13 +14,14 @@ arr_control = ArrayControl()
 
 directory_soruce = './dataset/corpus'
 
-def doc_with_articles(path: str, page_init: int = 1, page_final: int = -1):
+def doc_with_articles(path: str, page_init: int = 1, page_final: int = -1, use_enhanced: bool = True):
     """
     Extrai informações de um documento e divide seu conteúdo em artigos usando Docling.
     Args:
         path (str): O caminho para o arquivo do documento.
         page_init (int, opcional): A página inicial para extração. Padrão é 1.
         page_final (int, opcional): A página final para extração. Padrão é -1, que indica até a última página.
+        use_enhanced (bool, opcional): Se deve usar extração aprimorada com Docling. Padrão é True.
     Returns:
         dict: Um dicionário contendo informações do documento e os artigos extraídos.
         None: Se as informações do documento não puderem ser obtidas.
@@ -33,14 +34,33 @@ def doc_with_articles(path: str, page_init: int = 1, page_final: int = -1):
     doc = doc_info.dict()
     doc_file = DocService.document_content(doc['path'], page_init, page_final)
 
-    doc['articles'] = Legislation.split_into_articles(doc_file)
+    # Usar extração aprimorada se solicitado
+    if use_enhanced:
+        try:
+            doc['articles'] = Legislation.split_into_articles_enhanced(doc_file, doc['path'])
+        except AttributeError:
+            # Fallback se função não existir (compatibilidade)
+            doc['articles'] = Legislation.split_into_articles(doc_file)
+    else:
+        doc['articles'] = Legislation.split_into_articles(doc_file)
+    
     doc['total_articles'] = len(doc['articles'])
 
     return doc
 
 
-def annotate_the_article(text: str):
-    return {
+def annotate_the_article(text: str, extract_components: bool = False):
+    """
+    Anota um artigo com metadados e análise.
+    
+    Args:
+        text (str): Texto do artigo.
+        extract_components (bool): Se deve extrair componentes estruturais do artigo.
+    
+    Returns:
+        dict: Dicionário com anotações do artigo.
+    """
+    annotation = {
         "text": text,
         "subject": Legislation.set_a_title(text),
         # "sumamry": Legislation.summarize(text),
@@ -51,15 +71,82 @@ def annotate_the_article(text: str):
         # "dates": Legislation.extract_legal_dates_and_deadlines(text),
         # "normativeTipe": Legislation.define_the_normative_type(text),
     }
+    
+    # Extrair componentes estruturais se solicitado
+    if extract_components:
+        try:
+            components = Legislation.extract_article_components(text)
+            annotation["components"] = components
+        except AttributeError:
+            # Função não disponível, pular extração de componentes
+            pass
+    
+    return annotation
 
 
-def take_notes(articles: List[str]):
+def take_notes(articles: List[str], extract_components: bool = False):
+    """
+    Processa uma lista de artigos e gera anotações.
+    
+    Args:
+        articles (List[str]): Lista de artigos para anotar.
+        extract_components (bool): Se deve extrair componentes estruturais.
+    
+    Returns:
+        List[dict]: Lista de anotações dos artigos.
+    """
     annotations = []
     for i, article in enumerate(articles):
         time_article_init = datetime.now()
-        annotations.append(annotate_the_article(article))
+        annotations.append(annotate_the_article(article, extract_components))
         log_info(f"{i:04}", f"{article[0:48]}...", delta_time(time_article_init))
-    return articles
+    return annotations
+
+
+def doc_with_articles_filtered(path: str, page_init: int = 1, page_final: int = -1, 
+                               min_article_length: int = 50, filter_empty: bool = True):
+    """
+    Versão aprimorada com filtros para melhor precisão na extração de artigos.
+    
+    Args:
+        path (str): Caminho para o arquivo do documento.
+        page_init (int): Página inicial para extração.
+        page_final (int): Página final para extração.
+        min_article_length (int): Comprimento mínimo do artigo em caracteres.
+        filter_empty (bool): Se deve filtrar artigos vazios ou muito curtos.
+    
+    Returns:
+        dict: Dicionário com informações do documento e artigos filtrados.
+    """
+    
+    doc = doc_with_articles(path, page_init, page_final, use_enhanced=True)
+    if doc is None:
+        return None
+    
+    # Aplicar filtros aos artigos
+    if filter_empty:
+        filtered_articles = []
+        for article in doc['articles']:
+            article_clean = article.strip()
+            # Filtrar artigos muito curtos ou vazios
+            if len(article_clean) >= min_article_length:
+                # Verificar se contém conteúdo substantivo (não apenas título)
+                lines = article_clean.split('\n')
+                substantive_content = []
+                for line in lines[1:]:  # Pular primeira linha (título do artigo)
+                    if line.strip():
+                        substantive_content.append(line.strip())
+                
+                # Incluir apenas se tiver conteúdo além do título
+                if substantive_content or len(article_clean) > 100:
+                    filtered_articles.append(article)
+        
+        doc['articles'] = filtered_articles
+        doc['total_articles'] = len(filtered_articles)
+        doc['filtered'] = True
+        doc['original_count'] = len(doc.get('articles', []))
+    
+    return doc
         
 
 # async def process_task(executor, articles: List[dict], doc_articles: List[dict], task: Callable[[int, str], dict], index_position: int, text: str):
