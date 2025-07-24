@@ -1,0 +1,321 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 850px;
+                 background-color: #1a1a1a;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(255,50,112)", "font": {"color": "white"}, "id": 0, "label": "Art. 1\u00ba A Rep\u00fablica Federativa do Brasil constitui...", "shape": "dot", "title": "Art. 1\u00ba A Rep\u00fablica Federativa do Brasil constitui-se em Estado Democr\u00e1tico de Direito", "value": 50, "x": 560, "y": -1829}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(255,255,50)", "font": {"color": "white"}, "id": 1, "label": "Art. 2\u00ba S\u00e3o Poderes da Uni\u00e3o o Legislativo o Execu...", "shape": "dot", "title": "Art. 2\u00ba S\u00e3o Poderes da Uni\u00e3o o Legislativo o Executivo e o Judici\u00e1rio", "value": 50, "x": 1800, "y": 276}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(255,255,50)", "font": {"color": "white"}, "id": 2, "label": "Art. 3\u00ba Constituem objetivos fundamentais da Rep\u00fab...", "shape": "dot", "title": "Art. 3\u00ba Constituem objetivos fundamentais da Rep\u00fablica Federativa do Brasil", "value": 45.013044721828024, "x": 890, "y": 292}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(255,255,50)", "font": {"color": "white"}, "id": 3, "label": "Art. 4\u00ba O Brasil rege-se nas suas rela\u00e7\u00f5es interna...", "shape": "dot", "title": "Art. 4\u00ba O Brasil rege-se nas suas rela\u00e7\u00f5es internacionais pelos seguintes princ\u00edpios", "value": 50, "x": 1046, "y": 910}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(161,87,255)", "font": {"color": "white"}, "id": 4, "label": "Art. 5\u00ba Todos s\u00e3o iguais perante a lei sem distin\u00e7...", "shape": "dot", "title": "Art. 5\u00ba Todos s\u00e3o iguais perante a lei sem distin\u00e7\u00e3o de qualquer natureza", "value": 48.578002649700586, "x": -348, "y": -647}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(50,255,255)", "font": {"color": "white"}, "id": 5, "label": "Par\u00e1grafo \u00fanico Todo o poder emana do povo que o e...", "shape": "dot", "title": "Par\u00e1grafo \u00fanico Todo o poder emana do povo que o exerce por meio de representantes", "value": 50, "x": -2151, "y": 938}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(50,50,255)", "font": {"color": "white"}, "id": 6, "label": "inciso I a soberania nacional e a independ\u00eancia do...", "shape": "dot", "title": "inciso I a soberania nacional e a independ\u00eancia do pa\u00eds", "value": 50, "x": -2032, "y": -1905}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(50,255,255)", "font": {"color": "white"}, "id": 7, "label": "inciso II a cidadania e os direitos fundamentais d...", "shape": "dot", "title": "inciso II a cidadania e os direitos fundamentais da pessoa humana", "value": 50, "x": -2753, "y": 251}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(50,255,255)", "font": {"color": "white"}, "id": 8, "label": "inciso III a dignidade da pessoa humana e os valor...", "shape": "dot", "title": "inciso III a dignidade da pessoa humana e os valores sociais", "value": 50, "x": -2762, "y": 1051}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(68,192,255)", "font": {"color": "white"}, "id": 9, "label": "inciso IV os valores sociais do trabalho e da livr...", "shape": "dot", "title": "inciso IV os valores sociais do trabalho e da livre iniciativa", "value": 40.50260098040071, "x": -667, "y": -69}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(255,62,50)", "font": {"color": "white"}, "id": 10, "label": "poder legislativo federal estadual municipal", "shape": "dot", "title": "poder legislativo federal estadual municipal", "value": 50, "x": 2129, "y": -753}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(255,50,50)", "font": {"color": "white"}, "id": 11, "label": "constitui\u00e7\u00e3o federal lei fundamental do pa\u00eds", "shape": "dot", "title": "constitui\u00e7\u00e3o federal lei fundamental do pa\u00eds", "value": 50, "x": 1677, "y": -1216}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(255,255,50)", "font": {"color": "white"}, "id": 12, "label": "democracia participativa representativa direta", "shape": "dot", "title": "democracia participativa representativa direta", "value": 50, "x": 1279, "y": 1854}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(255,74,50)", "font": {"color": "white"}, "id": 13, "label": "direitos humanos prote\u00e7\u00e3o universal", "shape": "dot", "title": "direitos humanos prote\u00e7\u00e3o universal", "value": 43.97588828862422, "x": 913, "y": -669}, {"borderWidth": 2, "borderWidthSelected": 4, "color": "rgb(50,50,255)", "font": {"color": "white"}, "id": 14, "label": "organiza\u00e7\u00e3o do estado federa\u00e7\u00e3o uni\u00e3o estados muni...", "shape": "dot", "title": "organiza\u00e7\u00e3o do estado federa\u00e7\u00e3o uni\u00e3o estados munic\u00edpios", "value": 50, "x": -2332, "y": -1343}]);
+                  edges = new vis.DataSet([{"color": {"color": "rgba(255,255,255,0.7244685778261836)"}, "from": 0, "title": "Similarity: 0.906", "to": 1, "weight": 2.716757166848188, "width": 2.716757166848188}, {"color": {"color": "rgba(255,255,255,1.06457576463292)"}, "from": 0, "title": "Similarity: 1.331", "to": 2, "weight": 3.992159117373449, "width": 3.992159117373449}, {"color": {"color": "rgba(255,255,255,0.7411583307313799)"}, "from": 0, "title": "Similarity: 0.926", "to": 3, "weight": 2.7793437402426746, "width": 2.7793437402426746}, {"color": {"color": "rgba(255,255,255,0.9213128558068626)"}, "from": 0, "title": "Similarity: 1.152", "to": 4, "weight": 3.4549232092757345, "width": 3.4549232092757345}, {"color": {"color": "rgba(255,255,255,0.79259665712673)"}, "from": 0, "title": "Similarity: 0.991", "to": 5, "weight": 2.972237464225237, "width": 2.972237464225237}, {"color": {"color": "rgba(255,255,255,0.7840107721185365)"}, "from": 0, "title": "Similarity: 0.980", "to": 6, "weight": 2.9400403954445116, "width": 2.9400403954445116}, {"color": {"color": "rgba(255,255,255,0.6246089205592202)"}, "from": 0, "title": "Similarity: 0.781", "to": 7, "weight": 2.3422834520970754, "width": 2.3422834520970754}, {"color": {"color": "rgba(255,255,255,0.6784290478010848)"}, "from": 0, "title": "Similarity: 0.848", "to": 9, "weight": 2.544108929254068, "width": 2.544108929254068}, {"color": {"color": "rgba(255,255,255,0.6789577379765332)"}, "from": 0, "title": "Similarity: 0.849", "to": 10, "weight": 2.546091517411999, "width": 2.546091517411999}, {"color": {"color": "rgba(255,255,255,0.7754455106585889)"}, "from": 0, "title": "Similarity: 0.969", "to": 11, "weight": 2.9079206649697085, "width": 2.9079206649697085}, {"color": {"color": "rgba(255,255,255,0.6416299566726196)"}, "from": 0, "title": "Similarity: 0.802", "to": 12, "weight": 2.4061123375223232, "width": 2.4061123375223232}, {"color": {"color": "rgba(255,255,255,0.7093075052221408)"}, "from": 0, "title": "Similarity: 0.887", "to": 13, "weight": 2.6599031445830277, "width": 2.6599031445830277}, {"color": {"color": "rgba(255,255,255,0.7721799351255109)"}, "from": 0, "title": "Similarity: 0.965", "to": 14, "weight": 2.8956747567206658, "width": 2.8956747567206658}, {"color": {"color": "rgba(255,255,255,0.9131267051915066)"}, "from": 1, "title": "Similarity: 1.141", "to": 2, "weight": 3.4242251444681493, "width": 3.4242251444681493}, {"color": {"color": "rgba(255,255,255,0.9129417076593035)"}, "from": 1, "title": "Similarity: 1.141", "to": 3, "weight": 3.4235314037223876, "width": 3.4235314037223876}, {"color": {"color": "rgba(255,255,255,0.7969801331300962)"}, "from": 1, "title": "Similarity: 0.996", "to": 4, "weight": 2.9886754992378606, "width": 2.9886754992378606}, {"color": {"color": "rgba(255,255,255,0.7125934740202337)"}, "from": 1, "title": "Similarity: 0.891", "to": 5, "weight": 2.672225527575876, "width": 2.672225527575876}, {"color": {"color": "rgba(255,255,255,0.6317366354974101)"}, "from": 1, "title": "Similarity: 0.790", "to": 6, "weight": 2.3690123831152876, "width": 2.3690123831152876}, {"color": {"color": "rgba(255,255,255,0.8065852441078099)"}, "from": 1, "title": "Similarity: 1.008", "to": 9, "weight": 3.0246946654042866, "width": 3.0246946654042866}, {"color": {"color": "rgba(255,255,255,0.8210514521089158)"}, "from": 1, "title": "Similarity: 1.026", "to": 10, "weight": 3.078942945408434, "width": 3.078942945408434}, {"color": {"color": "rgba(255,255,255,0.7389765998463945)"}, "from": 1, "title": "Similarity: 0.924", "to": 11, "weight": 2.7711622494239796, "width": 2.7711622494239796}, {"color": {"color": "rgba(255,255,255,0.6035327595292513)"}, "from": 1, "title": "Similarity: 0.754", "to": 12, "weight": 2.263247848234692, "width": 2.263247848234692}, {"color": {"color": "rgba(255,255,255,0.7451168492277004)"}, "from": 1, "title": "Similarity: 0.931", "to": 13, "weight": 2.7941881846038763, "width": 2.7941881846038763}, {"color": {"color": "rgba(255,255,255,0.9095406373176781)"}, "from": 2, "title": "Similarity: 1.137", "to": 3, "weight": 3.410777389941293, "width": 3.410777389941293}, {"color": {"color": "rgba(255,255,255,0.7610669829898655)"}, "from": 2, "title": "Similarity: 0.951", "to": 4, "weight": 2.854001186211996, "width": 2.854001186211996}, {"color": {"color": "rgba(255,255,255,0.6740014664055787)"}, "from": 2, "title": "Similarity: 0.843", "to": 5, "weight": 2.52750549902092, "width": 2.52750549902092}, {"color": {"color": "rgba(255,255,255,0.7401354548639116)"}, "from": 2, "title": "Similarity: 0.925", "to": 6, "weight": 2.7755079557396685, "width": 2.7755079557396685}, {"color": {"color": "rgba(255,255,255,0.7227967418552403)"}, "from": 2, "title": "Similarity: 0.903", "to": 7, "weight": 2.710487781957151, "width": 2.710487781957151}, {"color": {"color": "rgba(255,255,255,0.7984192713372131)"}, "from": 2, "title": "Similarity: 0.998", "to": 9, "weight": 2.994072267514549, "width": 2.994072267514549}, {"color": {"color": "rgba(255,255,255,0.7552268653328824)"}, "from": 2, "title": "Similarity: 0.944", "to": 10, "weight": 2.832100744998309, "width": 2.832100744998309}, {"color": {"color": "rgba(255,255,255,0.8403735834925877)"}, "from": 2, "title": "Similarity: 1.050", "to": 11, "weight": 3.151400938097204, "width": 3.151400938097204}, {"color": {"color": "rgba(255,255,255,0.6810117495108452)"}, "from": 2, "title": "Similarity: 0.851", "to": 12, "weight": 2.5537940606656693, "width": 2.5537940606656693}, {"color": {"color": "rgba(255,255,255,0.7592328630177346)"}, "from": 2, "title": "Similarity: 0.949", "to": 13, "weight": 2.847123236316505, "width": 2.847123236316505}, {"color": {"color": "rgba(255,255,255,0.6800041087676454)"}, "from": 2, "title": "Similarity: 0.850", "to": 14, "weight": 2.55001540787867, "width": 2.55001540787867}, {"color": {"color": "rgba(255,255,255,0.7522180497996485)"}, "from": 3, "title": "Similarity: 0.940", "to": 4, "weight": 2.8208176867486814, "width": 2.8208176867486814}, {"color": {"color": "rgba(255,255,255,0.6559912716488356)"}, "from": 3, "title": "Similarity: 0.820", "to": 5, "weight": 2.4599672686831333, "width": 2.4599672686831333}, {"color": {"color": "rgba(255,255,255,0.5713971994929848)"}, "from": 3, "title": "Similarity: 0.714", "to": 6, "weight": 2.142739498098693, "width": 2.142739498098693}, {"color": {"color": "rgba(255,255,255,0.5931066856038599)"}, "from": 3, "title": "Similarity: 0.741", "to": 7, "weight": 2.2241500710144746, "width": 2.2241500710144746}, {"color": {"color": "rgba(255,255,255,0.6543914380637181)"}, "from": 3, "title": "Similarity: 0.818", "to": 9, "weight": 2.453967892738943, "width": 2.453967892738943}, {"color": {"color": "rgba(255,255,255,0.7549247194181808)"}, "from": 3, "title": "Similarity: 0.944", "to": 10, "weight": 2.8309676978181777, "width": 2.8309676978181777}, {"color": {"color": "rgba(255,255,255,0.7549861757475648)"}, "from": 3, "title": "Similarity: 0.944", "to": 11, "weight": 2.831198159053368, "width": 2.831198159053368}, {"color": {"color": "rgba(255,255,255,0.687612171895168)"}, "from": 3, "title": "Similarity: 0.860", "to": 12, "weight": 2.57854564460688, "width": 2.57854564460688}, {"color": {"color": "rgba(255,255,255,0.7148594008148633)"}, "from": 3, "title": "Similarity: 0.894", "to": 13, "weight": 2.680722753055737, "width": 2.680722753055737}, {"color": {"color": "rgba(255,255,255,0.7469206401404396)"}, "from": 4, "title": "Similarity: 0.934", "to": 5, "weight": 2.800952400526648, "width": 2.800952400526648}, {"color": {"color": "rgba(255,255,255,0.7100840363447147)"}, "from": 4, "title": "Similarity: 0.888", "to": 6, "weight": 2.66281513629268, "width": 2.66281513629268}, {"color": {"color": "rgba(255,255,255,0.7228058068945818)"}, "from": 4, "title": "Similarity: 0.904", "to": 7, "weight": 2.710521775854682, "width": 2.710521775854682}, {"color": {"color": "rgba(255,255,255,0.6410302878631917)"}, "from": 4, "title": "Similarity: 0.801", "to": 8, "weight": 2.4038635794869685, "width": 2.4038635794869685}, {"color": {"color": "rgba(255,255,255,0.7460480383656605)"}, "from": 4, "title": "Similarity: 0.933", "to": 9, "weight": 2.7976801438712267, "width": 2.7976801438712267}, {"color": {"color": "rgba(255,255,255,0.6918095542613656)"}, "from": 4, "title": "Similarity: 0.865", "to": 10, "weight": 2.5942858284801207, "width": 2.5942858284801207}, {"color": {"color": "rgba(255,255,255,0.8012780791016004)"}, "from": 4, "title": "Similarity: 1.002", "to": 11, "weight": 3.0047927966310013, "width": 3.0047927966310013}, {"color": {"color": "rgba(255,255,255,0.6233823241061021)"}, "from": 4, "title": "Similarity: 0.779", "to": 12, "weight": 2.3376837153978824, "width": 2.3376837153978824}, {"color": {"color": "rgba(255,255,255,0.7334190237799254)"}, "from": 4, "title": "Similarity: 0.917", "to": 13, "weight": 2.75032133917472, "width": 2.75032133917472}, {"color": {"color": "rgba(255,255,255,0.6485437881370184)"}, "from": 4, "title": "Similarity: 0.811", "to": 14, "weight": 2.432039205513819, "width": 2.432039205513819}, {"color": {"color": "rgba(255,255,255,0.6875161631821651)"}, "from": 5, "title": "Similarity: 0.859", "to": 6, "weight": 2.5781856119331192, "width": 2.5781856119331192}, {"color": {"color": "rgba(255,255,255,0.6535849068355097)"}, "from": 5, "title": "Similarity: 0.817", "to": 7, "weight": 2.450943400633161, "width": 2.450943400633161}, {"color": {"color": "rgba(255,255,255,0.7228389412822711)"}, "from": 5, "title": "Similarity: 0.904", "to": 8, "weight": 2.710646029808516, "width": 2.710646029808516}, {"color": {"color": "rgba(255,255,255,0.692638981445578)"}, "from": 5, "title": "Similarity: 0.866", "to": 9, "weight": 2.597396180420917, "width": 2.597396180420917}, {"color": {"color": "rgba(255,255,255,0.7585944955014561)"}, "from": 5, "title": "Similarity: 0.948", "to": 10, "weight": 2.84472935813046, "width": 2.84472935813046}, {"color": {"color": "rgba(255,255,255,0.7187353253783324)"}, "from": 5, "title": "Similarity: 0.898", "to": 11, "weight": 2.6952574701687464, "width": 2.6952574701687464}, {"color": {"color": "rgba(255,255,255,0.5632846746513355)"}, "from": 5, "title": "Similarity: 0.704", "to": 12, "weight": 2.1123175299425077, "width": 2.1123175299425077}, {"color": {"color": "rgba(255,255,255,0.6948319061284913)"}, "from": 5, "title": "Similarity: 0.869", "to": 13, "weight": 2.6056196479818423, "width": 2.6056196479818423}, {"color": {"color": "rgba(255,255,255,0.6436608839841731)"}, "from": 5, "title": "Similarity: 0.805", "to": 14, "weight": 2.4137283149406485, "width": 2.4137283149406485}, {"color": {"color": "rgba(255,255,255,0.9306010701950241)"}, "from": 6, "title": "Similarity: 1.163", "to": 7, "weight": 3.48975401323134, "width": 3.48975401323134}, {"color": {"color": "rgba(255,255,255,0.7636995183493216)"}, "from": 6, "title": "Similarity: 0.955", "to": 8, "weight": 2.8638731938099555, "width": 2.8638731938099555}, {"color": {"color": "rgba(255,255,255,0.7677355368451777)"}, "from": 6, "title": "Similarity: 0.960", "to": 9, "weight": 2.8790082631694163, "width": 2.8790082631694163}, {"color": {"color": "rgba(255,255,255,0.6761532805021191)"}, "from": 6, "title": "Similarity: 0.845", "to": 10, "weight": 2.5355748018829467, "width": 2.5355748018829467}, {"color": {"color": "rgba(255,255,255,0.8029970766129226)"}, "from": 6, "title": "Similarity: 1.004", "to": 11, "weight": 3.01123903729846, "width": 3.01123903729846}, {"color": {"color": "rgba(255,255,255,0.5970127144865766)"}, "from": 6, "title": "Similarity: 0.746", "to": 12, "weight": 2.2387976793246622, "width": 2.2387976793246622}, {"color": {"color": "rgba(255,255,255,0.711701337226018)"}, "from": 6, "title": "Similarity: 0.890", "to": 13, "weight": 2.6688800145975673, "width": 2.6688800145975673}, {"color": {"color": "rgba(255,255,255,0.8129329429486654)"}, "from": 6, "title": "Similarity: 1.016", "to": 14, "weight": 3.0484985360574948, "width": 3.0484985360574948}, {"color": {"color": "rgba(255,255,255,1.1192573730116908)"}, "from": 7, "title": "Similarity: 1.399", "to": 8, "weight": 4.19721514879384, "width": 4.19721514879384}, {"color": {"color": "rgba(255,255,255,0.7995472664161747)"}, "from": 7, "title": "Similarity: 0.999", "to": 9, "weight": 2.998302249060655, "width": 2.998302249060655}, {"color": {"color": "rgba(255,255,255,0.6896768665172206)"}, "from": 7, "title": "Similarity: 0.862", "to": 10, "weight": 2.586288249439577, "width": 2.586288249439577}, {"color": {"color": "rgba(255,255,255,0.6797220823334356)"}, "from": 7, "title": "Similarity: 0.850", "to": 11, "weight": 2.5489578087503832, "width": 2.5489578087503832}, {"color": {"color": "rgba(255,255,255,0.6158915474584457)"}, "from": 7, "title": "Similarity: 0.770", "to": 12, "weight": 2.309593302969171, "width": 2.309593302969171}, {"color": {"color": "rgba(255,255,255,0.7404223544030333)"}, "from": 7, "title": "Similarity: 0.926", "to": 13, "weight": 2.7765838290113747, "width": 2.7765838290113747}, {"color": {"color": "rgba(255,255,255,0.6150470675667256)"}, "from": 7, "title": "Similarity: 0.769", "to": 14, "weight": 2.3064265033752207, "width": 2.3064265033752207}, {"color": {"color": "rgba(255,255,255,0.6575985811967837)"}, "from": 8, "title": "Similarity: 0.822", "to": 10, "weight": 2.465994679487939, "width": 2.465994679487939}, {"color": {"color": "rgba(255,255,255,0.5863586260122176)"}, "from": 8, "title": "Similarity: 0.733", "to": 11, "weight": 2.1988448475458156, "width": 2.1988448475458156}, {"color": {"color": "rgba(255,255,255,0.5606168938659571)"}, "from": 8, "title": "Similarity: 0.701", "to": 12, "weight": 2.102313351997339, "width": 2.102313351997339}, {"color": {"color": "rgba(255,255,255,0.5944283771422503)"}, "from": 8, "title": "Similarity: 0.743", "to": 13, "weight": 2.2291064142834385, "width": 2.2291064142834385}, {"color": {"color": "rgba(255,255,255,0.6234309871866727)"}, "from": 9, "title": "Similarity: 0.779", "to": 10, "weight": 2.337866201950022, "width": 2.337866201950022}, {"color": {"color": "rgba(255,255,255,0.7296723251283312)"}, "from": 9, "title": "Similarity: 0.912", "to": 11, "weight": 2.7362712192312424, "width": 2.7362712192312424}, {"color": {"color": "rgba(255,255,255,0.7227946723769192)"}, "from": 9, "title": "Similarity: 0.903", "to": 13, "weight": 2.7104800214134466, "width": 2.7104800214134466}, {"color": {"color": "rgba(255,255,255,0.6665710867039265)"}, "from": 9, "title": "Similarity: 0.833", "to": 14, "weight": 2.4996415751397243, "width": 2.4996415751397243}, {"color": {"color": "rgba(255,255,255,0.8614579496941591)"}, "from": 10, "title": "Similarity: 1.077", "to": 11, "weight": 3.2304673113530966, "width": 3.2304673113530966}, {"color": {"color": "rgba(255,255,255,0.699413845412886)"}, "from": 10, "title": "Similarity: 0.874", "to": 12, "weight": 2.6228019202983224, "width": 2.6228019202983224}, {"color": {"color": "rgba(255,255,255,0.7587115125932132)"}, "from": 10, "title": "Similarity: 0.948", "to": 13, "weight": 2.8451681722245494, "width": 2.8451681722245494}, {"color": {"color": "rgba(255,255,255,0.5653559610321282)"}, "from": 10, "title": "Similarity: 0.707", "to": 14, "weight": 2.1200848538704804, "width": 2.1200848538704804}, {"color": {"color": "rgba(255,255,255,0.6812151578975796)"}, "from": 11, "title": "Similarity: 0.852", "to": 12, "weight": 2.5545568421159235, "width": 2.5545568421159235}, {"color": {"color": "rgba(255,255,255,0.7706124189041886)"}, "from": 11, "title": "Similarity: 0.963", "to": 13, "weight": 2.889796570890707, "width": 2.889796570890707}, {"color": {"color": "rgba(255,255,255,0.6235041939803733)"}, "from": 11, "title": "Similarity: 0.779", "to": 14, "weight": 2.3381407274263997, "width": 2.3381407274263997}, {"color": {"color": "rgba(255,255,255,0.5990753185862338)"}, "from": 12, "title": "Similarity: 0.749", "to": 13, "weight": 2.2465324446983765, "width": 2.2465324446983765}, {"color": {"color": "rgba(255,255,255,0.5715866218611386)"}, "from": 12, "title": "Similarity: 0.714", "to": 14, "weight": 2.14344983197927, "width": 2.14344983197927}, {"color": {"color": "rgba(255,255,255,0.6308644192668722)"}, "from": 13, "title": "Similarity: 0.789", "to": 14, "weight": 2.36574157225077, "width": 2.36574157225077}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 100}, "barnesHut": {"gravitationalConstant": -8000, "centralGravity": 0.3, "springLength": 95, "springConstant": 0.04, "damping": 0.09}}, "interaction": {"hover": true, "tooltipDelay": 200, "hideEdgesOnDrag": true}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
