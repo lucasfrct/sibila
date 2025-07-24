@@ -1,5 +1,12 @@
 
-from .sentiment_analysis import SentimentAnalysisReport
+# Import sentiment analysis with fallback
+try:
+    from .sentiment_analysis import SentimentAnalysisReport
+    SENTIMENT_ANALYSIS_AVAILABLE = True
+except ImportError as e:
+    SENTIMENT_ANALYSIS_AVAILABLE = False
+    print(f"Sentiment analysis not available: {e}")
+    SentimentAnalysisReport = None
 
 # Import enhanced legal analysis functionality
 try:
@@ -49,5 +56,9 @@ __all__ = [
     # Status flags
     'ENHANCED_ANALYSIS_AVAILABLE',
     'LEGACY_ANALYSIS_AVAILABLE',
-    'SentimentAnalysisReport'
+    'SENTIMENT_ANALYSIS_AVAILABLE'
 ]
+
+# Add SentimentAnalysisReport to exports only if available
+if SENTIMENT_ANALYSIS_AVAILABLE:
+    __all__.append('SentimentAnalysisReport')

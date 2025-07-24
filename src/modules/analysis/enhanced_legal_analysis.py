@@ -312,11 +312,8 @@ def analyze_document_articles(text: str, document_path: str = None) -> List[Dict
         return articles_analysis
     
     try:
-        # Use enhanced article splitting if available
-        if hasattr(LegislationAnalysis, 'split_into_articles_enhanced'):
-            articles = LegislationAnalysis.split_into_articles_enhanced(text, document_path)
-        else:
-            articles = LegislationAnalysis.split_into_articles(text)
+        # Use unified article splitting function
+        articles = LegislationAnalysis.split_into_articles(text, document_path)
         
         for i, article_text in enumerate(articles):
             if not article_text.strip():
