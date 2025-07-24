@@ -16,9 +16,9 @@ directory_soruce = './dataset/corpus'
 
 def doc_with_articles(path: str, page_init: int = 1, page_final: int = -1):
     """
-    Extrai informações de um documento PDF e divide seu conteúdo em artigos.
+    Extrai informações de um documento e divide seu conteúdo em artigos usando Docling.
     Args:
-        path (str): O caminho para o arquivo PDF.
+        path (str): O caminho para o arquivo do documento.
         page_init (int, opcional): A página inicial para extração. Padrão é 1.
         page_final (int, opcional): A página final para extração. Padrão é -1, que indica até a última página.
     Returns:
@@ -31,7 +31,7 @@ def doc_with_articles(path: str, page_init: int = 1, page_final: int = -1):
         return None
 
     doc = doc_info.dict()
-    doc_file = DocService.pdf_content(doc['path'], page_init, page_final)
+    doc_file = DocService.document_content(doc['path'], page_init, page_final)
 
     doc['articles'] = Legislation.split_into_articles(doc_file)
     doc['total_articles'] = len(doc['articles'])

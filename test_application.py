@@ -45,10 +45,15 @@ def test_imports():
         return False
         
     try:
-        import pdfplumber
-        print(f"✓ PDFPlumber {pdfplumber.__version__}")
+        try:
+            import docling
+            print(f"✓ Docling {docling.__version__}")
+        except ImportError:
+            print("⚠ Docling not available - using PDF fallback")
+            import pdfplumber
+            print(f"✓ PDFPlumber {pdfplumber.__version__}")
     except ImportError as e:
-        print(f"✗ PDFPlumber import failed: {e}")
+        print(f"✗ Document processing libraries import failed: {e}")
         return False
         
     try:

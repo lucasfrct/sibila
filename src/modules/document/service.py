@@ -6,15 +6,36 @@ import logging
 import uuid
 import os
 
-import pdfplumber
-from fpdf import FPDF
+try:
+    # Tentar importar Docling primeiro
+    from src.modules.document import docling_reader as DoclingReader
+    from src.modules.document.docling_reader import read_csv_to_dictionaries, writer_dictionaries_to_csv
+    DOCLING_AVAILABLE = True
+except ImportError:
+    # Fallback para PDF se Docling não estiver disponível
+    DOCLING_AVAILABLE = False
+    try:
+        import pdfplumber
+        from src.modules.document.reader import page_limit_mechanics, read_csv_to_dictionaries, reader as PDFReader, reader_content, writer_dictionaries_to_csv
+    except ImportError:
+        # Handle missing PDF dependencies too
+        pdfplumber = None
+        page_limit_mechanics = None
+        read_csv_to_dictionaries = None
+        PDFReader = None
+        reader_content = None
+        writer_dictionaries_to_csv = None
+
+try:
+    from fpdf import FPDF
+except ImportError:
+    FPDF = None
 
 from src.modules.document import document_info_repository as DocInfoRepository
 from src.modules.document.paragraph_metadata import ParagraphMetadata
 from src.modules.document.phrase_metadata import PharseMetadata
 from src.modules.document.page_metadata import PageMetadata
 from src.modules.document.document_info import DocumentInfo
-from src.modules.document.reader import page_limit_mechanics, read_csv_to_dictionaries, reader as PDFReader, reader_content, writer_dictionaries_to_csv
 from src.utils import archive as Archive
 from src.utils import string as String
 
@@ -123,49 +144,55 @@ def build(paths=[]) -> List[object]:
         return []
 
 
-def pdf_reader(path: str = "") -> (pdfplumber.PDF | None):
+def document_reader(path: str = ""):
     """
-    Faz a leitura de um documento PDF.
+    Faz a leitura de um documento usando Docling (preferencial) ou PDF como fallback.
 
     Args:
-        path (str): O caminho para o arquivo PDF. Padrão é uma string vazia.
+        path (str): O caminho para o arquivo. Padrão é uma string vazia.
 
     Returns:
         O resultado da função reader aplicada ao caminho fornecido.
     """
-    return PDFReader(path)
+    if DOCLING_AVAILABLE:
+        return DoclingReader.reader(path)
+    elif PDFReader is not None:
+        # Fallback para PDF
+        return PDFReader(path)
+    else:
+        logging.error("Nenhuma biblioteca de processamento de documentos disponível.")
+        return None
 
 
-def pdf_content(path: str, init: int = 1, final: int = -1) -> str:
+def document_content(path: str, init: int = 1, final: int = -1) -> str:
     """
-    Lê um arquivo PDF e extrai o texto de suas páginas numa variável só.
+    Lê um arquivo e extrai o texto de suas páginas numa variável só.
     Args:
-        path (str): O caminho para o arquivo PDF.
-        max_pages (int, opcional): O número máximo de páginas a serem lidas. 
+        path (str): O caminho para o arquivo.
+        init (int): Página inicial. Padrão é 1.
+        final (int): Página final. Padrão é -1 (última página).
     Returns:
-        str: O conteúdo extraído do PDF como uma string. 
+        str: O conteúdo extraído do documento como uma string. 
     """
-    return reader_content(path, init, final)
+    if DOCLING_AVAILABLE:
+        return DoclingReader.reader_content(path, init, final)
+    elif reader_content is not None:
+        # Fallback para PDF
+        return reader_content(path, init, final)
+    else:
+        logging.error("Nenhuma biblioteca de processamento de documentos disponível.")
+        return ""
 
 
-def pdf_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PageMetadata]:
+def document_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PageMetadata]:
     """
-    Lê as páginas de um arquivo PDF e extrai os metadados.
+    Lê as páginas de um arquivo e extrai os metadados usando Docling ou PDF como fallback.
     Args:
-        path (str): Caminho para o arquivo PDF.
+        path (str): Caminho para o arquivo.
         init (int): Número da página inicial (1-indexado). Padrão é 1.
         final (int): Número da página final (1-indexado). Padrão é 0, que indica a última página.
     Returns:
         List[PageMetadata]: Lista de objetos PageMetadata contendo os metadados das páginas lidas.
-    Raises:
-        ValueError: Se o caminho do arquivo for inválido ou se não for possível ler o arquivo PDF.
-        Exception: Para outros erros durante a leitura e extração dos metadados.
-    Nota:
-        - Se o número da página inicial for maior ou igual ao total de páginas, ele será ajustado para a última página.
-        - Se o número da página inicial for menor ou igual a 0, ele será ajustado para 1.
-        - Se o número da página final for maior que o total de páginas, ele será ajustado para o total de páginas.
-        - Se o número da página final for menor ou igual a 0, ele será ajustado para o total de páginas.
-        - Se o número da página final for menor que o número da página inicial, ele será ajustado para o número da página inicial.
     """
     try:
         if not Archive.exists(path):
@@ -175,26 +202,62 @@ def pdf_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> Lis
         if inf is None:
             return []
 
-        pdf = PDFReader(path)
-        if pdf is None:
-            raise ValueError("Não foi possível ler o arquivo pdf.")
+        if DOCLING_AVAILABLE:
+            # Usar Docling para análise avançada
+            result = DoclingReader.reader(path)
+            if result is None:
+                raise ValueError("Não foi possível ler o arquivo.")
 
-        total = inf.pages
+            doc = result.document
+            structured_content = DoclingReader.extract_structured_content(path)
+            
+            # Organizar conteúdo por página
+            pages_content = {}
+            for text_item in structured_content.get('texts', []):
+                page_num = text_item.get('page', 1) or 1
+                if page_num not in pages_content:
+                    pages_content[page_num] = []
+                pages_content[page_num].append(text_item['text'])
 
-        init, final = page_limit_mechanics(init, final, total)
+            total = max(pages_content.keys()) if pages_content else inf.pages
+            
+        elif PDFReader is not None:
+            # Fallback para PDF
+            pdf = PDFReader(path)
+            if pdf is None:
+                raise ValueError("Não foi possível ler o arquivo pdf.")
+            total = inf.pages
+        else:
+            # Nenhuma biblioteca disponível
+            logging.error("Nenhuma biblioteca de processamento de documentos disponível.")
+            return []
+
+        if DOCLING_AVAILABLE:
+            init, final = DoclingReader.page_limit_mechanics(init, final, total)
+        elif page_limit_mechanics is not None:
+            init, final = page_limit_mechanics(init, final, total)
+        else:
+            init = max(1, init)
+            final = max(init, final if final > 0 else total)
 
         # Carrega apenas as páginas especificadas na memória
         pages: List[PageMetadata] = []
         for num in range(init - 1, final):
-
-            page_raw = pdf.pages[num]
-            content = page_raw.extract_text()
+            page_num = num + 1
+            
+            if DOCLING_AVAILABLE and page_num in pages_content:
+                content = "\n".join(pages_content[page_num])
+            elif not DOCLING_AVAILABLE and PDFReader is not None and 'pdf' in locals():
+                page_raw = pdf.pages[num]
+                content = page_raw.extract_text()
+            else:
+                content = ""
 
             page = PageMetadata()
 
             page.uuid = str(uuid.uuid4())
             page.path = path
-            page.page = int(num + 1)
+            page.page = page_num
             page.name = inf.name
             page.source = f"{page.name}, pg. {page.page}"
             page.letters = len(content)
@@ -202,8 +265,8 @@ def pdf_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> Lis
 
             page.size = inf.size
             page.distance = 0
-            page.mimetype = "pdf"
-            page.pages - inf.pages
+            page.mimetype = inf.mimetype if hasattr(inf, 'mimetype') else "pdf"
+            page.pages = inf.pages
 
             page.generate_paragraphs()
             page.generate_phrases()
@@ -212,16 +275,18 @@ def pdf_pages_with_details(path: str = "", init: int = 1, final: int = 0) -> Lis
 
             pages.append(page)
 
-        pdf.close()
+        if not DOCLING_AVAILABLE and PDFReader is not None and 'pdf' in locals():
+            pdf.close()
+            
         return pages
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return []
 
 
-def pdf_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ParagraphMetadata]:
+def document_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -> List[ParagraphMetadata]:
     """
-    Extrai os parágrafos com os detalhes do documento.
+    Extrai os parágrafos com os detalhes do documento usando Docling ou PDF.
     Args:
         path (str): Caminho para o arquivo do documento. Padrão é uma string vazia.
         init (int): Número da página inicial para leitura. Padrão é 1.
@@ -231,7 +296,7 @@ def pdf_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -
     """
     try:
 
-        pages = pdf_pages_with_details(path, init, final)
+        pages = document_pages_with_details(path, init, final)
 
         paragraphs: List[ParagraphMetadata] = []
         for page in pages:
@@ -263,9 +328,9 @@ def pdf_paragraphs_with_details(path: str = "", init: int = 1, final: int = 0) -
         return []
 
 
-def pdf_phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PharseMetadata]:
+def document_phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> List[PharseMetadata]:
     """
-    Extrai as frases com os detalhes dos documentos.
+    Extrai as frases com os detalhes dos documentos usando Docling ou PDF.
     Args:
         path (str): O caminho para o arquivo de entrada. Padrão é uma string vazia.
         init (int): O número inicial da página para leitura. Padrão é 1.
@@ -275,7 +340,7 @@ def pdf_phrases_with_details(path: str = "", init: int = 1, final: int = 0) -> L
     """
     try:
 
-        paragraphs = pdf_phrases_with_details(path, init, final)
+        paragraphs = document_paragraphs_with_details(path, init, final)
 
         phrases: List[PharseMetadata] = []
         for paragraph in paragraphs:
@@ -315,26 +380,10 @@ def read_lines_with_details(path: str = "", init: int = 1, final: int = 0) -> Li
         final (int): Número da linha final para leitura. Padrão é 0, que indica leitura até o final do documento.
 
     Returns:
-        List[object]: Uma lista de dicionários, onde cada dicionário contém detalhes sobre uma linha do documento, incluindo:
-            - path (str): Caminho do parágrafo.
-            - page (int): Número da página do parágrafo.
-            - content (str): Conteúdo da linha.
-            - name (str): Nome do parágrafo.
-            - letters (int): Número de letras na linha.
-            - uuid (str): UUID único para a linha.
-            - source (str): Fonte da linha no formato "nome, pg. página, ln linha".
-            - num (int): Número da linha dentro do parágrafo.
-            - chunk (List[str]): Lista de pedaços da linha.
-            - lines (int): Número total de linhas no parágrafo.
-            - chunks (int): Número total de pedaços na linha.
-            - size (int): Tamanho do parágrafo.
-            - mimetype (str): Tipo MIME do parágrafo.
-
-    Raises:
-        Exception: Em caso de erro, registra o erro no log e retorna uma lista vazia.
+        List[object]: Uma lista de dicionários, onde cada dicionário contém detalhes sobre uma linha do documento.
     """
     try:
-        paragraphs = pdf_paragraphs_with_details(path, init, final)
+        paragraphs = document_paragraphs_with_details(path, init, final)
         lines = []
         for paragraph in paragraphs:
             lns = paragraph.line
@@ -371,6 +420,10 @@ def convert_to_pdf(path: str = "", path_out: str = ""):
     Returns:
         str: Caminho do arquivo PDF gerado.
     """
+    
+    if FPDF is None:
+        logging.error("FPDF não disponível. Não é possível converter para PDF.")
+        return None
 
     # Criar instância da classe FPDF que é a base para a criação do documento
     pdf = FPDF()
@@ -393,14 +446,14 @@ def convert_to_pdf(path: str = "", path_out: str = ""):
     return path_out
 
 
-def convert_pdf_to_txt(path: str, path_out: str):
+def convert_document_to_txt(path: str, path_out: str):
     """
-    Converte um arquivo PDF em texto e salva o conteúdo em um arquivo de saída.
+    Converte um arquivo de documento em texto e salva o conteúdo em um arquivo de saída.
     Args:
-        path (str): O caminho do arquivo PDF de entrada.
+        path (str): O caminho do arquivo de entrada.
         path_out (str): O caminho do arquivo de saída onde o texto extraído será salvo.
     Raises:
-        ValueError: Se o caminho do arquivo PDF de entrada for inválido.
+        ValueError: Se o caminho do arquivo de entrada for inválido.
         Exception: Para qualquer outra exceção que ocorra durante o processamento.
     Retorna:
         None: Em caso de erro durante a conversão.
@@ -408,14 +461,11 @@ def convert_pdf_to_txt(path: str, path_out: str):
     try:
         if not Archive.exists(path):
             raise ValueError("O path está inválido.")
-        pdf = pdf_reader(path)
-
-        for page in pdf.pages:
-            content = page.extract_text()
-            with open(path_out, "a", encoding="utf-8") as file:
-                file.write(content)
-                file.write("\n")
-        pdf.close()
+        
+        content = document_content(path)
+        
+        with open(path_out, "w", encoding="utf-8") as file:
+            file.write(content)
 
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
@@ -458,3 +508,12 @@ def read_csv(path: str):
     except Exception as e:
         logging.error(f"{e}\n%s", traceback.format_exc())
         return False
+
+
+# Aliases para compatibilidade com código existente
+pdf_reader = document_reader
+pdf_content = document_content
+pdf_pages_with_details = document_pages_with_details
+pdf_paragraphs_with_details = document_paragraphs_with_details
+pdf_phrases_with_details = document_phrases_with_details
+convert_pdf_to_txt = convert_document_to_txt

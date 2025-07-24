@@ -5,7 +5,13 @@ import traceback
 import logging
 import os
 
-from src.modules.document.reader import reader
+try:
+    from src.modules.document.docling_reader import get_document_info
+    DOCLING_AVAILABLE = True
+except ImportError:
+    DOCLING_AVAILABLE = False
+    from src.modules.document.reader import reader
+
 from src.utils import archive as Archive
 from src.utils import string as String
 
@@ -65,12 +71,12 @@ class DocumentInfo:
 
     def extract(self, path):
         """
-        Extrai informações de um documento no caminho especificado.
+        Extrai informações de um documento no caminho especificado usando Docling ou PDF.
         Args:
             path (str): O caminho do arquivo do documento.
         Returns:
             dict: Um dicionário contendo as informações extraídas do documento, 
-                  incluindo nome, tamanho, tipo MIME e número de páginas (se for um PDF).
+                  incluindo nome, tamanho, tipo MIME e número de páginas.
             None: Retorna None se ocorrer um erro durante a extração.
         """
         try:
@@ -86,13 +92,23 @@ class DocumentInfo:
             _, ext = os.path.splitext(path)
             self.mimetype = ext.replace(".", "")
 
-            if "pdf" in self.mimetype.lower():
-                # Obter número de páginas do PDF
+            if DOCLING_AVAILABLE:
+                # Usar Docling para obter informações do documento
+                doc_info = get_document_info(path)
+                if doc_info:
+                    self.pages = doc_info.get('pages', 1)
+                    if 'document_type' in doc_info:
+                        self.mimetype = doc_info['document_type']
+                else:
+                    self.pages = 1
+            elif "pdf" in self.mimetype.lower():
+                # Fallback para PDF
                 pdf = reader(path)
                 if pdf is None:
                     return None
-
                 self.pages = int(len(pdf.pages))
+            else:
+                self.pages = 1
                 
             # Retorna um dicionário com as informações extraídas
             return self.dict()
