@@ -34,15 +34,8 @@ def doc_with_articles(path: str, page_init: int = 1, page_final: int = -1, use_e
     doc = doc_info.dict()
     doc_file = DocService.document_content(doc['path'], page_init, page_final)
 
-    # Usar extração aprimorada se solicitado
-    if use_enhanced:
-        try:
-            doc['articles'] = Legislation.split_into_articles_enhanced(doc_file, doc['path'])
-        except AttributeError:
-            # Fallback se função não existir (compatibilidade)
-            doc['articles'] = Legislation.split_into_articles(doc_file)
-    else:
-        doc['articles'] = Legislation.split_into_articles(doc_file)
+    # Usar função unificada que já inclui funcionalidade aprimorada
+    doc['articles'] = Legislation.split_into_articles(doc_file, doc['path'] if use_enhanced else None)
     
     doc['total_articles'] = len(doc['articles'])
 

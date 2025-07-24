@@ -38,6 +38,30 @@ except ImportError:
     ENHANCED_ANALYSIS_AVAILABLE = False
 
 
+def _setup_standard_llm(max_tokens: int = 200, temperature: float = 0.3, out_focus: float = 8.0) -> 'ModelOllama':
+    """
+    Configura um modelo LLM com parâmetros padrão para análise de questionários.
+    
+    Args:
+        max_tokens (int): Número máximo de tokens para resposta
+        temperature (float): Temperatura para variação da resposta
+        out_focus (float): Foco de saída
+        
+    Returns:
+        ModelOllama: Instância configurada do modelo
+    """
+    if not MODEL_AVAILABLE:
+        return None
+    
+    llm = ModelOllama()
+    llm.max_tokens = max_tokens
+    llm.temperature = temperature
+    llm.out_focus = out_focus
+    llm.out_reduction_rate = 100.0
+    llm.penalty_rate = 5.0
+    return llm
+
+
 # questões para serem aplicas a um artigo
 common_questions = [
     "Existe ambiguidade na sequinte lei?",
@@ -72,10 +96,11 @@ def ask_a_question(docs: str, article: str, ask: str ) -> str:
         return f"Resposta não disponível - modelo não encontrado. Pergunta: {ask}"
     
     try:
-        llm = ModelOllama()
-        llm.out_reduction_rate = 100.0
+        llm = _setup_standard_llm(max_tokens=100)
+        if not llm:
+            return f"Resposta não disponível - modelo não encontrado. Pergunta: {ask}"
+        
         llm.penalty_rate = 10.0
-        llm.max_tokens = 100
         prompt = f"""
             /clear
             Usando somente os textos abaixo, responda:
@@ -105,10 +130,11 @@ def question_maker(article: str)-> str:
         return f"Pergunta não disponível - modelo não encontrado para artigo: {article[:100]}..."
     
     try:
-        llm = ModelOllama()
-        llm.out_reduction_rate = 100.0
+        llm = _setup_standard_llm(max_tokens=100)
+        if not llm:
+            return f"Pergunta não disponível - modelo não encontrado para artigo: {article[:100]}..."
+        
         llm.penalty_rate = 10.0
-        llm.max_tokens = 100
         prompt = f"""
             /clear
             Usando somente os textos abaixo, responda:
@@ -377,7 +403,7 @@ def _generate_synthesis_questions(legal_synthesis) -> List[Dict]:
 
 def _extract_basic_articles(text: str) -> List[str]:
     """
-    Extrai artigos básicos do texto para análise tradicional.
+    Extrai artigos do texto usando a função unificada do módulo de legislação.
     
     Args:
         text (str): Texto completo do documento
@@ -386,17 +412,14 @@ def _extract_basic_articles(text: str) -> List[str]:
         List[str]: Lista de artigos extraídos
     """
     try:
-        # Usar função existente se disponível
-        if ENHANCED_ANALYSIS_AVAILABLE:
-            from src.modules.analysis import legislation as LegislationAnalysis
-            return LegislationAnalysis.split_into_articles(text)
-        else:
-            # Implementação básica de extração de artigos
-            article_pattern = r'Art\.?\s*\d+[ºº°]?.*?(?=Art\.?\s*\d+[ºº°]?|\Z)'
-            articles = re.findall(article_pattern, text, re.DOTALL | re.IGNORECASE)
-            return [article.strip() for article in articles if article.strip()]
+        # Usar função unificada do módulo de legislação
+        from src.modules.analysis.legislation import split_into_articles
+        return split_into_articles(text)
     except Exception:
-        return []
+        # Fallback para implementação básica se necessário
+        article_pattern = r'Art\.?\s*\d+[ºº°]?.*?(?=Art\.?\s*\d+[ºº°]?|\Z)'
+        articles = re.findall(article_pattern, text, re.DOTALL | re.IGNORECASE)
+        return [article.strip() for article in articles if article.strip()]
 
 
 def analyze_document_with_enhanced_board(document_text: str, document_path: str = None) -> Dict:
