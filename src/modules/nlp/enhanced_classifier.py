@@ -124,7 +124,7 @@ class LegalDocumentClassifier:
         labels = []
         
         if classification_type == ClassificationType.SUBJECT:
-            # Dados sintéticos para classificação de assunto
+            # Dados sintéticos expandidos para classificação de assunto
             synthetic_data = [
                 ("Art. 1º É livre a manifestação do pensamento", "Direitos Fundamentais"),
                 ("Art. 2º O processo será iniciado por petição inicial", "Processo Judicial"),
@@ -139,7 +139,22 @@ class LegalDocumentClassifier:
                 ("Art. 11 O consumidor tem direito à informação", "Consumidor"),
                 ("Art. 12 A empresa deve seguir as normas", "Empresarial"),
                 ("Art. 13 É crime contra a vida", "Penal"),
-                ("Art. 14 A Constituição Federal estabelece", "Constitucional")
+                ("Art. 14 A Constituição Federal estabelece", "Constitucional"),
+                # Duplicar dados para ter pelo menos 2 amostras por classe
+                ("É garantida a liberdade de pensamento e expressão", "Direitos Fundamentais"),
+                ("O juiz analisará a petição apresentada", "Processo Judicial"),
+                ("Os órgãos públicos devem atender aos cidadãos", "Administração Pública"),
+                ("As partes firmaram acordo comercial", "Contratos e Obrigações"),
+                ("O divórcio será processado conforme lei", "Família e Sucessões"),
+                ("O direito de propriedade é garantido", "Propriedade e Posse"),
+                ("O dano causado deve ser reparado", "Responsabilidade Civil"),
+                ("A alíquota do tributo será definida", "Tributação"),
+                ("O trabalhador tem direito a férias", "Trabalho e Emprego"),
+                ("A preservação ambiental é obrigatória", "Meio Ambiente"),
+                ("O fornecedor deve informar sobre o produto", "Consumidor"),
+                ("A sociedade empresária deve cumprir obrigações", "Empresarial"),
+                ("O homicídio é crime contra a vida", "Penal"),
+                ("A lei fundamental rege o ordenamento", "Constitucional")
             ]
             texts, labels = zip(*synthetic_data)
             
@@ -154,7 +169,18 @@ class LegalDocumentClassifier:
                 ("Compete ao órgão competente", "Competência"),
                 ("O prazo para recurso é de 30 dias", "Prazo"),
                 ("Ficam revogadas as disposições", "Revogação"),
-                ("As demais disposições regulamentares", "Disposição Geral")
+                ("As demais disposições regulamentares", "Disposição Geral"),
+                # Adicionar mais exemplos
+                ("Entende-se por documento legal", "Definição"),
+                ("Fica proibida a prática de", "Proibição"),
+                ("O infrator terá a obrigação de", "Obrigação"),
+                ("É garantido aos cidadãos o direito", "Direito"),
+                ("A multa será aplicada em caso de", "Penalidade"),
+                ("O procedimento administrativo observará", "Procedimento"),
+                ("É da competência do tribunal", "Competência"),
+                ("O prazo para manifestação será de", "Prazo"),
+                ("Fica revogado o artigo anterior", "Revogação"),
+                ("As normas gerais se aplicam aos casos", "Disposição Geral")
             ]
             texts, labels = zip(*synthetic_data)
             
@@ -169,7 +195,45 @@ class LegalDocumentClassifier:
                 ("É assegurado o direito à", "Conceder Direito"),
                 ("A infração será punida com", "Estabelecer Penalidade"),
                 ("Fica revogada a Lei nº", "Revogar"),
-                ("O artigo 5º passa a vigorar", "Alterar")
+                ("O artigo 5º passa a vigorar", "Alterar"),
+                # Adicionar mais exemplos
+                ("A presente norma regulamenta", "Regulamentar"),
+                ("Fica vedada a conduta de", "Proibir"),
+                ("Autoriza-se a implementação de", "Autorizar"),
+                ("Considera-se para este fim", "Definir"),
+                ("Estabelece-se o prazo de", "Estabelecer Prazo"),
+                ("Torna-se obrigatória a adoção de", "Criar Obrigação"),
+                ("Garante-se aos interessados", "Conceder Direito"),
+                ("Será penalizado com multa", "Estabelecer Penalidade"),
+                ("Revoga-se a disposição anterior", "Revogar"),
+                ("Altera-se a redação do artigo", "Alterar")
+            ]
+            texts, labels = zip(*synthetic_data)
+        
+        elif classification_type == ClassificationType.LEGAL_CATEGORY:
+            # Criar dados para categoria legal
+            synthetic_data = [
+                ("Lei que estabelece direitos fundamentais", "Direito Constitucional"),
+                ("Código de processo civil", "Direito Processual"),
+                ("Normas sobre contratos comerciais", "Direito Empresarial"),
+                ("Regulamentação trabalhista", "Direito do Trabalho"),
+                ("Disposições sobre crimes", "Direito Penal"),
+                ("Normas tributárias e fiscais", "Direito Tributário"),
+                ("Lei de proteção ao consumidor", "Direito do Consumidor"),
+                ("Código de família", "Direito de Família"),
+                ("Normas ambientais", "Direito Ambiental"),
+                ("Regulamentação administrativa", "Direito Administrativo"),
+                # Duplicar para ter amostras suficientes
+                ("Constituição e direitos básicos", "Direito Constitucional"),
+                ("Procedimentos judiciais", "Direito Processual"),
+                ("Atividade empresarial e comercial", "Direito Empresarial"),
+                ("Relações de trabalho e emprego", "Direito do Trabalho"),
+                ("Infrações e sanções penais", "Direito Penal"),
+                ("Sistema tributário nacional", "Direito Tributário"),
+                ("Defesa do consumidor", "Direito do Consumidor"),
+                ("Relações familiares e sucessões", "Direito de Família"),
+                ("Proteção do meio ambiente", "Direito Ambiental"),
+                ("Atos da administração pública", "Direito Administrativo")
             ]
             texts, labels = zip(*synthetic_data)
         
@@ -207,9 +271,19 @@ class LegalDocumentClassifier:
             
             # Dividir dados em treino e teste
             if len(texts) > 1:
-                X_train, X_test, y_train, y_test = train_test_split(
-                    texts, labels, test_size=test_size, random_state=42, stratify=labels
-                )
+                # Adjust test size to ensure we have enough samples
+                min_test_size = max(1, len(set(labels)))  # At least 1 per class
+                max_test_size = max(0.1, min(0.3, (len(texts) - len(set(labels))) / len(texts)))
+                test_size = min(test_size, max_test_size)
+                
+                if len(texts) >= 2 * len(set(labels)):  # Only stratify if we have enough samples
+                    X_train, X_test, y_train, y_test = train_test_split(
+                        texts, labels, test_size=test_size, random_state=42, stratify=labels
+                    )
+                else:
+                    X_train, X_test, y_train, y_test = train_test_split(
+                        texts, labels, test_size=test_size, random_state=42
+                    )
             else:
                 X_train, X_test, y_train, y_test = texts, texts, labels, labels
             

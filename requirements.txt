@@ -188,3 +188,7 @@ websockets==12.0
 wrapt==1.16.0
 yarg==0.1.9
 zipp==3.18.0
+
+# CrewAI integration dependencies
+crewai==0.150.0
+crewai-tools==0.58.0
