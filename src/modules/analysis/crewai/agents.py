@@ -137,10 +137,11 @@ class LegalAnalysisAgent(BaseAgent):
     
     def _setup_specialized_llm(self):
         """Configura parâmetros específicos para análise jurídica."""
-        self.llm.max_tokens = 400
-        self.llm.temperature = 0.2  # Maior precisão para análise jurídica
-        self.llm.out_focus = 10.0
-        self.llm.penalty_rate = 3.0
+        if self.llm is not None:
+            self.llm.max_tokens = 400
+            self.llm.temperature = 0.2  # Maior precisão para análise jurídica
+            self.llm.out_focus = 10.0
+            self.llm.penalty_rate = 3.0
     
     def analyze(self, text: str, context: Optional[Dict] = None) -> Dict[str, Any]:
         """
@@ -266,6 +267,9 @@ class LegalAnalysisAgent(BaseAgent):
         Returns:
             str: Tipo normativo identificado
         """
+        if not self.llm:
+            return self._identify_type_fallback(text)
+            
         prompt = """
         /clear
         Identifique o tipo normativo do texto analisando sua estrutura e conteúdo.
@@ -280,6 +284,29 @@ class LegalAnalysisAgent(BaseAgent):
         response = self.llm.question(prompt=prompt, question=question)
         return response.strip()
     
+    def _identify_type_fallback(self, text: str) -> str:
+        """Identificação básica por palavras-chave quando LLM não disponível."""
+        text_lower = text.lower()
+        
+        if 'lei n' in text_lower or 'lei ordinária' in text_lower:
+            return 'Lei'
+        elif 'decreto' in text_lower:
+            return 'Decreto'
+        elif 'portaria' in text_lower:
+            return 'Portaria'
+        elif 'resolução' in text_lower:
+            return 'Resolução'
+        elif 'medida provisória' in text_lower:
+            return 'Medida Provisória'
+        elif 'emenda constitucional' in text_lower:
+            return 'Emenda Constitucional'
+        elif 'instrução normativa' in text_lower:
+            return 'Instrução Normativa'
+        elif 'circular' in text_lower:
+            return 'Circular'
+        else:
+            return 'Lei'  # Fallback padrão
+    
     def _extract_legal_entities(self, text: str) -> List[str]:
         """
         Extrai entidades jurídicas relevantes do texto.
@@ -290,6 +317,9 @@ class LegalAnalysisAgent(BaseAgent):
         Returns:
             List[str]: Lista de entidades jurídicas identificadas
         """
+        if not self.llm:
+            return self._extract_entities_fallback(text)
+            
         prompt = """
         /clear
         Extraia as principais entidades jurídicas do texto, incluindo:
@@ -308,6 +338,28 @@ class LegalAnalysisAgent(BaseAgent):
         entities = [entity.strip() for entity in response.split(',') if entity.strip()]
         return entities if entities and entities[0] != '-' else []
     
+    def _extract_entities_fallback(self, text: str) -> List[str]:
+        """Extração básica de entidades quando LLM não disponível."""
+        import re
+        
+        # Padrões básicos para identificar entidades
+        entity_patterns = [
+            r'[A-Z][a-z]+ [A-Z][a-z]+',  # Nomes próprios
+            r'Ministério [A-Z][a-z ]+',  # Ministérios
+            r'Secretaria [A-Z][a-z ]+',  # Secretarias
+            r'Agência [A-Z][a-z ]+',     # Agências
+            r'Conselho [A-Z][a-z ]+'     # Conselhos
+        ]
+        
+        entities = []
+        for pattern in entity_patterns:
+            matches = re.findall(pattern, text)
+            entities.extend(matches)
+        
+        # Remover duplicatas e limitar
+        unique_entities = list(set(entities))[:5]
+        return unique_entities
+    
     def _analyze_legal_implications(self, text: str) -> Dict[str, Any]:
         """
         Analisa as implicações jurídicas do texto.
@@ -318,6 +370,9 @@ class LegalAnalysisAgent(BaseAgent):
         Returns:
             Dict[str, Any]: Análise das implicações jurídicas
         """
+        if not self.llm:
+            return self._implications_fallback(text)
+            
         prompt = """
         /clear
         Analise as principais implicações jurídicas do texto fornecido.
@@ -343,20 +398,65 @@ class LegalAnalysisAgent(BaseAgent):
             'penalties': self._extract_penalties(text)
         }
     
+    def _implications_fallback(self, text: str) -> Dict[str, Any]:
+        """Análise básica de implicações quando LLM não disponível."""
+        return {
+            'general_implications': 'Análise limitada - identificação por palavras-chave',
+            'affected_rights': self._extract_rights_fallback(text),
+            'obligations': self._extract_obligations_fallback(text),
+            'penalties': self._extract_penalties_fallback(text)
+        }
+    
+    def _extract_rights_fallback(self, text: str) -> str:
+        """Extrai direitos básicos por palavras-chave."""
+        rights_keywords = ['direito', 'direitos', 'garantia', 'prerrogativa']
+        text_lower = text.lower()
+        
+        if any(keyword in text_lower for keyword in rights_keywords):
+            return 'Direitos identificados no texto'
+        return 'Nenhum direito específico identificado'
+    
+    def _extract_obligations_fallback(self, text: str) -> str:
+        """Extrai obrigações básicas por palavras-chave."""
+        obligation_keywords = ['deve', 'obriga', 'obrigatório', 'deverá', 'responsabilidade']
+        text_lower = text.lower()
+        
+        if any(keyword in text_lower for keyword in obligation_keywords):
+            return 'Obrigações identificadas no texto'
+        return 'Nenhuma obrigação específica identificada'
+    
+    def _extract_penalties_fallback(self, text: str) -> str:
+        """Extrai penalidades básicas por palavras-chave."""
+        penalty_keywords = ['multa', 'penalidade', 'sanção', 'prisão', 'advertência']
+        text_lower = text.lower()
+        
+        if any(keyword in text_lower for keyword in penalty_keywords):
+            return 'Penalidades identificadas no texto'
+        return 'Nenhuma penalidade específica identificada'
+    
     def _extract_affected_rights(self, text: str) -> str:
         """Extrai direitos afetados pelo texto."""
+        if not self.llm:
+            return self._extract_rights_fallback(text)
+            
         prompt = "Identifique brevemente quais direitos são afetados por este texto legal:"
         question = text[:300]
         return self.llm.question(prompt=prompt, question=question).strip()
     
     def _extract_obligations(self, text: str) -> str:
         """Extrai obrigações impostas pelo texto."""
+        if not self.llm:
+            return self._extract_obligations_fallback(text)
+            
         prompt = "Identifique as principais obrigações impostas por este texto legal:"
         question = text[:300]
         return self.llm.question(prompt=prompt, question=question).strip()
     
     def _extract_penalties(self, text: str) -> str:
         """Extrai penalidades mencionadas no texto."""
+        if not self.llm:
+            return self._extract_penalties_fallback(text)
+            
         prompt = "Identifique as penalidades ou sanções mencionadas neste texto:"
         question = text[:300]
         return self.llm.question(prompt=prompt, question=question).strip()
@@ -371,6 +471,9 @@ class LegalAnalysisAgent(BaseAgent):
         Returns:
             float: Nível de confiança entre 0 e 1
         """
+        if not structural_analysis:
+            return 0.3  # Baixa confiança sem análise estrutural
+            
         confidence = structural_analysis.get('confidence_score', 0.5)
         
         # Ajustar confiança baseado na qualidade da análise jurídica
@@ -414,7 +517,7 @@ class DocumentReviewAgent(BaseAgent):
         Returns:
             Dict[str, Any]: Resultado da revisão do documento
         """
-        # Verificações de estrutura e formatação
+        # Verificações básicas que não dependem de LLM
         structure_check = self._check_document_structure(text)
         completeness_check = self._check_document_completeness(text)
         consistency_check = self._check_internal_consistency(text)
@@ -433,7 +536,8 @@ class DocumentReviewAgent(BaseAgent):
             'consistency_check': consistency_check,
             'compliance_check': compliance_check,
             'quality_score': quality_score,
-            'recommendations': self._generate_recommendations(text, quality_score)
+            'recommendations': self._generate_recommendations(text, quality_score),
+            'status': 'Análise limitada - LLM não disponível' if not OLLAMA_AVAILABLE else 'Análise completa'
         }
     
     def _check_document_structure(self, text: str) -> Dict[str, Any]:
@@ -450,7 +554,7 @@ class DocumentReviewAgent(BaseAgent):
             'has_articles': 'art.' in text.lower() or 'artigo' in text.lower(),
             'has_paragraphs': '§' in text,
             'has_items': any(roman in text for roman in ['I ', 'II ', 'III ', 'IV ', 'V ']),
-            'has_dates': bool(self.legislation_analyzer._identify_legislative_patterns(text)['dates']),
+            'has_dates': self._has_dates_basic(text),
             'proper_formatting': self._check_formatting(text)
         }
         
@@ -461,6 +565,20 @@ class DocumentReviewAgent(BaseAgent):
             'score': structure_score,
             'issues': self._identify_structure_issues(text, structure_elements)
         }
+    
+    def _has_dates_basic(self, text: str) -> bool:
+        """Verificação básica de datas quando analisador de legislação não disponível."""
+        import re
+        # Padrões básicos de data
+        date_patterns = [
+            r'\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4}',
+            r'\d{1,2}\s+de\s+\w+\s+de\s+\d{4}'
+        ]
+        
+        for pattern in date_patterns:
+            if re.search(pattern, text):
+                return True
+        return False
     
     def _check_formatting(self, text: str) -> bool:
         """Verifica formatação básica do documento."""
@@ -709,7 +827,7 @@ class ComplianceAgent(BaseAgent):
         Returns:
             Dict[str, Any]: Resultado da análise de conformidade
         """
-        # Verificações de conformidade
+        # Verificações básicas que não dependem de LLM
         regulatory_compliance = self._check_regulatory_compliance(text)
         legal_conflicts = self._identify_legal_conflicts(text)
         compliance_gaps = self._identify_compliance_gaps(text)
@@ -726,7 +844,8 @@ class ComplianceAgent(BaseAgent):
             'legal_conflicts': legal_conflicts,
             'compliance_gaps': compliance_gaps,
             'overall_compliance': overall_compliance,
-            'compliance_recommendations': self._generate_compliance_recommendations(text)
+            'compliance_recommendations': self._generate_compliance_recommendations(text),
+            'status': 'Análise limitada - LLM não disponível' if not OLLAMA_AVAILABLE else 'Análise completa'
         }
     
     def _check_regulatory_compliance(self, text: str) -> Dict[str, Any]:
@@ -739,6 +858,9 @@ class ComplianceAgent(BaseAgent):
         Returns:
             Dict[str, Any]: Resultado da verificação regulatória
         """
+        if not self.llm:
+            return self._compliance_fallback(text)
+            
         prompt = """
         /clear
         Analise o texto fornecido e identifique possíveis questões de conformidade 
@@ -757,6 +879,14 @@ class ComplianceAgent(BaseAgent):
         
         return {
             'analysis': compliance_analysis.strip(),
+            'score': self._calculate_compliance_score(text),
+            'critical_issues': self._identify_critical_issues(text)
+        }
+    
+    def _compliance_fallback(self, text: str) -> Dict[str, Any]:
+        """Análise básica de conformidade quando LLM não disponível."""
+        return {
+            'analysis': 'Análise automática básica - verificação por palavras-chave',
             'score': self._calculate_compliance_score(text),
             'critical_issues': self._identify_critical_issues(text)
         }
@@ -816,6 +946,9 @@ class ComplianceAgent(BaseAgent):
         Returns:
             Dict[str, Any]: Resultado da identificação de conflitos
         """
+        if not self.llm:
+            return self._conflicts_fallback(text)
+            
         prompt = """
         /clear
         Identifique possíveis conflitos legais ou inconsistências no texto fornecido.
@@ -836,6 +969,20 @@ class ComplianceAgent(BaseAgent):
             'analysis': conflicts_analysis.strip(),
             'has_conflicts': 'nenhum conflito' not in conflicts_analysis.lower(),
             'severity': self._assess_conflict_severity(conflicts_analysis)
+        }
+    
+    def _conflicts_fallback(self, text: str) -> Dict[str, Any]:
+        """Identificação básica de conflitos quando LLM não disponível."""
+        # Verificar palavras-chave que indicam conflitos
+        conflict_keywords = ['conflito', 'inconsistência', 'contradição', 'violação']
+        text_lower = text.lower()
+        
+        has_conflicts = any(keyword in text_lower for keyword in conflict_keywords)
+        
+        return {
+            'analysis': 'Verificação automática por palavras-chave - análise limitada',
+            'has_conflicts': has_conflicts,
+            'severity': 'média' if has_conflicts else 'baixa'
         }
     
     def _assess_conflict_severity(self, conflicts_text: str) -> str:
@@ -1141,8 +1288,12 @@ class CrewAIOrchestrator:
         
         if 'legal_analysis' in results:
             legal = results['legal_analysis']
-            findings.append(f"Categoria jurídica: {legal['legal_category']}")
-            findings.append(f"Tipo normativo: {legal['normative_type']}")
+            if 'legal_category' in legal:
+                findings.append(f"Categoria jurídica: {legal['legal_category']}")
+            if 'normative_type' in legal:
+                findings.append(f"Tipo normativo: {legal['normative_type']}")
+            if 'analysis_type' in legal:
+                findings.append(f"Tipo de análise: {legal['analysis_type']}")
         
         if 'document_review' in results:
             review = results['document_review']
