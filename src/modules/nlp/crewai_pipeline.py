@@ -3,20 +3,44 @@
 
 import logging
 import time
+import json
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass
 from datetime import datetime
-import json
 
-from crewai import Agent, Task, Crew
-from crewai.tools import tool
+# Conditional imports for CrewAI
+try:
+    from crewai import Agent, Task, Crew
+    from crewai.tools import tool
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+    logging.warning("CrewAI not available - pipeline functionality will be limited")
+    # Create dummy classes
+    class Agent:
+        pass
+    class Task:
+        pass
+    class Crew:
+        pass
+    def tool(name):
+        def decorator(func):
+            return func
+        return decorator
 
 from .crewai_config import CrewAINLPConfig
-from .crewai_integration import (
-    CrewAINLPAgents, enhanced_sentiment_analysis_tool,
-    legal_document_classification_tool, comprehensive_legal_analysis_tool,
-    text_preprocessing_tool
-)
+
+# Conditional imports for integration modules
+try:
+    from .crewai_integration import (
+        CrewAINLPAgents, enhanced_sentiment_analysis_tool,
+        legal_document_classification_tool, comprehensive_legal_analysis_tool,
+        text_preprocessing_tool
+    )
+    INTEGRATION_AVAILABLE = True
+except ImportError:
+    INTEGRATION_AVAILABLE = False
+    logging.warning("CrewAI integration modules not available")
 
 
 @dataclass
@@ -50,7 +74,13 @@ class CrewAIPipelineManager:
     
     def __init__(self, config: CrewAINLPConfig = None):
         self.config = config or CrewAINLPConfig()
-        self.agents_factory = CrewAINLPAgents()
+        
+        if INTEGRATION_AVAILABLE:
+            self.agents_factory = CrewAINLPAgents()
+        else:
+            self.agents_factory = None
+            logging.warning("CrewAI agents factory not available")
+            
         self.execution_history: List[PipelineResult] = []
         self.logger = logging.getLogger(__name__)
     

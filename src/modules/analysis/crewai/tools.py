@@ -8,8 +8,31 @@ Each tool provides clear input/output interfaces and error handling for CrewAI i
 import logging
 import json
 from typing import Dict, List, Optional, Any
-from crewai_tools import BaseTool
-from pydantic import BaseModel, Field
+
+# Conditional import of pydantic
+try:
+    from pydantic import BaseModel, Field
+    PYDANTIC_AVAILABLE = True
+except ImportError:
+    PYDANTIC_AVAILABLE = False
+    # Create dummy classes for type hints
+    class BaseModel:
+        pass
+    def Field(*args, **kwargs):
+        return None
+
+# Conditional import of CrewAI tools
+try:
+    from crewai_tools import BaseTool
+    CREWAI_TOOLS_AVAILABLE = True
+except ImportError:
+    CREWAI_TOOLS_AVAILABLE = False
+    # Create a dummy BaseTool class for type hints
+    class BaseTool:
+        name: str = ""
+        description: str = ""
+        def _run(self, *args, **kwargs):
+            pass
 
 # Import existing analysis functions
 try:
