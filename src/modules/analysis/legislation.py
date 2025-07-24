@@ -249,18 +249,50 @@ class LegislationAnalyzer:
 _analyzer = LegislationAnalyzer()
 
 
-def split_into_articles(text: str) -> List[str]:
+def _setup_standard_llm(max_tokens: int = 200, temperature: float = 0.3, out_focus: float = 8.0) -> 'ModelOllama':
     """
-    Divide o texto em artigos com base em uma expressão regular aprimorada que identifica 
-    linhas que começam com "Art." seguido de um número, capturando o artigo completo
-    incluindo parágrafos, incisos e alíneas até o próximo artigo.
+    Configura um modelo LLM com parâmetros padrão para análise legislativa.
+    
+    Args:
+        max_tokens (int): Número máximo de tokens para resposta
+        temperature (float): Temperatura para variação da resposta
+        out_focus (float): Foco de saída
+        
+    Returns:
+        ModelOllama: Instância configurada do modelo
+    """
+    llm = ModelOllama()
+    llm.max_tokens = max_tokens
+    llm.temperature = temperature
+    llm.out_focus = out_focus
+    llm.out_reduction_rate = 100.0
+    llm.penalty_rate = 5.0
+    return llm
+
+
+    """
+    Versão unificada que utiliza Docling para melhor extração de artigos quando disponível.
+    Extrai artigos completos com todos os componentes estruturais (parágrafos, incisos, alíneas).
+    Combina funcionalidade básica com aprimoramentos do Docling.
+    
     Args:
         text (str): O texto completo que será dividido em artigos.
+        document_path (str, optional): Caminho do documento para análise estruturada com Docling.
+    
     Returns:
-        list: Uma lista de strings, onde cada string representa um artigo completo com
-              todos os seus componentes (parágrafos, incisos, alíneas).
+        list: Uma lista de strings, onde cada string representa um artigo completo.
     """
-
+    
+    # Se Docling estiver disponível e tivermos um caminho de arquivo, usar análise estruturada
+    if DOCLING_AVAILABLE and document_path:
+        try:
+            structured_content = extract_structured_content(document_path)
+            return _extract_articles_from_structured_content(structured_content, text)
+        except Exception:
+            # Fallback para método básico se Docling falhar
+            pass
+    
+    # Implementação básica aprimorada
     # Regex aprimorada para capturar "Art. 9º", "Art. 12", "Artigo 9º", etc.
     regex = re.compile(r'^\s*(?:Art\.?|Artigo)\s*\d+(?:[ºº°]|o)?\b', re.IGNORECASE | re.MULTILINE)
 
@@ -297,31 +329,8 @@ def split_into_articles(text: str) -> List[str]:
         article_clean = article.strip()
         if article_clean and regex.match(article_clean):
             articles.append(article)
-
-def split_into_articles_enhanced(text: str, document_path: str = None) -> List[str]:
-    """
-    Versão aprimorada que utiliza Docling para melhor extração de artigos quando disponível.
-    Extrai artigos completos com todos os componentes estruturais (parágrafos, incisos, alíneas).
     
-    Args:
-        text (str): O texto completo que será dividido em artigos.
-        document_path (str, optional): Caminho do documento para análise estruturada com Docling.
-    
-    Returns:
-        list: Uma lista de strings, onde cada string representa um artigo completo.
-    """
-    
-    # Se Docling estiver disponível e tivermos um caminho de arquivo, usar análise estruturada
-    if DOCLING_AVAILABLE and document_path:
-        try:
-            structured_content = extract_structured_content(document_path)
-            return _extract_articles_from_structured_content(structured_content, text)
-        except Exception:
-            # Fallback para método básico se Docling falhar
-            pass
-    
-    # Usar método básico aprimorado
-    return split_into_articles(text)
+    return articles
 
 
 def _extract_articles_from_structured_content(structured_content: dict, fallback_text: str) -> List[str]:
@@ -515,10 +524,8 @@ def set_a_title(text: str) -> str:
     # Usar keywords como contexto para o LLM
     keywords_context = ', '.join(keywords) if keywords else ''
     
-    llm = ModelOllama()
-    llm.out_reduction_rate = 100.0
+    llm = _setup_standard_llm(max_tokens=100, out_focus=10.0)
     llm.penalty_rate = 10.0
-    llm.max_tokens = 100
     
     prompt = f"""
         /clear
@@ -556,9 +563,7 @@ def define_categories(text: str) -> str:
     Versão aprimorada que combina análise NLP com LLM para maior precisão.
     Identifica categorias de legislação com validação estatística.
     """
-    llm = ModelOllama()
-    llm.max_tokens = 100
-    llm.out_focus = 10.0
+    llm = _setup_standard_llm(max_tokens=100, out_focus=10.0)
     llm.penalty_rate = 2.0
     
     # Primeiro, fazer análise NLP para validação
@@ -629,9 +634,7 @@ def define_the_normative_type(text: str):
             return best_pattern_type
     
     # Usar LLM para casos ambíguos
-    llm = ModelOllama()
-    llm.max_tokens = 150
-    llm.out_focus = 10.0
+    llm = _setup_standard_llm(max_tokens=150, out_focus=10.0)
     llm.penalty_rate = 2.0
 
     prompt = f"""
@@ -665,18 +668,17 @@ def define_the_normative_type(text: str):
 
 def extract_entities(text: str):
     """
-    Versão aprimorada que combina análise NLP com LLM para extração de entidades.
+    Versão unificada que combina análise NLP com LLM para extração de entidades.
     Reduz falsos positivos através de validação estatística.
+    Utiliza tanto análise NLP aprimorada quanto validação por LLM.
     """
-    # Primeiro extrair entidades usando NLP
+    # Primeiro extrair entidades usando NLP aprimorado
     nlp_entities = _analyzer.extract_entities_enhanced(text)
     
     # Se temos entidades confiáveis do NLP, usar como base
     if nlp_entities:
         # Validar com LLM apenas as entidades encontradas
-        llm = ModelOllama()
-        llm.max_tokens = 150
-        llm.out_focus = 10.0
+        llm = _setup_standard_llm(max_tokens=150, out_focus=10.0)
         llm.penalty_rate = 2.0
         
         entities_text = ', '.join(nlp_entities)
@@ -697,9 +699,7 @@ def extract_entities(text: str):
         return validated_response if validated_response and validated_response != '-' else ', '.join(nlp_entities[:3])
     
     # Fallback para método original se NLP não encontrar entidades
-    llm = ModelOllama()
-    llm.max_tokens = 200
-    llm.out_focus = 10.0
+    llm = _setup_standard_llm(max_tokens=200, out_focus=10.0)
     llm.penalty_rate = 2.0
     prompt = """
         /clear
@@ -716,9 +716,7 @@ def extract_entities(text: str):
 
 
 def extract_the_penalties(text: str):
-    llm = ModelOllama()
-    llm.max_tokens = 200
-    llm.out_focus = 10.0
+    llm = _setup_standard_llm(max_tokens=200, out_focus=10.0)
     llm.penalty_rate = 2.0
     prompt = """
         /clear
@@ -735,9 +733,7 @@ def extract_the_penalties(text: str):
 
 
 def define_the_legal_terms(text: str):
-    llm = ModelOllama()
-    llm.max_tokens = 1000
-    llm.out_focus = 8.0
+    llm = _setup_standard_llm(max_tokens=1000, out_focus=8.0)
     llm.penalty_rate = 1.5
     prompt = """
         /clear
@@ -801,9 +797,7 @@ def extract_legal_dates_and_deadlines(text: str):
         # Limitar a 5 resultados mais relevantes
         top_results = list(set(regex_results))[:5]
         
-        llm = ModelOllama()
-        llm.max_tokens = 150
-        llm.out_focus = 10.0
+        llm = _setup_standard_llm(max_tokens=150, out_focus=10.0)
         llm.penalty_rate = 2.0
         
         results_text = ', '.join(top_results)
@@ -828,9 +822,7 @@ def extract_legal_dates_and_deadlines(text: str):
             return ', '.join(top_results) if top_results else '-'
     
     # Fallback para método original se regex não encontrar nada
-    llm = ModelOllama()
-    llm.max_tokens = 200
-    llm.out_focus = 10.0
+    llm = _setup_standard_llm(max_tokens=200, out_focus=10.0)
     llm.penalty_rate = 2.0
     prompt = """
         /clear
@@ -854,8 +846,7 @@ def extract_legal_dates_and_deadlines(text: str):
 
 
 def summarize(text: str):
-    llm = ModelOllama()
-    llm.max_tokens = 300
+    llm = _setup_standard_llm(max_tokens=300, temperature=0.9)
     llm.diversification_rate = 0.9
     prompt = """
         /clear
