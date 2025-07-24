@@ -1,4 +1,5 @@
-# Analysis module initialization
+
+from .sentiment_analysis import SentimentAnalysisReport
 
 # Import enhanced legal analysis functionality
 try:
@@ -47,5 +48,6 @@ __all__ = [
     
     # Status flags
     'ENHANCED_ANALYSIS_AVAILABLE',
-    'LEGACY_ANALYSIS_AVAILABLE'
+    'LEGACY_ANALYSIS_AVAILABLE',
+    'SentimentAnalysisReport'
 ]
