@@ -26,6 +26,28 @@ except ImportError as e:
     ENHANCED_ANALYSIS_AVAILABLE = False
     print(f"Enhanced legal analysis not available: {e}")
 
+# Import CrewAI-based analysis functionality
+try:
+    from .crewai.agents import (
+        LegalAnalysisCrewManager,
+        crewai_enhanced_legal_document_analysis,
+        crewai_enhanced_questionnaire
+    )
+    from .crewai.tools import (
+        LegalContextExtractionTool,
+        SubjectSynthesisTool,
+        StructuredSummaryTool,
+        DocumentArticleAnalysisTool,
+        QuestionGenerationTool,
+        LegalAssessmentTool,
+        ConstitutionalRetrievalTool,
+        QuestionAnsweringTool
+    )
+    CREWAI_ANALYSIS_AVAILABLE = True
+except ImportError as e:
+    CREWAI_ANALYSIS_AVAILABLE = False
+    print(f"CrewAI analysis not available: {e}")
+
 # Import existing analysis modules
 try:
     from . import examining_board
@@ -48,6 +70,19 @@ __all__ = [
     'LegalSynthesis',
     'LegalContext',
     
+    # CrewAI-based analysis functions
+    'LegalAnalysisCrewManager',
+    'crewai_enhanced_legal_document_analysis',
+    'crewai_enhanced_questionnaire',
+    'LegalContextExtractionTool',
+    'SubjectSynthesisTool',
+    'StructuredSummaryTool',
+    'DocumentArticleAnalysisTool',
+    'QuestionGenerationTool',
+    'LegalAssessmentTool',
+    'ConstitutionalRetrievalTool',
+    'QuestionAnsweringTool',
+    
     # Legacy modules
     'examining_board',
     'legislation', 
@@ -55,6 +90,7 @@ __all__ = [
     
     # Status flags
     'ENHANCED_ANALYSIS_AVAILABLE',
+    'CREWAI_ANALYSIS_AVAILABLE',
     'LEGACY_ANALYSIS_AVAILABLE',
     'SENTIMENT_ANALYSIS_AVAILABLE'
 ]
