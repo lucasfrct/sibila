@@ -3,6 +3,7 @@
 """
 Migration 001: Initial schema
 Creates the initial database tables for documents and paragraphs
+This migration ensures the core schema exists and handles existing tables gracefully.
 """
 
 from src.migrations.migration_base import Migration
@@ -15,7 +16,7 @@ class Migration001(Migration):
         super().__init__("001", "Initial schema: create documents_info and paragraphs_metadatas tables")
     
     def up(self, conn) -> bool:
-        """Create initial tables"""
+        """Create initial tables - handles existing tables gracefully"""
         try:
             # Create documents_info table
             conn.execute("""
@@ -50,6 +51,15 @@ class Migration001(Migration):
                 )
             """)
             
+            # Create helpful indexes for better performance
+            try:
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_documents_path ON documents_info(path)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_paragraphs_path ON paragraphs_metadatas(path)")
+                conn.execute("CREATE INDEX IF NOT EXISTS idx_paragraphs_page ON paragraphs_metadatas(page)")
+            except Exception as idx_error:
+                # Index creation failure shouldn't fail the migration
+                print(f"Warning: Some indexes could not be created: {idx_error}")
+            
             conn.commit()
             return True
             
@@ -58,10 +68,21 @@ class Migration001(Migration):
             return False
     
     def down(self, conn) -> bool:
-        """Drop initial tables"""
+        """Drop initial tables - with safety checks"""
         try:
-            conn.execute("DROP TABLE IF EXISTS paragraphs_metadatas")
-            conn.execute("DROP TABLE IF EXISTS documents_info")
+            # Check if tables exist before dropping
+            cursor = conn.execute("""
+                SELECT name FROM sqlite_master 
+                WHERE type='table' AND name IN ('paragraphs_metadatas', 'documents_info')
+            """)
+            existing_tables = [row[0] for row in cursor.fetchall()]
+            
+            if 'paragraphs_metadatas' in existing_tables:
+                conn.execute("DROP TABLE paragraphs_metadatas")
+                
+            if 'documents_info' in existing_tables:
+                conn.execute("DROP TABLE documents_info")
+                
             conn.commit()
             return True
             
