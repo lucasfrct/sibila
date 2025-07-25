@@ -162,26 +162,61 @@ class MigrationManager:
         """Apply all pending migrations"""
         try:
             if not self.ensure_migration_table():
+                logging.error("Failed to ensure migration table exists")
                 return False
             
             pending = self.get_pending_migrations()
             if not pending:
-                logging.info("No pending migrations")
+                logging.info("✓ No pending migrations - database is up to date")
                 return True
             
+            logging.info(f"📋 Found {len(pending)} pending migrations to apply")
             success_count = 0
+            
             for version in pending:
+                logging.info(f"📦 Applying migration {version}...")
                 if self.apply_migration(version):
                     success_count += 1
+                    logging.info(f"✓ Migration {version} applied successfully")
                 else:
-                    logging.error(f"Migration {version} failed, stopping migration process")
+                    logging.error(f"✗ Migration {version} failed, stopping migration process")
                     break
             
-            logging.info(f"Applied {success_count} out of {len(pending)} migrations")
+            if success_count == len(pending):
+                logging.info(f"✅ All {success_count} migrations applied successfully")
+            else:
+                logging.warning(f"⚠ Applied {success_count} out of {len(pending)} migrations")
+                
             return success_count == len(pending)
             
         except Exception as e:
-            logging.error(f"Migration process failed: {e}\n{traceback.format_exc()}")
+            logging.error(f"💥 Migration process failed: {e}\n{traceback.format_exc()}")
+            return False
+
+    def check_schema_integrity(self) -> bool:
+        """Check if the current database schema matches expected state"""
+        try:
+            conn = sqlitedb.client()
+            
+            # Check if core tables exist
+            cursor = conn.execute("""
+                SELECT name FROM sqlite_master 
+                WHERE type='table' AND name IN ('documents_info', 'paragraphs_metadatas', 'schema_migrations')
+            """)
+            existing_tables = [row[0] for row in cursor.fetchall()]
+            
+            expected_tables = ['documents_info', 'paragraphs_metadatas', 'schema_migrations']
+            missing_tables = [table for table in expected_tables if table not in existing_tables]
+            
+            if missing_tables:
+                logging.warning(f"⚠ Missing tables detected: {missing_tables}")
+                return False
+                
+            logging.info("✓ Schema integrity check passed")
+            return True
+            
+        except Exception as e:
+            logging.error(f"Schema integrity check failed: {e}\n{traceback.format_exc()}")
             return False
     
     def status(self) -> Dict:
@@ -191,11 +226,16 @@ class MigrationManager:
             applied = self.get_applied_migrations()
             pending = self.get_pending_migrations()
             
+            # Check schema integrity
+            schema_ok = self.check_schema_integrity()
+            
             return {
                 "applied_migrations": applied,
                 "pending_migrations": pending,
                 "total_applied": len(applied),
-                "total_pending": len(pending)
+                "total_pending": len(pending),
+                "schema_integrity": schema_ok,
+                "database_ready": len(pending) == 0 and schema_ok
             }
         except Exception as e:
             logging.error(f"Failed to get migration status: {e}\n{traceback.format_exc()}")
@@ -204,5 +244,7 @@ class MigrationManager:
                 "pending_migrations": [],
                 "total_applied": 0,
                 "total_pending": 0,
+                "schema_integrity": False,
+                "database_ready": False,
                 "error": str(e)
             }
