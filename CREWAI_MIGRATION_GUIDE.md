@@ -264,7 +264,7 @@ class ContractAnalysisTool(BaseTool):
 ### Testes Automatizados
 ```bash
 # Executar testes do CrewAI
-python test_crewai_simple.py
+python tests/test_crewai_simple.py
 
 # Executar demonstração
 python demo_crewai_legal_analysis.py

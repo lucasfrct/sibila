@@ -33,7 +33,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # 4. Test the application
-python test_application.py
+python tests/test_application.py
 
 # 5. Start the application
 python main.py
@@ -66,7 +66,7 @@ python main.py
 ### 1. Automated Testing
 ```bash
 # Run comprehensive tests
-python test_application.py
+python tests/test_application.py
 ```
 
 ### 2. Manual Testing Checklist
@@ -204,7 +204,7 @@ pip install --force-reinstall -r requirements.txt
 
 If you encounter issues:
 1. Check the logs: `tail -f logs/application.log`
-2. Run diagnostics: `python test_application.py`
+2. Run diagnostics: `python tests/test_application.py`
 3. Review error messages carefully
 4. Consult the dependency documentation for breaking changes
 

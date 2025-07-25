@@ -145,10 +145,10 @@ Execute os testes de migração:
 
 ```bash
 # Teste estrutural básico
-python test_core_migration.py
+python tests/test_core_migration.py
 
 # Teste completo (requer dependências)
-python test_docling_migration.py
+python tests/test_docling_migration.py
 ```
 
 ## Próximos Passos

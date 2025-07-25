@@ -8,7 +8,7 @@ import logging
 from unittest.mock import patch, MagicMock
 
 # Add the project root to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # Configure logging for tests
 logging.basicConfig(level=logging.WARNING)

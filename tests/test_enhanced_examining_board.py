@@ -13,7 +13,7 @@ import sys
 import os
 
 # Add the src directory to Python path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 def test_enhanced_examining_board():
     """Testa a funcionalidade aprimorada da banca examinadora"""

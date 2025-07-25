@@ -82,9 +82,9 @@ src/modules/analysis/crewai/
 └── agents.py                # 5 agentes + gerenciador
 
 demo_crewai_legal_analysis.py    # Demonstração completa
-test_crewai_simple.py           # Testes funcionais
-test_crewai_integration.py      # Testes de integração
-CREWAI_MIGRATION_GUIDE.md      # Guia completo de migração
+tests/test_crewai_simple.py      # Testes funcionais
+tests/test_crewai_integration.py # Testes de integração
+CREWAI_MIGRATION_GUIDE.md       # Guia completo de migração
 ```
 
 ### Modificados:
@@ -129,7 +129,7 @@ else:
 
 ### ✅ Testes Executados Com Sucesso:
 ```bash
-python test_crewai_simple.py
+python tests/test_crewai_simple.py
 # ✅ Testes bem-sucedidos: 4/4
 # 🎉 Todos os testes passaram! CrewAI está funcionando corretamente.
 
