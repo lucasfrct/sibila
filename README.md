@@ -36,6 +36,20 @@ python main.py --no-reload  # Sem hot reload
 
 **Documentação completa:** [SETUP_LOCAL.md](./SETUP_LOCAL.md)
 
+### 4. Gestão do Banco de Dados
+```bash
+# Verificar status das migrações
+python migrate_cli.py status
+
+# Aplicar migrações pendentes
+python migrate_cli.py migrate
+
+# Criar nova migração
+python migrate_cli.py create "Adicionar nova tabela"
+```
+
+**Documentação do sistema de migração:** [DATABASE_MIGRATION_GUIDE.md](./DATABASE_MIGRATION_GUIDE.md)
+
 ## 🏗️ Arquitetura do Sistema
 
 ### Pipeline de Processamento
