@@ -97,6 +97,13 @@ def enhanced_sentiment_analysis_tool(text: str) -> str:
     Returns:
         JSON string com análise completa de sentimentos
     """
+    # Input validation
+    if not text or not isinstance(text, str) or text.strip() == "":
+        return json.dumps({
+            "error": "Texto inválido",
+            "message": "O texto deve ser uma string não vazia"
+        }, ensure_ascii=False)
+    
     if not ENHANCED_SENTIMENT_AVAILABLE:
         return json.dumps({
             "error": "Enhanced sentiment analysis not available",
@@ -123,6 +130,19 @@ def legal_document_classification_tool(text: str, classification_type: str = "su
     Returns:
         JSON string com resultado da classificação
     """
+    # Input validation
+    if not text or not isinstance(text, str) or text.strip() == "":
+        return json.dumps({
+            "error": "Texto inválido",
+            "message": "O texto deve ser uma string não vazia"
+        }, ensure_ascii=False)
+    
+    if not isinstance(classification_type, str):
+        return json.dumps({
+            "error": "Tipo de classificação inválido",
+            "message": "O tipo de classificação deve ser uma string"
+        }, ensure_ascii=False)
+    
     if not ENHANCED_CLASSIFIER_AVAILABLE:
         return json.dumps({
             "error": "Enhanced classifier not available",

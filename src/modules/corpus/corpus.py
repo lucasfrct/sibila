@@ -1,5 +1,7 @@
 # flake8: noqa: E501
 
+import logging
+import traceback
 from datetime import datetime
 from typing import List
 
@@ -26,20 +28,33 @@ def doc_with_articles(path: str, page_init: int = 1, page_final: int = -1, use_e
         dict: Um dicionário contendo informações do documento e os artigos extraídos.
         None: Se as informações do documento não puderem ser obtidas.
     """
-
-    doc_info = DocService.info(path)
-    if doc_info is None:
+    # Input validation
+    if not path or not isinstance(path, str):
+        return None
+        
+    if not isinstance(page_init, int) or page_init < 1:
+        return None
+        
+    if not isinstance(page_final, int) or (page_final != -1 and page_final < page_init):
         return None
 
-    doc = doc_info.dict()
-    doc_file = DocService.document_content(doc['path'], page_init, page_final)
+    try:
+        doc_info = DocService.info(path)
+        if doc_info is None:
+            return None
 
-    # Usar função unificada que já inclui funcionalidade aprimorada
-    doc['articles'] = Legislation.split_into_articles(doc_file, doc['path'] if use_enhanced else None)
-    
-    doc['total_articles'] = len(doc['articles'])
+        doc = doc_info.dict()
+        doc_file = DocService.document_content(doc['path'], page_init, page_final)
 
-    return doc
+        # Usar função unificada que já inclui funcionalidade aprimorada
+        doc['articles'] = Legislation.split_into_articles(doc_file, doc['path'] if use_enhanced else None)
+        
+        doc['total_articles'] = len(doc['articles'])
+
+        return doc
+    except Exception as e:
+        logging.error(f"Erro ao processar documento {path}: {e}\n{traceback.format_exc()}")
+        return None
 
 
 def annotate_the_article(text: str, extract_components: bool = False):

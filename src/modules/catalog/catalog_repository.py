@@ -62,7 +62,7 @@ def save(catalog: Catalog) -> bool:
         bool: Retorna True se o item do catálogo foi salvo com sucesso, caso contrário, retorna False.
     """
     try:
-        if Catalog is None:
+        if catalog is None:
             return False
 
         path = catalog.path
@@ -81,8 +81,11 @@ def save(catalog: Catalog) -> bool:
         conn.commit()
         return True
 
+    except AttributeError as e:
+        logging.error(f"Erro de atributo no catálogo: {e}\n{traceback.format_exc()}")
+        return False
     except Exception as e:
-        logging.error(f"{e}\n{traceback.format_exc()}")
+        logging.error(f"Erro ao salvar catálogo: {e}\n{traceback.format_exc()}")
         return False
 
 
