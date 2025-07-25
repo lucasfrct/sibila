@@ -13,7 +13,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 # Add the src directory to the path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 
 class TestCrewAILegalAnalysis(unittest.TestCase):

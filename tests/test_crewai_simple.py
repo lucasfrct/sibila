@@ -8,7 +8,7 @@ import os
 import json
 
 # Add src to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 def test_direct_tools():
     """Test CrewAI tools directly"""
