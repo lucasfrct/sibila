@@ -25,7 +25,7 @@ def save(paragraph: ParagraphMetadata) -> bool:
         collection.add(documents=text, metadatas=paragraph_dict, ids=uuid)
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -36,7 +36,7 @@ def query(query: str = "", results: int = 5) -> List[ParagraphMetadata]:
         result = collection.query(query_texts=[query], n_results=results)
         return retrieval_to_paragraphs(result)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -52,7 +52,7 @@ def save_with_embedings(metadata: ParagraphMetadata) -> bool:
         collection.add(embeddings=embeddings, documents=chunks, metadatas=paragraph_dict, ids=ids)
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -66,7 +66,7 @@ def query_with_embeddings(consult: str = "", results: int = 5) -> List[Paragraph
             query_embeddings=[embeddings], n_results=results)
         return retrieval_to_paragraphs(result)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 

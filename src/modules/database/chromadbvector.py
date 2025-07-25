@@ -76,7 +76,7 @@ def query(collection: chromadb.Collection, query: str = "", results: int = 5, th
         result = collection.query(query_texts=[query], n_results=results)
         return result_to_dict(result, threshold)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
     
 def result_to_dict(result: chromadb.QueryResult, threshold: float = 0.5) -> List[dict]:

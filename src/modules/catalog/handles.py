@@ -28,7 +28,7 @@ def names(path: str = "") -> List[str]:
     try:
         return Archive.names(path)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -49,7 +49,7 @@ def paths(path: str = "") -> List[str]:
     try:
         return Archive.paths(path)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -73,7 +73,7 @@ def register_info_by_path(path: str = "") -> DocumentInfo | None:
             return None
         return doc
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
@@ -105,7 +105,7 @@ def register_info_in_bath(directory: str = "") -> List[DocumentInfo]:
 
         return docs
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 

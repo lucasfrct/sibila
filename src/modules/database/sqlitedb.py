@@ -10,7 +10,7 @@ def client(path: str = "./data/.sqlite") -> object:
             os.makedirs(path)
         return sqlite3.connect(f"{path}/sqlite.db")
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
