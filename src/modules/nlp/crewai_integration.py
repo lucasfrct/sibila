@@ -2,15 +2,52 @@
 # Provides agent-based natural language processing using CrewAI framework
 
 import logging
-from typing import Dict, List, Optional, Any
-from crewai import Agent, Task, Crew
-from crewai.tools import tool
-from crewai_tools import FileReadTool, FileWriterTool
 import json
+from typing import Dict, List, Optional, Any
+
+# Conditional imports for CrewAI
+try:
+    from crewai import Agent, Task, Crew
+    from crewai.tools import tool
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+    # Create dummy classes for type hints
+    class Agent:
+        pass
+    class Task:
+        pass
+    class Crew:
+        pass
+    def tool(name):
+        def decorator(func):
+            return func
+        return decorator
+
+try:
+    from crewai_tools import FileReadTool, FileWriterTool
+    CREWAI_TOOLS_AVAILABLE = True
+except ImportError:
+    CREWAI_TOOLS_AVAILABLE = False
+    class FileReadTool:
+        pass
+    class FileWriterTool:
+        pass
 
 # Import existing NLP modules for backward compatibility
-from .enhanced_sentiment import EnhancedSentimentAnalyzer, sentiment_analysis_enhanced
-from .enhanced_classifier import LegalDocumentClassifier, ClassificationType, get_classifier
+try:
+    from .enhanced_sentiment import EnhancedSentimentAnalyzer, sentiment_analysis_enhanced
+    ENHANCED_SENTIMENT_AVAILABLE = True
+except ImportError:
+    ENHANCED_SENTIMENT_AVAILABLE = False
+    logging.warning("Enhanced sentiment analysis not available")
+
+try:
+    from .enhanced_classifier import LegalDocumentClassifier, ClassificationType, get_classifier
+    ENHANCED_CLASSIFIER_AVAILABLE = True
+except ImportError:
+    ENHANCED_CLASSIFIER_AVAILABLE = False
+    logging.warning("Enhanced classifier not available")
 
 
 class CrewAINLPConfiguration:
@@ -60,6 +97,12 @@ def enhanced_sentiment_analysis_tool(text: str) -> str:
     Returns:
         JSON string com análise completa de sentimentos
     """
+    if not ENHANCED_SENTIMENT_AVAILABLE:
+        return json.dumps({
+            "error": "Enhanced sentiment analysis not available",
+            "message": "Required dependencies not installed"
+        }, ensure_ascii=False)
+    
     try:
         analyzer = EnhancedSentimentAnalyzer()
         result = analyzer.analyze_comprehensive(text)
@@ -80,6 +123,12 @@ def legal_document_classification_tool(text: str, classification_type: str = "su
     Returns:
         JSON string com resultado da classificação
     """
+    if not ENHANCED_CLASSIFIER_AVAILABLE:
+        return json.dumps({
+            "error": "Enhanced classifier not available",
+            "message": "Required dependencies not installed"
+        }, ensure_ascii=False)
+    
     try:
         classifier = get_classifier()
         
@@ -119,6 +168,12 @@ def comprehensive_legal_analysis_tool(text: str) -> str:
     Returns:
         JSON string com análise legal completa
     """
+    if not ENHANCED_CLASSIFIER_AVAILABLE:
+        return json.dumps({
+            "error": "Enhanced classifier not available",
+            "message": "Required dependencies not installed"
+        }, ensure_ascii=False)
+    
     try:
         classifier = get_classifier()
         
@@ -188,6 +243,9 @@ class CrewAINLPAgents:
     
     def create_sentiment_agent(self) -> Agent:
         """Create sentiment analysis agent"""
+        if not CREWAI_AVAILABLE:
+            raise ImportError("CrewAI not available - cannot create agents")
+        
         return Agent(
             **self.config.sentiment_agent_config,
             tools=[enhanced_sentiment_analysis_tool, text_preprocessing_tool]
@@ -195,6 +253,9 @@ class CrewAINLPAgents:
     
     def create_legal_classifier_agent(self) -> Agent:
         """Create legal document classification agent"""
+        if not CREWAI_AVAILABLE:
+            raise ImportError("CrewAI not available - cannot create agents")
+        
         return Agent(
             **self.config.legal_classifier_agent_config,
             tools=[
@@ -206,15 +267,20 @@ class CrewAINLPAgents:
     
     def create_text_analyzer_agent(self) -> Agent:
         """Create advanced text analysis agent"""
+        if not CREWAI_AVAILABLE:
+            raise ImportError("CrewAI not available - cannot create agents")
+        
+        file_tools = []
+        if CREWAI_TOOLS_AVAILABLE:
+            file_tools = [FileReadTool(), FileWriterTool()]
+        
         return Agent(
             **self.config.text_analyzer_agent_config,
             tools=[
                 enhanced_sentiment_analysis_tool,
                 comprehensive_legal_analysis_tool,
-                text_preprocessing_tool,
-                FileReadTool(),
-                FileWriterTool()
-            ]
+                text_preprocessing_tool
+            ] + file_tools
         )
 
 

@@ -10,9 +10,42 @@ Cada agente possui especialização específica e contribui para o
 resultado final da análise.
 """
 
-from typing import Dict, List, Optional, Any
+import logging
 import json
+from typing import Dict, List, Optional, Any
 from abc import ABC, abstractmethod
+
+# Importação condicional do CrewAI
+try:
+    from crewai import Agent, Task, Crew, Process
+    from crewai.tools import BaseTool
+    from langchain_openai import ChatOpenAI
+    CREWAI_AVAILABLE = True
+except ImportError:
+    CREWAI_AVAILABLE = False
+    Agent = None
+    Task = None
+    Crew = None
+    Process = None
+    BaseTool = None
+    ChatOpenAI = None
+
+# Importar ferramentas condicionalmente
+try:
+    from .tools import (
+        LegalContextExtractionTool,
+        SubjectSynthesisTool,
+        StructuredSummaryTool,
+        DocumentArticleAnalysisTool,
+        QuestionGenerationTool,
+        LegalAssessmentTool,
+        ConstitutionalRetrievalTool,
+        QuestionAnsweringTool
+    )
+    TOOLS_AVAILABLE = True
+except ImportError:
+    TOOLS_AVAILABLE = False
+
 # Exportar classes principais
 __all__ = [
     'BaseAgent',
@@ -20,45 +53,12 @@ __all__ = [
     'DocumentReviewAgent',
     'ComplianceAgent',
     'CrewAIOrchestrator',
-    'analyze_legal_document'
+    'LegalAnalysisCrewManager',
+    'analyze_legal_document',
+    'analyze_legal_document_simple',
+    'crewai_enhanced_legal_document_analysis',
+    'crewai_enhanced_questionnaire'
 ]
-
-"""
-CrewAI Agents for Legal Analysis
-
-Defines specialized agents that work together to perform comprehensive legal document analysis.
-Each agent has a specific role and uses appropriate tools to accomplish legal analysis tasks.
-"""
-
-import logging
-import json
-from typing import Dict, List, Optional, Any
-from crewai import Agent, Task, Crew, Process
-from langchain_openai import ChatOpenAI
-
-from .tools import (
-    LegalContextExtractionTool,
-    SubjectSynthesisTool,
-    StructuredSummaryTool,
-    DocumentArticleAnalysisTool,
-    QuestionGenerationTool,
-    LegalAssessmentTool,
-    ConstitutionalRetrievalTool,
-    QuestionAnsweringTool
-)
-
-
-# Importação condicional do CrewAI
-try:
-    from crewai import Agent, Task, Crew
-    from crewai.tools import BaseTool
-    CREWAI_AVAILABLE = True
-except ImportError:
-    CREWAI_AVAILABLE = False
-    Agent = None
-    Task = None
-    Crew = None
-    BaseTool = None
 
 # Importações condicionais para lidar com dependências opcionais
 try:
@@ -1412,10 +1412,10 @@ class CrewAIOrchestrator:
         return factors
 
 
-# Função de conveniência para análise rápida
-def analyze_legal_document(text: str, analysis_type: str = 'completa') -> Dict[str, Any]:
+# Função de conveniência para análise rápida usando orchestrator local
+def analyze_legal_document_simple(text: str, analysis_type: str = 'completa') -> Dict[str, Any]:
     """
-    Função de conveniência para análise rápida de documentos legislativos.
+    Função de conveniência para análise rápida de documentos legislativos usando orchestrator local.
     
     Args:
         text (str): Texto do documento a ser analisado
@@ -1426,6 +1426,28 @@ def analyze_legal_document(text: str, analysis_type: str = 'completa') -> Dict[s
     """
     orchestrator = CrewAIOrchestrator()
     return orchestrator.analyze_document(text, analysis_type)
+
+
+# Função principal para compatibilidade
+def analyze_legal_document(text: str, analysis_type: str = 'completa', use_crewai: bool = False, 
+                          openai_api_key: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Função principal para análise de documentos legislativos.
+    
+    Args:
+        text (str): Texto do documento a ser analisado
+        analysis_type (str): Tipo de análise desejada
+        use_crewai (bool): Se True, usa CrewAI Manager; se False, usa Orchestrator local
+        openai_api_key (Optional[str]): Chave da API OpenAI (apenas para CrewAI)
+        
+    Returns:
+        Dict[str, Any]: Resultado da análise
+    """
+    if use_crewai and CREWAI_AVAILABLE:
+        manager = LegalAnalysisCrewManager(openai_api_key=openai_api_key)
+        return manager.analyze_legal_document(text)
+    else:
+        return analyze_legal_document_simple(text, analysis_type)
 
 
 
@@ -1449,18 +1471,26 @@ class LegalAnalysisCrewManager:
         self.openai_api_key = openai_api_key
         
         # Initialize LLM
-        if openai_api_key:
-            self.llm = ChatOpenAI(
-                model=model_name,
-                api_key=openai_api_key,
-                temperature=0.3
-            )
+        if not CREWAI_AVAILABLE or ChatOpenAI is None:
+            logging.warning("CrewAI or ChatOpenAI not available - LegalAnalysisCrewManager will have limited functionality")
+            self.llm = None
         else:
-            # Use default configuration - assumes OPENAI_API_KEY is set in environment
-            self.llm = ChatOpenAI(
-                model=model_name,
-                temperature=0.3
-            )
+            try:
+                if openai_api_key:
+                    self.llm = ChatOpenAI(
+                        model=model_name,
+                        api_key=openai_api_key,
+                        temperature=0.3
+                    )
+                else:
+                    # Use default configuration - assumes OPENAI_API_KEY is set in environment
+                    self.llm = ChatOpenAI(
+                        model=model_name,
+                        temperature=0.3
+                    )
+            except Exception as e:
+                logging.warning(f"Could not initialize ChatOpenAI: {e}")
+                self.llm = None
         
         # Initialize tools
         self.tools = self._initialize_tools()
@@ -1472,86 +1502,143 @@ class LegalAnalysisCrewManager:
     
     def _initialize_tools(self) -> Dict[str, Any]:
         """Initialize all available tools"""
-        return {
-            'context_extraction': LegalContextExtractionTool(),
-            'subject_synthesis': SubjectSynthesisTool(),
-            'structured_summary': StructuredSummaryTool(),
-            'article_analysis': DocumentArticleAnalysisTool(),
-            'question_generation': QuestionGenerationTool(),
-            'legal_assessment': LegalAssessmentTool(),
-            'constitutional_retrieval': ConstitutionalRetrievalTool(),
-            'question_answering': QuestionAnsweringTool()
-        }
+        tools = {}
+        
+        if TOOLS_AVAILABLE:
+            try:
+                tools = {
+                    'context_extraction': LegalContextExtractionTool(),
+                    'subject_synthesis': SubjectSynthesisTool(),
+                    'structured_summary': StructuredSummaryTool(),
+                    'article_analysis': DocumentArticleAnalysisTool(),
+                    'question_generation': QuestionGenerationTool(),
+                    'legal_assessment': LegalAssessmentTool(),
+                    'constitutional_retrieval': ConstitutionalRetrievalTool(),
+                    'question_answering': QuestionAnsweringTool()
+                }
+            except Exception as e:
+                logging.warning(f"Could not initialize all tools: {e}")
+                tools = {}
+        else:
+            logging.warning("Tools not available - CrewAI tools module not found")
+            
+        return tools
     
     def _create_agents(self) -> Dict[str, Agent]:
         """Create specialized legal analysis agents"""
         
         agents = {}
         
+        if not CREWAI_AVAILABLE or Agent is None or self.llm is None:
+            logging.warning("Cannot create CrewAI agents - dependencies not available")
+            return agents
+        
+        # Get available tools
+        available_tools = []
+        if 'context_extraction' in self.tools:
+            available_tools.append(self.tools['context_extraction'])
+        if 'constitutional_retrieval' in self.tools:
+            available_tools.append(self.tools['constitutional_retrieval'])
+        
         # Legal Context Analyst Agent
-        agents['context_analyst'] = Agent(
-            role='Legal Context Analyst',
-            goal='Extract comprehensive legal context from documents including entities, actions, and critical points',
-            backstory="""You are an expert legal analyst specialized in extracting structured context 
-            from legal documents. You excel at identifying key entities, legal actions, deductions, 
-            events, and critical attention points that require special consideration.""",
-            tools=[self.tools['context_extraction'], self.tools['constitutional_retrieval']],
-            llm=self.llm,
-            verbose=True,
-            allow_delegation=False
-        )
+        try:
+            agents['context_analyst'] = Agent(
+                role='Legal Context Analyst',
+                goal='Extract comprehensive legal context from documents including entities, actions, and critical points',
+                backstory="""You are an expert legal analyst specialized in extracting structured context 
+                from legal documents. You excel at identifying key entities, legal actions, deductions, 
+                events, and critical attention points that require special consideration.""",
+                tools=available_tools,
+                llm=self.llm,
+                verbose=True,
+                allow_delegation=False
+            )
+        except Exception as e:
+            logging.warning(f"Could not create context_analyst agent: {e}")
         
         # Subject Matter Expert Agent  
-        agents['subject_expert'] = Agent(
-            role='Legal Subject Matter Expert',
-            goal='Analyze and synthesize the main legal subject and generate structured summaries',
-            backstory="""You are a senior legal expert with deep knowledge of various legal domains. 
-            You specialize in quickly identifying the core legal subject matter and creating clear, 
-            structured summaries that highlight the most important aspects of legal documents.""",
-            tools=[self.tools['subject_synthesis'], self.tools['structured_summary']],
-            llm=self.llm,
-            verbose=True,
-            allow_delegation=False
-        )
+        subject_tools = []
+        if 'subject_synthesis' in self.tools:
+            subject_tools.append(self.tools['subject_synthesis'])
+        if 'structured_summary' in self.tools:
+            subject_tools.append(self.tools['structured_summary'])
+            
+        try:
+            agents['subject_expert'] = Agent(
+                role='Legal Subject Matter Expert',
+                goal='Analyze and synthesize the main legal subject and generate structured summaries',
+                backstory="""You are a senior legal expert with deep knowledge of various legal domains. 
+                You specialize in quickly identifying the core legal subject matter and creating clear, 
+                structured summaries that highlight the most important aspects of legal documents.""",
+                tools=subject_tools,
+                llm=self.llm,
+                verbose=True,
+                allow_delegation=False
+            )
+        except Exception as e:
+            logging.warning(f"Could not create subject_expert agent: {e}")
         
         # Document Structure Analyst Agent
-        agents['structure_analyst'] = Agent(
-            role='Legal Document Structure Analyst',
-            goal='Analyze document structure and break down individual articles with detailed analysis',
-            backstory="""You are a legal document specialist who excels at analyzing the structure 
-            and organization of legal documents. You can break down complex legal texts into 
-            individual articles and provide detailed analysis of each component.""",
-            tools=[self.tools['article_analysis']],
-            llm=self.llm,
-            verbose=True,
-            allow_delegation=False
-        )
+        structure_tools = []
+        if 'article_analysis' in self.tools:
+            structure_tools.append(self.tools['article_analysis'])
+            
+        try:
+            agents['structure_analyst'] = Agent(
+                role='Legal Document Structure Analyst',
+                goal='Analyze document structure and break down individual articles with detailed analysis',
+                backstory="""You are a legal document specialist who excels at analyzing the structure 
+                and organization of legal documents. You can break down complex legal texts into 
+                individual articles and provide detailed analysis of each component.""",
+                tools=structure_tools,
+                llm=self.llm,
+                verbose=True,
+                allow_delegation=False
+            )
+        except Exception as e:
+            logging.warning(f"Could not create structure_analyst agent: {e}")
         
         # Legal Examiner Agent
-        agents['legal_examiner'] = Agent(
-            role='Legal Examiner and Question Generator',
-            goal='Generate relevant legal questions and conduct examinations based on legal content',
-            backstory="""You are an experienced legal examiner who creates insightful questions 
-            to test understanding of legal documents. You excel at generating both individual 
-            questions and comprehensive questionnaires that explore all aspects of legal content.""",
-            tools=[self.tools['question_generation'], self.tools['question_answering']],
-            llm=self.llm,
-            verbose=True,
-            allow_delegation=False
-        )
+        examiner_tools = []
+        if 'question_generation' in self.tools:
+            examiner_tools.append(self.tools['question_generation'])
+        if 'question_answering' in self.tools:
+            examiner_tools.append(self.tools['question_answering'])
+            
+        try:
+            agents['legal_examiner'] = Agent(
+                role='Legal Examiner and Question Generator',
+                goal='Generate relevant legal questions and conduct examinations based on legal content',
+                backstory="""You are an experienced legal examiner who creates insightful questions 
+                to test understanding of legal documents. You excel at generating both individual 
+                questions and comprehensive questionnaires that explore all aspects of legal content.""",
+                tools=examiner_tools,
+                llm=self.llm,
+                verbose=True,
+                allow_delegation=False
+            )
+        except Exception as e:
+            logging.warning(f"Could not create legal_examiner agent: {e}")
         
         # Legal Assessment Coordinator Agent (Main Orchestrator)
-        agents['assessment_coordinator'] = Agent(
-            role='Senior Legal Assessment Coordinator',
-            goal='Coordinate comprehensive legal analysis and provide overall assessment with recommendations',
-            backstory="""You are a senior legal coordinator with extensive experience in managing 
-            complex legal analysis projects. You excel at synthesizing information from multiple 
-            specialists and providing comprehensive assessments with practical recommendations.""",
-            tools=[self.tools['legal_assessment']],
-            llm=self.llm,
-            verbose=True,
-            allow_delegation=True
-        )
+        assessment_tools = []
+        if 'legal_assessment' in self.tools:
+            assessment_tools.append(self.tools['legal_assessment'])
+            
+        try:
+            agents['assessment_coordinator'] = Agent(
+                role='Senior Legal Assessment Coordinator',
+                goal='Coordinate comprehensive legal analysis and provide overall assessment with recommendations',
+                backstory="""You are a senior legal coordinator with extensive experience in managing 
+                complex legal analysis projects. You excel at synthesizing information from multiple 
+                specialists and providing comprehensive assessments with practical recommendations.""",
+                tools=assessment_tools,
+                llm=self.llm,
+                verbose=True,
+                allow_delegation=True
+            )
+        except Exception as e:
+            logging.warning(f"Could not create assessment_coordinator agent: {e}")
         
         return agents
     
