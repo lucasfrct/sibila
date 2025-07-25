@@ -49,7 +49,7 @@ def table_catalogs() -> bool:
         """)
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -82,7 +82,7 @@ def save(catalog: Catalog) -> bool:
         return True
 
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -104,7 +104,7 @@ def show_by_path(path: str = "") -> Optional[Catalog]:
             return None
         return docs[0]
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
@@ -130,7 +130,7 @@ def list_by_path(path: str = "", limit: int = 1000) -> List[Catalog]:
             docs.append(Catalog(*doc))
         return docs
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -151,7 +151,7 @@ def list(limit: int = 1000) -> List[Catalog]:
             docs.append(Catalog(*doc))
         return docs
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -169,5 +169,5 @@ def has_path(path: str = "") -> bool:
             return False
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False

@@ -40,7 +40,7 @@ def save(catalog: Catalog, content: str = "") -> bool:
         collection.add(ids=[hash_id], documents=[content], metadatas=[meta])
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -60,5 +60,5 @@ def query(query: str = "", results: int = 5, threshold: float = 0.5) -> List[dic
         collection = chromadbvector.collection(COLLECTION)
         return chromadbvector.query(collection, query, results, threshold)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []

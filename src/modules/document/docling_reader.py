@@ -94,7 +94,7 @@ def reader(path: str = "") -> Optional[object]:
         result = converter.convert(path)
         return result
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
@@ -149,7 +149,7 @@ def reader_pages(path: str = "", init: int = 1, final: int = -1) -> List[str]:
 
         return pages
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -181,7 +181,7 @@ def reader_content(path: str, init: int = 1, final: int = -1) -> str:
         
         return "\n".join(all_text)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return ""
 
 
@@ -260,7 +260,7 @@ def extract_structured_content(path: str) -> dict:
         return structured_content
         
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return {}
 
 
@@ -309,7 +309,7 @@ def get_document_info(path: str) -> dict:
         return info
         
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return {}
 
 
@@ -341,7 +341,7 @@ def writer_dictionaries_to_csv(path: str, dictionaries: List[dict], mode: str = 
             writer.writerows(dictionaries)
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -355,5 +355,5 @@ def read_csv_to_dictionaries(path: str):
                     data[key].append(val)
         return data
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False

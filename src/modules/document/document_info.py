@@ -113,5 +113,5 @@ class DocumentInfo:
             # Retorna um dicionário com as informações extraídas
             return self.dict()
         except Exception as e:
-            logging.error(f"{e}\n%s", traceback.format_exc())
+            logging.error(f"{e}\n{traceback.format_exc()}")
             return None

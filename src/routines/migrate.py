@@ -11,4 +11,4 @@ def tables():
         DocInfoRepository.table_documents_info()
         ParagraphRepository.table_paragraphs_metadatas()
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")

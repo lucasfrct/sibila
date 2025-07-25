@@ -75,7 +75,7 @@ def dir(path: str = "") -> List[str]:
             paths.append(os.path.normpath(p))
         return paths
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -98,7 +98,7 @@ def info(path: str) -> Optional[DocumentInfo]:
         doc.extract(path)
         return doc
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
@@ -280,7 +280,7 @@ def document_pages_with_details(path: str = "", init: int = 1, final: int = 0) -
             
         return pages
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -324,7 +324,7 @@ def document_paragraphs_with_details(path: str = "", init: int = 1, final: int =
 
         return paragraphs
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -366,7 +366,7 @@ def document_phrases_with_details(path: str = "", init: int = 1, final: int = 0)
 
         return phrases
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -407,7 +407,7 @@ def read_lines_with_details(path: str = "", init: int = 1, final: int = 0) -> Li
                 lines.append(line)
         return lines
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -468,7 +468,7 @@ def convert_document_to_txt(path: str, path_out: str):
             file.write(content)
 
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
@@ -490,7 +490,7 @@ def open_txt(path: str) -> str | None:
             return file.read()
 
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
@@ -498,7 +498,7 @@ def save_csv(path: str, dictionaties: List[dict], mode: str = 'w') -> bool:
     try:
         return writer_dictionaries_to_csv(path, dictionaties, mode)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -506,7 +506,7 @@ def read_csv(path: str):
     try:
         return read_csv_to_dictionaries(path)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 

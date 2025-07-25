@@ -55,7 +55,7 @@ def reader(path: str = "") -> pdfplumber.PDF:
 
         return pdfplumber.open(path)
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
@@ -88,7 +88,7 @@ def reader_pages(path: str = "", init: int = 1, final: int = -1) -> List[str]:
 
         return pages
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -140,7 +140,7 @@ def writer_dictionaries_to_csv(path: str, dictionaries: List[dict], mode: str = 
             writer.writerows(dictionaries)
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -154,5 +154,5 @@ def read_csv_to_dictionaries(path: str):
                     data[key].append(val)
         return data
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False

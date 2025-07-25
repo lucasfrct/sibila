@@ -43,7 +43,7 @@ def table_documents_info() -> bool:
         """)
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -76,7 +76,7 @@ def save(document: DocumentInfo) -> bool:
         return True
 
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -89,7 +89,7 @@ def show_by_path(path: str = "") -> Optional[DocumentInfo]:
             return None
         return docs[0]
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return None
 
 
@@ -105,7 +105,7 @@ def list_by_path(path: str = "") -> List[DocumentInfo]:
             docs.append(DocumentInfo(*doc))
         return docs
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -119,7 +119,7 @@ def list() -> List[DocumentInfo]:
             docs.append(DocumentInfo(*doc))
         return docs
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -130,5 +130,5 @@ def has_path(path: str = "") -> bool:
             return False
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False

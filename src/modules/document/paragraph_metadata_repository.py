@@ -37,7 +37,7 @@ def table_paragraphs_metadatas() -> bool:
         """)
         return True
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -59,7 +59,7 @@ def save(paragraph: ParagraphMetadata) -> bool:
         return True
 
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return False
 
 
@@ -79,7 +79,7 @@ def list() -> List[ParagraphMetadata]:
 
         return paragraphs
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
 
 
@@ -99,5 +99,5 @@ def query(term: str = "", results: int = 10) -> List[ParagraphMetadata]:
 
         return paragraphs
     except Exception as e:
-        logging.error(f"{e}\n%s", traceback.format_exc())
+        logging.error(f"{e}\n{traceback.format_exc()}")
         return []
