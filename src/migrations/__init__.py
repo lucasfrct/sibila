@@ -1,1 +1,0 @@
-# Migration system for Sibila database versioning
