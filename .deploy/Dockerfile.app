@@ -1,0 +1,83 @@
+# ## python para desenvolvimento
+
+# ! ## STAGE 1 - Maquina para armazenar as ferramentas
+FROM python:3 AS environment-python-tools
+
+WORKDIR /app
+
+RUN python -m venv .
+
+# TOOLS
+RUN pip install pyvis
+RUN pip install joblib
+RUN pip install fastapi
+RUN pip install reportlab
+RUN pip install unidecode
+RUN pip install pdfplumber
+
+# ! ## STAGE 2 - Maquina databases
+FROM environment-python-tools AS environment-python-database
+
+WORKDIR /app
+
+## DATABASE
+RUN pip install postgres
+RUN pip install pysqlite3
+RUN pip install unicorn 
+RUN pip install chromadb
+RUN pip install onnxruntime 
+
+# ! ## STAGE 3 - Maquina para machine learn
+FROM environment-python-database AS environment-python-ml
+
+WORKDIR /app
+
+## MACHINE LEARN
+RUN pip install nltk
+RUN pip install numpy
+RUN pip install keras
+RUN pip install spacy
+RUN pip install pandas
+RUN pip install textblob
+RUN pip install scikit-learn
+RUN pip install pyspellchecker
+RUN python -m spacy download pt
+
+# ! ## STAGE 4 - Maquina para llm
+FROM environment-python-ml AS environment-python-llm
+## LLM
+RUN pip install ollama
+RUN pip install openai
+RUN pip install langchain
+RUN pip install tokenizers
+RUN pip install langchain-openai
+
+# ! ## STAGE 5 - Maquina para plot
+FROM environment-python-llm AS environment-python-plot
+
+WORKDIR /app
+
+## PLOT
+RUN pip install plot
+RUN pip install matplot
+RUN pip install networkx 
+RUN pip install matplotlib 
+
+# ! ## STAGE 6 - Maquina para armazenar as dependencias
+FROM environment-python-plot AS environment-python-dependences
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ! ## STAGE 7 - Maquina para excutar o ambiente de desenvolvimento
+FROM environment-python-dependences AS environment-python-dev
+
+WORKDIR /app
+
+COPY . ./
+
+VOLUME [ "/app/data", "/app/bookcase", "/app/lexicon", "/app/library", "/app/viz" ]
+
+CMD [ "python", "./main.py" ]

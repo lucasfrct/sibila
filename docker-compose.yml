@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+
+  sibila-ollama:
+    image: sibila-ollama
+    hostname: sibila-ollama
+    container_name: sibila-ollama
+    build:
+      context: ../
+      dockerfile: ./.deploy/Dockerfile.ollama
+    environment:
+      - ENVIRONMENT=development
+    volumes:
+      - ../data/.ollama:/root/.ollama
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - 7002:11434
+  
+  sibila-chatbot:
+    image: lobehub/lobe-chat
+    hostname: sibila-chatbot
+    container_name: sibila-chatbot
+    volumes:
+      - ./data/.ollama:/root/.ollama
+    environment:
+      - OLLAMA_PROXY_URL=http://sibila-ollama:11434/v1
+    restart: always
+    ports:
+      - 7003:3210
+
+  sibila-postgres:
+    image: pgvector/pgvector:pg17
+    hostname: sibila-postgres
+    container_name: sibila-postgres
+    environment:
+      - POSTGRES_USER=sibila
+      - POSTGRES_PASSWORD=sibila
+      - POSTGRES_DB=sibila
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "7001:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sibila -d sibila"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+
